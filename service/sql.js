@@ -30,8 +30,10 @@ function postData(data) {
       JSON.stringify(data.application.permissions),
       data.store_id
   ];
-
+  console.log(query)
+  console.log(params)
   db.run(query, params, function (err) {
+      console.log(this.changes)
     if (err) {
       return console.error(err.message);
     }
