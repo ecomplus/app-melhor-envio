@@ -42,7 +42,7 @@ let callback = (request, response) => {
       //console.log(body)
     })
     request.on('end', () => {
-      //console.log(JSON.stringify(qs.parse(body)))
+      console.log(JSON.stringify(qs.parse(body)))
       fs.writeFile('request.json', JSON.stringify(qs.parse(body)) , function (err) {
         if (err) throw err;
         console.log('Saved!');
