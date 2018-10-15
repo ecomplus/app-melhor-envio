@@ -43,16 +43,15 @@ let callback = (request, response) => {
       //console.log(body)
     })
     request.on('end', () => {
-      console.log(body)
-      sqlite.postData(qs.parse(body));
-      
-      response.write('Saved')
-      response.end()
+      //sqlite.create()
+      sqlite.postData(body)
+
     })
 
   } else {
     response.write('GET')
     response.end()
   }
-
+  response.write('Saved')
+  response.end()
 }

@@ -21,15 +21,16 @@ function getData(id) {
 }
 
 function postData(data) {
-  let query = `INSERT INTO me (application_id, application_app_id, application_title, authentication_id, authentication_permission, store_id) VALUES (?,?,?,?,?,?)`;
-  console.log(query)
-  console.log(data)
+  let query = `INSERT INTO auth_callback (application_id, application_app_id, application_title, authentication_id, authentication_permission, store_id) VALUES (?,?,?,?,?,?)`;
+  
+  data = JSON.parse(data)
+  
   let params = [
       data.application._id,
       data.application.app_id,
       data.application.title,
       data.authentication._id,
-      JSON.stringify(data.application.permissions),
+      JSON.stringify(data.authentication.permissions),
       data.store_id
   ];
 
@@ -48,8 +49,14 @@ function putData(){
 
 }
 
+function create(){
+    sql = `CREATE TABLE auth_callback ( id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATETIME NOT NULL DEFAULT current_timestamp, application_id INTEGER NOT NULL, application_app_id INTEGER NOT NULL, application_title VARCHAR NOT NULL, authentication_id INTEGER NOT NULL, authentication_permission TEXT NOT NULL, me_refresh_token TEXT NOT NULL )`
+    db.run(sql);
+}
+
 module.exports = {
     getData,
     postData,
-    putData
+    putData,
+    create
 }
