@@ -1,6 +1,6 @@
 const http = require('http');
 const qs = require('querystring')
-const port = 4200
+const port = process.env.PORT || 3000
 const fs = require('fs')
 
 http.createServer(function (request, response) {
