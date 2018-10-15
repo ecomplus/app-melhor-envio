@@ -43,7 +43,7 @@ let callback = (request, response) => {
       //console.log(body)
     })
     request.on('end', () => {
-      
+      console.log(JSON.stringify(qs.parse(body)))
       sqlite.postData(qs.parse(body));
       
       response.write('Saved')
