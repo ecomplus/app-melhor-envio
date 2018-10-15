@@ -1,0 +1,19 @@
+{
+    "name": "app-melhor-envio",
+    "version": "1.0.0",
+    "description": "Integração e-com.plus e melhor envio",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ecomclub/app-melhor-envio.git"
+    },
+    "author": "Talisson Ferreira",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/ecomclub/app-melhor-envio/issues"
+    },
+    "homepage": "https://github.com/ecomclub/app-melhor-envio#readme"
+}
