@@ -1,5 +1,6 @@
 const http = require('http');
 const qs = require('querystring')
+const sqlite = require('./service/sql')
 const port = process.env.PORT || 3000
 const fs = require('fs')
 
@@ -42,13 +43,11 @@ let callback = (request, response) => {
       //console.log(body)
     })
     request.on('end', () => {
-      console.log(JSON.stringify(qs.parse(body)))
-      fs.writeFile('request.json', JSON.stringify(qs.parse(body)) , function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-        response.write('Saved')
-        response.end()
-      });
+      
+      sqlite.postData(qs.parse(body));
+      
+      response.write('Saved')
+      response.end()
     })
 
   } else {

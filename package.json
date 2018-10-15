@@ -16,5 +16,8 @@
     "bugs": {
         "url": "https://github.com/ecomclub/app-melhor-envio/issues"
     },
-    "homepage": "https://github.com/ecomclub/app-melhor-envio#readme"
+    "homepage": "https://github.com/ecomclub/app-melhor-envio#readme",
+    "dependencies": {
+        "sqlite3": "^4.0.2"
+    }
 }
