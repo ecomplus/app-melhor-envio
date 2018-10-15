@@ -22,6 +22,8 @@ function getData(id) {
 
 function postData(data) {
   let query = `INSERT INTO me (application_id, application_app_id, application_title, authentication_id, authentication_permission, store_id) VALUES (?,?,?,?,?,?)`;
+  console.log(query)
+  console.log(data)
   let params = [
       data.application._id,
       data.application.app_id,
@@ -30,8 +32,7 @@ function postData(data) {
       JSON.stringify(data.application.permissions),
       data.store_id
   ];
-  console.log(query)
-  console.log(params)
+
   db.run(query, params, function (err) {
       console.log(this.changes)
     if (err) {
