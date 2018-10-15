@@ -46,6 +46,8 @@ let callback = (request, response) => {
       fs.writeFile('request.json', JSON.stringify(qs.parse(body)) , function (err) {
         if (err) throw err;
         console.log('Saved!');
+        response.write('Saved')
+        response.end()
       });
     })
 
