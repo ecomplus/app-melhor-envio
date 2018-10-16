@@ -1,20 +1,21 @@
-const sqlite = require('sqlite3').verbose();
-const path = require('path');
-const dbPath = path.resolve(__dirname, 'me.db')
+const sqlite = require('sqlite3').verbose()
+const path = require('path')
+const dbPath = path.resolve(__dirname, '../db/me.db')
 const TABLE = 'auth_callback'
 
 const db = new sqlite.Database(dbPath, (err) => {
   if (err) {
-    return console.error(err.message);
+    return console.error(err.message)
   }
-});
+  create()
+})
 
-function insert(data) {
-  let keys = [];
+function insert (data) {
+  let keys = []
   let values = []
-  let binds = [];
+  let binds = []
 
-  for (key in data) {
+  for (let key in data) {
     if (!data.hasOwnProperty(key)) continue
     keys.push(key)
     values.push(data[key])
@@ -31,7 +32,7 @@ function insert(data) {
   })
 }
 
-function select(data, callback) {
+function select (data, callback) {
   let key, value
   for (const index in data) {
     if (data.hasOwnProperty(index)) {
@@ -41,12 +42,12 @@ function select(data, callback) {
   }
 
   let query = 'SELECT * FROM ' + TABLE + ' WHERE ' + key + ' = ?'
-  
+
   db.get(query, value, (err, row) => {
     if (err) {
       return console.error(err.message)
     }
-    
+
     if (callback) {
       callback(row)
       return this
@@ -56,19 +57,19 @@ function select(data, callback) {
   })
 }
 
-function update(data, clause) {
-  let sets = [];
-  let where = [];
-  let values = [];
-  for (key in data) {
-    if (!data.hasOwnProperty(key)) continue;
-    sets.push(key + ' = ?');
-    values.push(data[key]);
+function update (data, clause) {
+  let sets = []
+  let where = []
+  let values = []
+  for (let key in data) {
+    if (!data.hasOwnProperty(key)) continue
+    sets.push(key + ' = ?')
+    values.push(data[key])
   }
-  for (key in clause) {
-    if (!clause.hasOwnProperty(key)) continue;
-    where.push(key + ' = ?');
-    values.push(clause[key]);
+  for (let key in clause) {
+    if (!clause.hasOwnProperty(key)) continue
+    where.push(key + ' = ?')
+    values.push(clause[key])
   }
 
   let query = 'UPDATE ' + TABLE + ' SET ' + sets.join(', ') + (where.length > 0 ? ' WHERE ' + where.join(' AND ') : '')
@@ -82,9 +83,22 @@ function update(data, clause) {
   })
 }
 
-function create() {
-  sql = `CREATE TABLE auth_callback ( id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, date DATETIME NOT NULL DEFAULT current_timestamp, application_id INTEGER NOT NULL, application_app_id INTEGER NOT NULL, application_title letCHAR NOT NULL, authentication_id INTEGER NOT NULL, authentication_permission TEXT NOT NULL, me_refresh_token TEXT NOT NULL )`
-  db.run(sql);
+function create () {
+  let sql = `CREATE TABLE IF NOT EXISTS auth_callback (
+      id                        INTEGER  PRIMARY KEY
+                                         UNIQUE
+                                         NOT NULL,
+      created_at                DATETIME NOT NULL
+                                         DEFAULT CURRENT_TIMESTAMP,
+      application_id            INTEGER  NOT NULL,
+      application_app_id        INTEGER  NOT NULL,
+      application_title         VARCHAR  NOT NULL,
+      authentication_id         INTEGER  NOT NULL,
+      authentication_permission TEXT,
+      me_refresh_token          TEXT,
+      store_id                  INTEGER  NOT NULL
+  )`
+  db.run(sql)
 }
 
 module.exports = {

@@ -1,40 +1,25 @@
-const http = require('http');
-const qs = require('querystring')
+const http = require('http')
 const dao = require('./service/sql')
 const port = process.env.PORT || 3000
 
 http.createServer(function (request, response) {
-
   let url = request.url
 
   switch (url) {
     case '/redirect':
-      redirect(request, response);
-      break;
+      redirect(request, response)
+      break
     case '/callback':
-      callback(request, response);
-      break;
+      callback(request, response)
+      break
     default:
-      break;
+      break
   }
+}).listen(port)
 
-}).listen(port);
-
-let redirect = (request, response) => {
-  if (request.method === 'POST') {
-    request.on('data', (data) => {
-      console.log(JSON.stringify(qs.parse(data)))
-    })
-    request.on('end', () => {
-      console.log(qs.parse(body))
-    })
-  } else {
-
-  }
-}
+let redirect = (request, response) => {}
 
 let callback = (request, response) => {
-
   if (request.method === 'POST') {
     let requestBody = ''
 
@@ -68,9 +53,8 @@ let callback = (request, response) => {
 
           dao.update(params, { application_app_id: requestBody.application.app_id })
         }
-      });
+      })
     })
-
   } else {
 
   }
@@ -78,4 +62,3 @@ let callback = (request, response) => {
   response.write('Saved')
   response.end()
 }
-
