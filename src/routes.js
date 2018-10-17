@@ -9,7 +9,8 @@ let routes = {
     post: (request, response) => {
       try {
         let requestBody = request.body
-        if (typeof requestBody.application.app_id !== 'undefined') {
+
+        if (!requestBody.access_token) {
           applicationCallback(request, response)
         } else {
           authenticationCallback(request, response)
@@ -183,6 +184,7 @@ let applicationCallback = (request, response) => {
 
 let authenticationCallback = (request, response) => {
   let requestBody = request.body
+  console.log(requestBody)
   let storeId = request.headers['x-store-id']
   dao.update({ ecom_at: requestBody.access_token }, { store_id: storeId }, (res, e) => {
     if (e) {
