@@ -18,6 +18,9 @@
     },
     "homepage": "https://github.com/ecomclub/app-melhor-envio#readme",
     "dependencies": {
+        "express": "^4.16.4",
+        "localStorage": "^1.0.4",
+        "melhor-envio": "^1.1.0",
         "sqlite3": "^4.0.2",
         "standard": "^12.0.1"
     }
