@@ -10,7 +10,7 @@ const db = new sqlite.Database(dbPath, (err) => {
   create()
 })
 
-function insert (data, callback) {
+function insert(data, callback) {
   let keys = []
   let values = []
   let binds = []
@@ -36,7 +36,7 @@ function insert (data, callback) {
   })
 }
 
-function select (data, callback) {
+function select(data, callback) {
   let key, value
   for (const index in data) {
     if (data.hasOwnProperty(index)) {
@@ -60,7 +60,7 @@ function select (data, callback) {
   })
 }
 
-function update (data, clause, callback) {
+function update(data, clause, callback) {
   let sets = []
   let where = []
   let values = []
@@ -90,20 +90,22 @@ function update (data, clause, callback) {
   })
 }
 
-function create () {
-  let sql = `CREATE TABLE IF NOT EXISTS auth_callback (
-      id                        INTEGER  PRIMARY KEY
-                                         UNIQUE
-                                         NOT NULL,
-      created_at                DATETIME NOT NULL
-                                         DEFAULT CURRENT_TIMESTAMP,
-      application_id            INTEGER  NOT NULL,
-      application_app_id        INTEGER  NOT NULL,
-      application_title         VARCHAR  NOT NULL,
-      authentication_id         INTEGER  NOT NULL,
-      authentication_permission TEXT,
-      me_refresh_token          TEXT,
-      store_id                  INTEGER  NOT NULL
+function create() {
+  let sql = `auth_callback (
+    id                        INTEGER      PRIMARY KEY
+                                           UNIQUE
+                                           NOT NULL,
+    created_at                DATETIME     NOT NULL
+                                           DEFAULT CURRENT_TIMESTAMP,
+    application_id            INTEGER      NOT NULL,
+    application_app_id        INTEGER      NOT NULL,
+    application_title         VARCHAR      NOT NULL,
+    authentication_id         INTEGER      NOT NULL,
+    authentication_permission TEXT,
+    me_refresh_token          TEXT,
+    store_id                  INTEGER      NOT NULL,
+    procedure_id              VARCHAR (24),
+    ecom_at                   TEXT
   )`
   db.run(sql)
 }

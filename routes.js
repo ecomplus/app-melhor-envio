@@ -7,51 +7,15 @@ let routes = {
     post: (request, response) => {
       try {
         let requestBody = request.body
-        dao.select({ application_app_id: requestBody.application.app_id }, (ret) => {
-          if (typeof ret === 'undefined') {
-            let params = {
-              application_id: requestBody.application._id,
-              application_app_id: requestBody.application.app_id,
-              application_title: requestBody.application.title,
-              authentication_id: requestBody.authentication._id,
-              authentication_permission: JSON.stringify(requestBody.authentication.permissions),
-              store_id: requestBody.store_id
-            }
-            dao.insert(params, (res, e) => {
-              if (e) {
-                response.status(400)
-                response.send({ 'Erro: ': e })
-              }
-              response.status(201)
-              response.header('Content-Type', 'application/json')
-              response.json({
-                sucess: true,
-                rows_inserted: res
-              })
-            })
-          } else {
-            let params = {
-              application_id: requestBody.application._id ? requestBody.application._id : ret.application_id,
-              application_app_id: requestBody.application.app_id ? requestBody.application.app_id : ret.application_app_id,
-              application_title: requestBody.application.title ? requestBody.application.title : ret.application_title,
-              authentication_id: requestBody.authentication._id ? requestBody.authentication._id : ret.authentication_id,
-              authentication_permission: JSON.stringify(requestBody.authentication.permissions) ? JSON.stringify(requestBody.authentication.permissions) : ret.authentication_permission,
-              store_id: requestBody.store_id ? requestBody.store_id : ret.store_id
-            }
-
-            dao.update(params, { application_app_id: requestBody.application.app_id }, (res, e) => {
-              if (e) {
-                response.send({ 'Erro: ': e })
-              }
-              response.status(200)
-              response.header('Content-Type', 'application/json')
-              response.json({
-                sucess: true,
-                rows_updated: res
-              })
-            })
-          }
-        })
+        switch (requestBody) {
+          case requestBody.application.app_id:
+            applicationCallback(request, response)
+            break
+          case requestBody.access_token:
+            authenticationCallback(request, response)
+            break
+          default: break
+        }
       } catch (e) {
         console.log(e)
         response.status(400)
@@ -93,8 +57,10 @@ let routes = {
   },
   redirect: {
     melhorenvio: (request, response) => {
-      let query = request.query
-
+      console.log(Buffer.from(request.query.data, 'base64').toString('ascii'))
+      let query = Buffer.from(request.query.data, 'base64').toString('ascii')
+      //query = JSON.parse()
+      console.log(query)
       let me = new MelhorEnvio({
         client_id: 31,
         client_secret: 'KYaPyv6odJuPvSbBg8TdIg4EErK4gWNDD5rE8oqU',
@@ -162,14 +128,95 @@ let routes = {
         form: params,
         json: true
       }
-      rq.post(options, () => {
-        
+      rq.post(options, (erro, res, body) => {
+        if (erro) {
+          response.status(400)
+          return response.send('Failed E-com.plus API Request')
+        }
+        console.log(body)
       })
     },
     get: (request, response) => {
 
     }
   }
+}
+
+let applicationCallback = (request, response) => {
+  let requestBody = request.body
+  dao.select({ application_app_id: requestBody.application.app_id }, (ret) => {
+    if (typeof ret === 'undefined') {
+      let params = {
+        application_id: requestBody.application._id,
+        application_app_id: requestBody.application.app_id,
+        application_title: requestBody.application.title,
+        authentication_id: requestBody.authentication._id,
+        authentication_permission: JSON.stringify(requestBody.authentication.permissions),
+        store_id: requestBody.store_id
+      }
+      dao.insert(params, (res, e) => {
+        if (e) {
+          response.status(400)
+          response.send({ 'Erro: ': e })
+        }
+        response.status(201)
+        response.header('Content-Type', 'application/json')
+        response.json({
+          sucess: true,
+          rows_inserted: res
+        })
+        requestAcessToken(requestBody.store_id, requestBody.authentication._id)
+      })
+    } else {
+      let params = {
+        application_id: requestBody.application._id ? requestBody.application._id : ret.application_id,
+        application_app_id: requestBody.application.app_id ? requestBody.application.app_id : ret.application_app_id,
+        application_title: requestBody.application.title ? requestBody.application.title : ret.application_title,
+        authentication_id: requestBody.authentication._id ? requestBody.authentication._id : ret.authentication_id,
+        authentication_permission: JSON.stringify(requestBody.authentication.permissions) ? JSON.stringify(requestBody.authentication.permissions) : ret.authentication_permission,
+        store_id: requestBody.store_id ? requestBody.store_id : ret.store_id
+      }
+
+      dao.update(params, { application_app_id: requestBody.application.app_id }, (res, e) => {
+        if (e) {
+          response.send({ 'Erro: ': e })
+        }
+        response.status(200)
+        response.header('Content-Type', 'application/json')
+        response.json({
+          sucess: true,
+          rows_updated: res
+        })
+      })
+    }
+  })
+}
+
+let authenticationCallback = (request, response) => {
+  let requestBody = request.body
+  let storeId = request.headers['X-Store-ID']
+  dao.update({ ecom_at: requestBody.access_token }, { store_id: storeId }, (res, e) => {
+    if (e) {
+      response.send({ 'Erro: ': e })
+    }
+    return response.end()
+  })
+}
+
+let requestAcessToken = (xStore, aId) => {
+  let options = {
+    method: 'POST',
+    uri: 'https://api.e-com.plus/v1/_callback.json',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Store-ID': xStore
+    },
+    form: {
+      _id: aId
+    },
+    json: true
+  }
+  rq.post(options)
 }
 
 module.exports = routes
