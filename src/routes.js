@@ -186,7 +186,7 @@ let authenticationCallback = (request, response) => {
   let requestBody = request.body
   console.log(requestBody)
   let storeId = request.headers['x-store-id']
-  dao.update({ ecom_at: requestBody.access_token }, { store_id: storeId }, (res, e) => {
+  dao.update({ ecom_at: requestBody.access_token }, { store_id: storeId, application_id: requestBody.my_id }, (res, e) => {
     if (e) {
       response.send({ 'Erro: ': e })
     }
