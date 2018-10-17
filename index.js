@@ -7,8 +7,8 @@ const routes = require('./routes')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-app.post('/callback', routes.postCallback)
-app.get('/callback', routes.getCallback)
-app.get('/redirect', routes.redirect)
+app.post('/callback', routes.callback.post)
+app.get('/callback', routes.callback.get)
+app.get('/redirect', routes.redirect.melhorenvio)
 
 app.listen(port)
