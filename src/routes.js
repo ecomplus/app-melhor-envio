@@ -55,10 +55,6 @@ let routes = {
   },
   redirect: {
     melhorenvio: (request, response) => {
-      console.log(Buffer.from(request.query.data, 'base64').toString('ascii'))
-      let query = Buffer.from(request.query.data, 'base64').toString('ascii')
-
-      console.log(query)
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
         client_secret: config.ME_CLIENT_SECRET,
@@ -66,11 +62,6 @@ let routes = {
         redirect_uri: config.ME_REDIRECT_URI,
         request_scope: config.ME_SCOPE
       })
-
-      localStorage.setItem('x_store_id', query.x_store_id)
-      localStorage.setItem('x_access_token', query.x_token)
-      localStorage.setItem('x_my_id', query.my_id)
-
       return response.redirect(301, me.auth.getToken())
     }
   },
