@@ -7,9 +7,14 @@ const rq = require('request')
 let routes = {
   callback: {
     post: (request, response) => {
+      console.log(typeof request.body === 'undefined')
+      if (!request.body) {
+        response.status(400)
+        return response.send({ erro: 'empty body' })
+      }
+
       try {
         let requestBody = request.body
-
         if (!requestBody.access_token) {
           applicationCallback(request, response)
         } else {
@@ -22,13 +27,14 @@ let routes = {
       }
     },
     get: (request, response) => {
-      const x_store_id = localStorage.getItem('x_store_id')
 
+      let x_store_id = localStorage.getItem('x_store_id')
+      
       if (!x_store_id) {
         response.status(400)
         return response.send('Erro: x_store_id not found.')
       }
-      let query = request.query
+
       let code = query.code
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
@@ -56,6 +62,11 @@ let routes = {
   },
   redirect: {
     melhorenvio: (request, response) => {
+      if (!request.query.x_store_id) {
+        response.status(400)
+        return response.send('Erro: x_store_id not found.')
+      }
+      localStorage.setItem('x_store_id', request.query.x_store_id)
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
         client_secret: config.ME_CLIENT_SECRET,
@@ -68,9 +79,6 @@ let routes = {
   },
   procedure: {
     new: (request, response) => {
-      const x_store_id = localStorage.getItem('x_store_id')
-      const x_access_token = localStorage.getItem('x_access_token')
-      const x_my_id = localStorage.getItem('x_my_id')
       let params = {
         title: 'Melhor Envio Calculate',
         short_description: 'After receive order, reduce products available quantity to control stock',
@@ -99,11 +107,6 @@ let routes = {
           }
         ],
         tag: 'new_order'
-      }
-
-      if (typeof x_store_id === 'undefined' && typeof x_access_token === 'undefined' && typeof x_my_id === 'undefined') {
-        response.status(400)
-        return response.send('Erro: x_store_id or x_access_token or x_my_id not found.')
       }
 
       let options = {
