@@ -1,20 +1,18 @@
+const config = require('./config')
 const dao = require('./service/sql')
 const MelhorEnvio = require('melhor-envio')
 const localStorage = require('localStorage')
 const rq = require('request')
+
 let routes = {
   callback: {
     post: (request, response) => {
       try {
         let requestBody = request.body
-        switch (requestBody) {
-          case requestBody.application.app_id:
-            applicationCallback(request, response)
-            break
-          case requestBody.access_token:
-            authenticationCallback(request, response)
-            break
-          default: break
+        if (typeof requestBody.application.app_id !== 'undefined') {
+          applicationCallback(request, response)
+        } else {
+          authenticationCallback(request, response)
         }
       } catch (e) {
         console.log(e)
@@ -32,11 +30,11 @@ let routes = {
       let query = request.query
       let code = query.code
       let me = new MelhorEnvio({
-        client_id: 31,
-        client_secret: 'KYaPyv6odJuPvSbBg8TdIg4EErK4gWNDD5rE8oqU',
-        sandbox: true,
-        redirect_uri: 'https://ecomplus-melhor-envio.herokuapp.com/callback',
-        request_scope: 'cart-read'
+        client_id: config.ME_CLIENT_ID,
+        client_secret: config.ME_CLIENT_SECRET,
+        sandbox: config.ME_SANDBOX,
+        redirect_uri: config.ME_REDIRECT_URI,
+        request_scope: config.ME_SCOPE
       })
       me.auth.getAuth(code, (body, res, err) => {
         if (err) {
@@ -59,14 +57,14 @@ let routes = {
     melhorenvio: (request, response) => {
       console.log(Buffer.from(request.query.data, 'base64').toString('ascii'))
       let query = Buffer.from(request.query.data, 'base64').toString('ascii')
-      //query = JSON.parse()
+
       console.log(query)
       let me = new MelhorEnvio({
-        client_id: 31,
-        client_secret: 'KYaPyv6odJuPvSbBg8TdIg4EErK4gWNDD5rE8oqU',
-        sandbox: true,
-        redirect_uri: 'https://ecomplus-melhor-envio.herokuapp.com/callback',
-        request_scope: 'cart-read'
+        client_id: config.ME_CLIENT_ID,
+        client_secret: config.ME_CLIENT_SECRET,
+        sandbox: config.ME_SANDBOX,
+        redirect_uri: config.ME_REDIRECT_URI,
+        request_scope: config.ME_SCOPE
       })
 
       localStorage.setItem('x_store_id', query.x_store_id)
@@ -194,7 +192,7 @@ let applicationCallback = (request, response) => {
 
 let authenticationCallback = (request, response) => {
   let requestBody = request.body
-  let storeId = request.headers['X-Store-ID']
+  let storeId = request.headers['x-store-id']
   dao.update({ ecom_at: requestBody.access_token }, { store_id: storeId }, (res, e) => {
     if (e) {
       response.send({ 'Erro: ': e })

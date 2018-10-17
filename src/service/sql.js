@@ -1,7 +1,8 @@
+const config = require('../config')
 const sqlite = require('sqlite3').verbose()
 const path = require('path')
-const dbPath = path.resolve(__dirname, '../db/me.db')
-const TABLE = 'auth_callback'
+const dbPath = path.resolve(__dirname, config.BD_PATH)
+const TABLE = config.TABLE_NAME
 
 const db = new sqlite.Database(dbPath, (err) => {
   if (err) {
@@ -91,7 +92,7 @@ function update(data, clause, callback) {
 }
 
 function create() {
-  let sql = `auth_callback (
+  let sql = `CREATE TABLE IF NOT EXISTS auth_callback (
     id                        INTEGER      PRIMARY KEY
                                            UNIQUE
                                            NOT NULL,
