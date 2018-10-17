@@ -10,7 +10,7 @@ const db = new sqlite.Database(dbPath, (err) => {
   create()
 })
 
-function insert (data) {
+function insert (data, callback) {
   let keys = []
   let values = []
   let binds = []
@@ -27,8 +27,12 @@ function insert (data) {
     if (err) {
       return console.error(err.message)
     }
-    console.log(`Rows inserted ${this.changes}`)
-    return this.changes
+    console.log(`Rows insert ${this.changes}`)
+    if (callback) {
+      return callback(this.changes, err)
+    }
+
+    return this
   })
 }
 
@@ -52,12 +56,11 @@ function select (data, callback) {
       callback(row)
       return this
     }
-
     return row
   })
 }
 
-function update (data, clause) {
+function update (data, clause, callback) {
   let sets = []
   let where = []
   let values = []
@@ -79,7 +82,11 @@ function update (data, clause) {
       return console.error(err.message)
     }
     console.log(`Rows updated ${this.changes}`)
-    return this.changes
+    if (callback) {
+      return callback(this.changes, err)
+    }
+
+    return this
   })
 }
 
