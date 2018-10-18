@@ -7,7 +7,6 @@ const rq = require('request')
 let routes = {
   callback: {
     post: (request, response) => {
-      console.log(typeof request.body === 'undefined')
       if (!request.body) {
         response.status(400)
         return response.send({ erro: 'empty body' })
@@ -27,14 +26,9 @@ let routes = {
       }
     },
     get: (request, response) => {
-      let x_store_id = localStorage.getItem('x_store_id')
-      
-      if (!x_store_id) {
-        response.status(400)
-        return response.send('Erro: x_store_id not found.')
-      }
-      
       let code = request.query.code
+      let x_store = request.query.state
+
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
         client_secret: config.ME_CLIENT_SECRET,
@@ -43,11 +37,12 @@ let routes = {
         request_scope: config.ME_SCOPE
       })
       me.auth.getAuth(code, (body, res, err) => {
+        console.log(body)
         if (err) {
           response.status(400)
           return response.send(err)
         }
-        dao.update({ me_refresh_token: body.refresh_token }, { store_id: x_store_id }, (res, err) => {
+        dao.update({ me_refresh_token: body.refresh_token }, { store_id: x_store }, (res, err) => {
           if (err) {
             response.status(400)
             return response.send(err)
@@ -61,11 +56,6 @@ let routes = {
   },
   redirect: {
     melhorenvio: (request, response) => {
-      if (!request.query.x_store_id) {
-        response.status(400)
-        return response.send('Erro: x_store_id not found.')
-      }
-      localStorage.setItem('x_store_id', request.query.x_store_id)
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
         client_secret: config.ME_CLIENT_SECRET,
@@ -73,7 +63,8 @@ let routes = {
         redirect_uri: config.ME_REDIRECT_URI,
         request_scope: config.ME_SCOPE
       })
-      return response.redirect(301, me.auth.getToken())
+      let url = me.auth.getToken() + '&state=' + request.query.x_store_id
+      return response.redirect(301, url)
     }
   },
   procedure: {
