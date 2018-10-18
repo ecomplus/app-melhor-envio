@@ -27,15 +27,14 @@ let routes = {
       }
     },
     get: (request, response) => {
-
       let x_store_id = localStorage.getItem('x_store_id')
       
       if (!x_store_id) {
         response.status(400)
         return response.send('Erro: x_store_id not found.')
       }
-
-      let code = query.code
+      
+      let code = request.query.code
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
         client_secret: config.ME_CLIENT_SECRET,
