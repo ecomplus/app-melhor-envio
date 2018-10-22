@@ -164,8 +164,7 @@ let routes = {
         return response.json(error)
       }
     }
-  },
-
+  }
 }
 
 let applicationCallback = (request, response) => {
