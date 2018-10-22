@@ -1,7 +1,6 @@
 const config = require('./config')
 const dao = require('./service/sql')
 const MelhorEnvio = require('melhor-envio')
-const localStorage = require('localStorage')
 const rq = require('request')
 
 let routes = {
@@ -17,7 +16,7 @@ let routes = {
         if (!requestBody.access_token) {
           applicationCallback(request, response)
         } else {
-          authenticationCallback(request, response)
+          setEcomApiToken(request, response)
         }
       } catch (e) {
         console.log(e)
@@ -26,9 +25,6 @@ let routes = {
       }
     },
     get: (request, response) => {
-      let code = request.query.code
-      let x_store = request.query.state
-
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
         client_secret: config.ME_CLIENT_SECRET,
@@ -36,18 +32,16 @@ let routes = {
         redirect_uri: config.ME_REDIRECT_URI,
         request_scope: config.ME_SCOPE
       })
-      me.auth.getAuth(code, (body, res, err) => {
-        console.log(body)
+      me.auth.getAuth(request.query.code, (body, res, err) => {
         if (err) {
           response.status(400)
           return response.send(err)
         }
-        dao.update({ me_refresh_token: body.refresh_token }, { store_id: x_store }, (res, err) => {
+        dao.update({ me_refresh_token: body.refresh_token }, { store_id: request.body.state }, (res, err) => {
           if (err) {
             response.status(400)
             return response.send(err)
           }
-          console.log(res)
           response.write('<script>window.close()</script>')
           return response.end()
         })
@@ -61,17 +55,24 @@ let routes = {
         client_secret: config.ME_CLIENT_SECRET,
         sandbox: config.ME_SANDBOX,
         redirect_uri: config.ME_REDIRECT_URI,
-        request_scope: config.ME_SCOPE
+        request_scope: config.ME_SCOPE,
+        state: request.query.x_store_id
       })
-      let url = me.auth.getToken() + '&state=' + request.query.x_store_id
+      let url = me.auth.getToken()
       return response.redirect(301, url)
     }
   },
   procedure: {
     new: (request, response) => {
+      let xStoreId = request.headers['X-Store-ID']
+      if (!xStoreId) {
+        response.status(400)
+        return response.send('X-Store-id not sent.')
+      }
+
       let params = {
-        title: 'Melhor Envio Calculate',
-        short_description: 'After receive order, reduce products available quantity to control stock',
+        title: 'Melhor Envio Shipment Update',
+        short_description: 'After received order, update melhor envio cart.',
         triggers: [
           {
             method: 'POST',
@@ -104,43 +105,91 @@ let routes = {
         uri: 'https://sandbox.e-com.plus/v1/procedures.json',
         headers: {
           'Content-Type': 'application/json',
-          'X-Store-ID': x_store_id,
-          'X-Access-Token': x_access_token,
-          'X-My-ID': x_my_id
+          'X-Store-ID': xStoreId,
+          'X-Access-Token': request.body.access_token,
+          'X-My-ID': request.body.my_id
         },
         form: params,
         json: true
       }
-      rq.post(options, (erro, res, body) => {
+      rq.post(options, (erro) => {
         if (erro) {
           response.status(400)
           return response.send('Failed E-com.plus API Request')
         }
-        console.log(body)
+        return response.end()
       })
     },
     get: (request, response) => {
-
     }
-  }
+  },
+  calculate: {
+    post: (request, response) => {
+      let xStoreId = request.headers['x-store-id']
+      // let token
+      let body = request.body
+      // let me_bearer
+
+      let me = new MelhorEnvio({
+        client_id: config.ME_CLIENT_ID,
+        client_secret: config.ME_CLIENT_SECRET,
+        sandbox: config.ME_SANDBOX,
+        redirect_uri: config.ME_REDIRECT_URI,
+        request_scope: config.ME_SCOPE
+      })
+
+      // busca me_token
+
+      try {
+        dao.select({ store_id: xStoreId }, (ret) => {
+          if (typeof ret === 'undefined') {
+            response.status(400)
+            return response.send('Token not found')
+          }
+
+          // atualiza token de acesso
+          me.auth.refreshToken(ret.me_refresh_token, (respBody, resp, erro) => {
+            if (erro) {
+              response.status(400)
+              return response.json(erro)
+            }
+
+            dao.update({ me_refresh_token: respBody.refresh_token }, { store_id: xStoreId }) // atualiza refresh_token vinculado ao store_id
+            me.setToken = respBody.access_token
+            // calcula frete
+            // let me = new MelhorEnvio({ bearer: me_bearer })
+            me.shipment.calculate(body, (respBody, resp, erro) => {
+              if (erro) {
+                response.status(400)
+                return response.json(erro)
+              }
+              return response.json(respBody)
+            })
+          })
+        })
+      } catch (error) {
+
+      }
+    }
+  },
+  
 }
 
 let applicationCallback = (request, response) => {
-  let requestBody = request.body
-  dao.select({ application_app_id: requestBody.application.app_id }, (ret) => {
+  dao.select({ application_app_id: request.body.application.app_id }, (ret) => {
     if (typeof ret === 'undefined') {
       let params = {
-        application_id: requestBody.application._id,
-        application_app_id: requestBody.application.app_id,
-        application_title: requestBody.application.title,
-        authentication_id: requestBody.authentication._id,
-        authentication_permission: JSON.stringify(requestBody.authentication.permissions),
-        store_id: requestBody.store_id
+        application_id: request.body.application._id,
+        application_app_id: request.body.application.app_id,
+        application_title: request.body.application.title,
+        authentication_id: request.body.authentication._id,
+        authentication_permission: JSON.stringify(request.body.authentication.permissions),
+        store_id: request.body.store_id
       }
       dao.insert(params, (res, e) => {
         if (e) {
           response.status(400)
-          response.send({ 'Erro: ': e })
+          return response.send({ 'Erro: ': e })
         }
         response.status(201)
         response.header('Content-Type', 'application/json')
@@ -148,19 +197,19 @@ let applicationCallback = (request, response) => {
           sucess: true,
           rows_inserted: res
         })
-        requestAcessToken(requestBody.store_id, requestBody.authentication._id)
+        return getEcomApiToken(request.body.store_id, request.body.authentication._id)
       })
     } else {
       let params = {
-        application_id: requestBody.application._id ? requestBody.application._id : ret.application_id,
-        application_app_id: requestBody.application.app_id ? requestBody.application.app_id : ret.application_app_id,
-        application_title: requestBody.application.title ? requestBody.application.title : ret.application_title,
-        authentication_id: requestBody.authentication._id ? requestBody.authentication._id : ret.authentication_id,
-        authentication_permission: JSON.stringify(requestBody.authentication.permissions) ? JSON.stringify(requestBody.authentication.permissions) : ret.authentication_permission,
-        store_id: requestBody.store_id ? requestBody.store_id : ret.store_id
+        application_id: request.body.application._id ? request.body.application._id : ret.application_id,
+        application_app_id: request.body.application.app_id ? request.body.application.app_id : ret.application_app_id,
+        application_title: request.body.application.title ? request.body.application.title : ret.application_title,
+        authentication_id: request.body.authentication._id ? request.body.authentication._id : ret.authentication_id,
+        authentication_permission: JSON.stringify(request.body.authentication.permissions) ? JSON.stringify(request.body.authentication.permissions) : ret.authentication_permission,
+        store_id: request.body.store_id ? request.body.store_id : ret.store_id
       }
 
-      dao.update(params, { application_app_id: requestBody.application.app_id }, (res, e) => {
+      dao.update(params, { application_app_id: request.body.application.app_id }, (res, e) => {
         if (e) {
           response.send({ 'Erro: ': e })
         }
@@ -175,32 +224,28 @@ let applicationCallback = (request, response) => {
   })
 }
 
-let authenticationCallback = (request, response) => {
-  let requestBody = request.body
-  console.log(requestBody)
-  let storeId = request.headers['x-store-id']
-  dao.update({ ecom_at: requestBody.access_token }, { store_id: storeId, application_id: requestBody.my_id }, (res, e) => {
+let setEcomApiToken = (request, response) => {
+  dao.update({ ecom_at: request.body.access_token }, { store_id: request.headers['x-store-id'], application_id: request.body.my_id }, (res, e) => {
     if (e) {
       response.send({ 'Erro: ': e })
     }
     return response.end()
   })
+
+  routes.procedure.new(request, response)
 }
 
-let requestAcessToken = (xStore, aId) => {
-  let options = {
+let getEcomApiToken = (xStore, aId) => {
+  return rq.post({
     method: 'POST',
     uri: 'https://api.e-com.plus/v1/_callback.json',
     headers: {
       'Content-Type': 'application/json',
       'X-Store-ID': xStore
     },
-    form: {
-      _id: aId
-    },
+    body: { '_id': aId },
     json: true
-  }
-  rq.post(options)
+  })
 }
 
 module.exports = routes
