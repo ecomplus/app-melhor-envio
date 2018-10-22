@@ -32,7 +32,10 @@ let routes = {
         redirect_uri: config.ME_REDIRECT_URI,
         request_scope: config.ME_SCOPE
       })
-      me.auth.getAuth(request.query.code, (body, res, err) => {
+
+      me.auth.getToken(request.query.code, (body, res, err) => {
+        console.log(body)
+        console.log(res)
         if (err) {
           response.status(400)
           return response.send(err)
@@ -58,7 +61,7 @@ let routes = {
         request_scope: config.ME_SCOPE,
         state: request.query.x_store_id
       })
-      let url = me.auth.getToken()
+      let url = me.auth.getAuth()
       return response.redirect(301, url)
     }
   },
