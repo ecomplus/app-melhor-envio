@@ -10,5 +10,5 @@ app.use(bodyParser.json())
 app.post('/callback', routes.callback.post)
 app.get('/callback', routes.callback.get)
 app.get('/redirect', routes.redirect.melhorenvio)
-
+app.post('/calculate', routes.calculate.post)
 app.listen(port)
