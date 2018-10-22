@@ -125,10 +125,7 @@ let routes = {
   },
   calculate: {
     post: (request, response) => {
-      let xStoreId = request.headers['x-store-id']
-      // let token
-      let body = request.body
-      // let me_bearer
+      let shipmentBody = request.body
 
       let me = new MelhorEnvio({
         client_id: config.ME_CLIENT_ID,
@@ -138,27 +135,22 @@ let routes = {
         request_scope: config.ME_SCOPE
       })
 
-      // busca me_token
-
       try {
-        dao.select({ store_id: xStoreId }, (ret) => {
+        dao.select({ store_id: request.headers['x-store-id'] }, (ret) => {
           if (typeof ret === 'undefined') {
             response.status(400)
             return response.send('Token not found')
           }
 
-          // atualiza token de acesso
           me.auth.refreshToken(ret.me_refresh_token, (respBody, resp, erro) => {
             if (erro) {
               response.status(400)
               return response.json(erro)
             }
 
-            dao.update({ me_refresh_token: respBody.refresh_token }, { store_id: xStoreId }) // atualiza refresh_token vinculado ao store_id
+            dao.update({ me_refresh_token: respBody.refresh_token }, { store_id: request.headers['x-store-id'] })
             me.setToken = respBody.access_token
-            // calcula frete
-            // let me = new MelhorEnvio({ bearer: me_bearer })
-            me.shipment.calculate(body, (respBody, resp, erro) => {
+            me.shipment.calculate(shipmentBody, (respBody, resp, erro) => {
               if (erro) {
                 response.status(400)
                 return response.json(erro)
@@ -168,11 +160,12 @@ let routes = {
           })
         })
       } catch (error) {
-
+        response.status(400)
+        return response.json(error)
       }
     }
   },
-  
+
 }
 
 let applicationCallback = (request, response) => {
