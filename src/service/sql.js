@@ -11,7 +11,7 @@ const db = new sqlite.Database(dbPath, (err) => {
   create()
 })
 
-function insert(data, callback) {
+function insert (data, callback) {
   let keys = []
   let values = []
   let binds = []
@@ -37,7 +37,7 @@ function insert(data, callback) {
   })
 }
 
-function select(data, callback) {
+function select (data, callback) {
   let key, value
   for (const index in data) {
     if (data.hasOwnProperty(index)) {
@@ -61,7 +61,7 @@ function select(data, callback) {
   })
 }
 
-function update(data, clause, callback) {
+function update (data, clause, callback) {
   let sets = []
   let where = []
   let values = []
@@ -91,7 +91,7 @@ function update(data, clause, callback) {
   })
 }
 
-function create() {
+function create () {
   let sql = `CREATE TABLE IF NOT EXISTS auth_callback (
     id                        INTEGER      PRIMARY KEY
                                            UNIQUE
