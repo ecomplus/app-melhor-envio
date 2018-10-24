@@ -41,9 +41,10 @@ let routes = {
     get: (request, response) => {
       // Recebe codigo de autorização e solicita token bearer
       me.auth.getToken(request.query.code, (body, res, err) => {
-        if (err) {
+        if (err || res.body.error) {
+          let m = err || res.body
           response.status(400)
-          return response.send(err)
+          return response.send(m)
         }
         // Insere save refresh token
         dao.update({ me_refresh_token: body.refresh_token }, { store_id: request.body.state }, (res, err) => {
