@@ -175,7 +175,14 @@ let routes = {
 
 // Parse das Orders para geração compra das etiquetas
 let parseOrder = {
-  from: (seller) => {
+  from: async (request) => {
+    let seller
+    try {
+      seller = await sellerInfor(request)
+    } catch (error) {
+      console.log(error)
+    }
+
     return {
       'name': seller.firstname + seller.lastname,
       'phone': seller.phone.phone,
@@ -426,16 +433,45 @@ let cart = (request, response) => {
 }
 
 // Parse da order para schema do melhor envio
-let toMeSchema = (order, seller, service, agency) => {
+let toMeSchema = (request, order, service, agency) => {
   return {
     'service': service,
     'agency': agency,
-    'from': parseOrder.from(seller),
+    'from': parseOrder.from(request),
     'to': parseOrder.to(order),
     'products': [parseOrder.products(order)],
     'package': parseOrder.package(order),
     'options': parseOrder.options(order)
   }
+}
+
+// Busca informações do lojista no ME
+let sellerInfor = (request, response) => {
+  return new Promise(resolve => {
+    // Busca refresh token do melhor envio
+    dao.select({ store_id: request.headers['x-store-id'] }, (retorno) => {
+      if (typeof retorno === 'undefined') {
+        response.status(400)
+        return response.send('Token not found')
+      }
+      // atualiza o token
+      me.auth.refreshToken(retorno.me_refresh_token, (respBody, resp, erro) => {
+        if (erro) {
+          response.status(400)
+          return response.send(erro)
+        }
+        // salva novo refresh token
+        dao.update({ me_refresh_token: respBody.refresh_token }, { store_id: request.headers['x-store-id'] })
+        // seta bearer na instancia da classe
+        me.setToken = respBody.access_token
+        me.user.me((body, resp, erro) => {
+          if (erro) {
+          }
+          return resolve(body)
+        })
+      })
+    })
+  })
 }
 
 module.exports = routes
