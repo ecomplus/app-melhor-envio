@@ -62,8 +62,7 @@ let routes = {
   redirect: {
     // Redireciona para oauth do melhor envio
     melhorenvio: (request, response) => {
-      me.setState = request.headers['X-Store-Id']
-      let url = me.auth.getAuth()
+      let url = me.auth.getAuth() + '?state=' + request.query.x_store_id
       return response.redirect(301, url)
     }
   },
