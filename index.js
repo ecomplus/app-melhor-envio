@@ -23,7 +23,7 @@ process.on('uncaughtException', (err) => {
   }
 
   let fs = require('fs')
-  fs.appendFile('/_stderr', msg, () => {
+  fs.appendFile('_stderr', msg, () => {
     process.exit(1)
   })
 })
