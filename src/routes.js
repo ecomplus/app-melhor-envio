@@ -32,7 +32,6 @@ let routes = {
           ecomSaveAppToken(request, response)
         }
       } catch (e) {
-        console.log(e)
         response.status(400)
         return response.send({ 'Erro: ': e })
       }
@@ -156,13 +155,14 @@ let routes = {
             // seta bearer na instancia da classe
             me.setToken = respBody.access_token
             // Calcula o frete
-            me.shipment.calculate(request.body, (respBody, resp, erro) => {
-              console.log(resp)
+            let schem = parseCalculate(request.body)
+
+            me.shipment.calculate(schem, (respBody, resp, erro) => {
               if (erro) {
                 response.status(400)
                 return response.send(erro)
               }
-              return response.send(JSON.stringify(respBody))
+              return response.send(JSON.stringify(parseToModule(respBody, schem.from, schem.to)))
             })
           })
         })
@@ -252,6 +252,112 @@ let parseOrder = {
         'key': 'nf-e' // chave da nf-e
       }
     }
+  }
+}
+
+// Parse da requisição para calculo
+let parseCalculate = (order) => {
+  return {
+    'from': {
+      'postal_code': order.params.from.zip,
+      'address': order.params.from.street,
+      'number': order.params.from.number
+    },
+    'to': {
+      'postal_code': order.params.to.zip,
+      'address': order.params.to.street,
+      'number': order.params.to.number
+    },
+    'products': parseProducts(order.params.items),
+    'options': {
+      'receipt': false,
+      'own_hand': false,
+      'collect': false
+    }
+  }
+}
+// Parse obj products
+let parseProducts = (data) => {
+  let products = []
+  products = data.map(element => {
+    let p = {
+      id: element.product_id,
+      weight: element.dimensions.weight,
+      width: element.dimensions.width.value,
+      height: element.dimensions.height.value,
+      length: element.dimensions.length.value,
+      insurance_value: element.final_price
+    }
+    return p
+  })
+  return products
+}
+
+// Parse para schema echo pkg
+let parseToModule = (data, from, to) => {
+  if (typeof data !== 'undefined') {
+    let retorno = []
+    retorno = data.filter(service => {
+      if (service.error) {
+        return false
+      }
+      return true
+    }).map(service => {
+      if (!service.error) {
+        return {
+          label: service.name,
+          carrier: service.company.name,
+          service_name: service.name,
+          service_code: service.id,
+          icon: service.company.picture,
+          shipping_line: {
+            package: {
+              dimensions: {
+                width: {
+                  value: service.packages[0].dimensions.width
+                },
+                height: {
+                  value: service.packages[0].dimensions.height
+                },
+                length: {
+                  value: service.packages[0].dimensions.length
+                }
+              },
+              weight: service.packages[0].weight
+            }
+          },
+          from: {
+            zip: from.postal_code,
+            street: from.address,
+            number: from.number
+          },
+          to: {
+            zip: to.postal_code,
+            street: to.address,
+            number: to.number
+          },
+          price: parseFloat(service.price),
+          discount: service.discount,
+          posting_deadline: {
+            days: service.delivery_time
+          },
+          delivery_time: {
+            days: service.delivery_time
+          },
+          custom_fields: [
+            {
+              field: 'by_melhor_envio',
+              value: 'true'
+            },
+            {
+              field: 'jadlog_agency',
+              value: 1
+            }
+          ]
+        }
+      }
+    })
+    return retorno
   }
 }
 
