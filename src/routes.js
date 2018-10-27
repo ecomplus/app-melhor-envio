@@ -46,7 +46,7 @@ let routes = {
           return response.send(m)
         }
         // Insere save refresh token
-        dao.update({ me_refresh_token: body.refresh_token }, { store_id: request.body.state }, (res, err) => {
+        dao.update({ me_refresh_token: body.refresh_token }, { store_id: request.query.state }, (res, err) => {
           if (err) {
             response.status(400)
             return response.send(err)
@@ -62,7 +62,8 @@ let routes = {
   redirect: {
     // Redireciona para oauth do melhor envio
     melhorenvio: (request, response) => {
-      let url = me.auth.getAuth() + '?state=' + request.query.x_store_id
+      let url = me.auth.getAuth() + '&state=' + request.query.x_store_id
+      console.log(url)
       return response.redirect(301, url)
     }
   },
