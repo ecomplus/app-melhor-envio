@@ -97,7 +97,7 @@ let routes = {
           {
             api: {
               external_api: {
-                uri: 'https://ecomplus-melhor-envio.herokuapp.com/procedure/orders'
+                uri: 'https://melhorenvio.ecomplus.biz/procedure/orders'
               }
             },
             method: 'POST',
