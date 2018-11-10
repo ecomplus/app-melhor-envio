@@ -10,15 +10,19 @@ db.serialize(async () => {
   if (!fs.existsSync(dbPath)) {
     console.log("Can't find a SQLite database, creating one now...")
     let auth = `CREATE TABLE IF NOT EXISTS app_auth (
-        id                        INTEGER  PRIMARY KEY AUTOINCREMENT,
-        created_at                DATETIME DEFAULT (CURRENT_TIMESTAMP),
-        application_id            STRING   NOT NULL,
-        application_app_id        STRING   NOT NULL,
-        authentication_id         STRING   NOT NULL,
-        authentication_permission STRING   NOT NULL,
-        store_id                INTEGER  NOT NULL,
-        app_token,
-        application_title         STRING
+      id                        INTEGER      PRIMARY KEY
+      UNIQUE  NOT NULL,
+      created_at                DATETIME     NOT NULL
+            DEFAULT CURRENT_TIMESTAMP,
+      application_id            INTEGER      NOT NULL,
+      application_app_id        INTEGER      NOT NULL,
+      application_title         VARCHAR      NOT NULL,
+      authentication_id         INTEGER      NOT NULL,
+      authentication_permission TEXT,
+      me_refresh_token          TEXT,
+      store_id                  INTEGER      NOT NULL,
+      procedure_id              VARCHAR (24),
+      app_token                 TEXT
     );`
     db.run(auth)
   }
