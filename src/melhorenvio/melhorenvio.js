@@ -95,6 +95,7 @@ class MelhorEnvioApp {
   setToken (token, xstoreId) {
     return this.me.auth.getToken(token)
       .then(retorno => {
+        console.log(retorno)
         let update = { me_refresh_token: retorno.refresh_token }
         let where = { store_id: xstoreId }
         sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
