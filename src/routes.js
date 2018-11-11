@@ -20,7 +20,7 @@ let routes = {
         response.end()
       } else {
         // Se houver são os dados de autorização da aplicação
-        auth.setAppToken(request.body)
+        auth.setAppToken(request.body, request.headers['x-store-id'])
         response.end()
       }
     },
@@ -30,7 +30,6 @@ let routes = {
       meController.setToken(request.query.code, request.query.state)
         .then(r => {
           routes.procedure.new(request, response)
-          response.write('<script>window.close()</script>')
         })
         .catch(e => {
           response.status(400)
@@ -58,62 +57,32 @@ let routes = {
         response.status(400)
         return response.send('X-Store-id not sent.')
       }
-
-      let params = {
-        title: 'Melhor Envio Shipment Update',
-        short_description: 'After received order, update melhor envio cart.',
-        triggers: [
-          {
-            resource: 'orders'
-          }
-        ],
-        conditionals: [
-          {
-            field: 'status',
-            operator: 'str_not_equal',
-            str_value: 'cancelled'
-          }
-        ],
-        webhooks: [
-          {
-            api: {
-              external_api: {
-                uri: 'https://melhorenvio.ecomplus.biz/notifications'
-              }
-            },
-            method: 'POST',
-            send_body: true
-          }
-        ],
-        tag: 'melhor_envio_orders'
-      }
-
-      let options = {
-        method: 'POST',
-        uri: 'https://sandbox.e-com.plus/v1/procedures.json',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Store-ID': request.headers['X-Store-ID'],
-          'X-Access-Token': request.body.access_token,
-          'X-My-ID': request.body.my_id
-        },
-        body: params,
-        json: true
-      }
-      rq.post(options, (erro) => {
-        if (erro) {
+      let eComController = new EcomPlus()
+      eComController.registerProcedure(request.query.state)
+        .then(r => {
+          console.log('Procedure registrado. ', r)
+          response.write('<script>window.close()</script>')
+          response.end()
+        })
+        .catch(e => {
+          console.log(e)
           response.status(400)
-          return response.send('Failed E-com.plus API Request')
-        }
-        return response.end()
-      })
+          return response.send(e)
+        })
     },
     // Recebe atualizações sobre as orders
     // vinculadas ao x-store-id setado
     // anteriomente no procedure
     orders: (request, response) => {
+      console.log(request.body)
+      let resource
+      if (request.method === 'POST') {
+        resource = request.body.resource_id
+      } else if (request.method === 'PATCH') {
+        resource = request.body.inserted_id
+      }
       let eComController = new EcomPlus()
-      eComController.getNewOrder(request.body, request.headers['x-store-id'])
+      eComController.getNewOrder(request.body, resource, request.headers['x-store-id'])
     }
   },
   // Cotação de frete

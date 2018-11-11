@@ -43,6 +43,7 @@ class Authentication {
 
   async setAppToken (app, xstoreid) {
     console.log(app)
+    console.log(xstoreid)
     try {
       sql.update({ app_token: app.access_token }, { store_id: xstoreid, authentication_id: app.my_id }, ENTITY).then(r => {
         console.log('Update Token')

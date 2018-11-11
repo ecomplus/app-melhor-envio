@@ -36,5 +36,4 @@ app.get('/callback', routes.callback.get)
 app.post('/calculate', routes.calculate.post)
 
 app.post('/notifications', routes.procedure.orders)
-
 app.listen(port)
