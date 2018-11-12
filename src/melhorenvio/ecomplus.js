@@ -47,7 +47,6 @@ class EcomPlus {
                       body.fulfillment_status.current === 'received_for_exchange' ||
                       body.fulfillment_status.current === 'returned'
             ) {
-  
             }
           }
         }
