@@ -51,7 +51,7 @@ let routes = {
   procedure: { // ok
     // Cria novo procedure e vinculando
     // ao determinado x-store-id enviado
-    // no request.headers[]
+    // no state enviado pelo melhor envio
     new: (request, response) => {
       if (!request.query.state) {
         response.status(400)
@@ -74,15 +74,22 @@ let routes = {
     // vinculadas ao x-store-id setado
     // anteriomente no procedure
     orders: (request, response) => {
-      console.log(request.body)
-      let resource
-      if (request.method === 'POST') {
-        resource = request.body.resource_id
-      } else if (request.method === 'PATCH') {
-        resource = request.body.inserted_id
-      }
       let eComController = new EcomPlus()
-      eComController.getNewOrder(request.body, resource, request.headers['x-store-id'])
+      let resource
+      if (request.body.method === 'POST') {
+        resource = request.body.inserted_id
+      } else if (request.body.method === 'PATCH') {
+        resource = request.body.resource_id
+      }
+      eComController.verifyOrder(request.body, resource, request.headers['x-store-id'])
+        .then(r => {
+          response.status(200)
+          response.send(r)
+        })
+        .catch(e => {
+          response.status(400)
+          response.end()
+        })
     }
   },
   // Cotação de frete
@@ -91,6 +98,7 @@ let routes = {
       let meController = new MelhorEnvioApp()
       meController.calculate(request.body, request.headers['x-store-id'])
         .then(resp => {
+          console.log(resp)
           response.status(200)
           return response.send(resp)
         })

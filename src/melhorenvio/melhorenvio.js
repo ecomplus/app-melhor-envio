@@ -16,6 +16,7 @@ class MelhorEnvioApp {
     this.parseOrder = {
       from: async (xstoreId) => {
         let seller = await this.getSellerInfor(xstoreId).catch(e => console.log(new Error('Seller não encontrado.')))
+        seller = JSON.parse(seller)
         return {
           'name': seller.firstname + seller.lastname,
           'phone': seller.phone.phone,
@@ -28,7 +29,7 @@ class MelhorEnvioApp {
           'number': seller.address.number,
           'district': seller.address.district,
           'city': seller.address.city.city,
-          'state_abbr': seller.address.state.state_abbr,
+          'state_abbr': seller.address.city.state.state_abbr,
           'country_id': seller.address.city.state.country.id,
           'postal_code': seller.address.postal_code
         }
@@ -52,23 +53,23 @@ class MelhorEnvioApp {
           'note': order.shipping_lines[0].to.near_to // (opcional) impresso na etiqueta
         }
       },
-      products: (order) => {
+      products: (items) => {
         let products = {}
-        order.forEach(element => {
+        items.forEach(element => {
           products = {
-            'name': element.items.name, // nome do produto (max 255 caracteres)
-            'quantity': element.items.quantity, // quantidade de items desse produto
-            'unitary_value': element.items.price // R$ 4,50 valor do produto
+            'name': element.name, // nome do produto (max 255 caracteres)
+            'quantity': element.quantity, // quantidade de items desse produto
+            'unitary_value': element.price // R$ 4,50 valor do produto
           }
         }, products)
         return products
       },
-      package: (order) => {
+      package: (packages) => {
         return {
-          'weight': order.shipping_lines[0].package.weight,
-          'width': order.shipping_lines[0].package.dimensions.width.value,
-          'height': order.shipping_lines[0].package.dimensions.height.value,
-          'length': order.shipping_lines[0].package.dimensions.length.value
+          'weight': packages.weight,
+          'width': packages.dimensions.width.value,
+          'height': packages.dimensions.height.value,
+          'length': packages.dimensions.length.value
         }
       },
       options: (order) => {
@@ -80,8 +81,8 @@ class MelhorEnvioApp {
           'reverse': false, // logística reversa (se for reversa = true, ainda sim from será o remetente e to o destinatário)
           'non_commercial': false, // envio de objeto não comercializável (flexibiliza a necessidade de pessoas júridicas para envios com transportadoras como Latam Cargo, porém se for um envio comercializável a mercadoria pode ser confisca pelo fisco)
           'invoice': { // nota fiscal (opcional se for Correios)
-            'number': '12345', // número da nota
-            'key': 'nf-e' // chave da nf-e
+            'number': order.shipping_lines[0].invoices[0].number, // número da nota
+            'key': order.shipping_lines[0].invoices[0].access_key // chave da nf-e
           }
         }
       }
@@ -106,6 +107,7 @@ class MelhorEnvioApp {
   }
 
   async calculate (payload, xstoreId) {
+    console.log(payload)
     let app = await sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
     if (app) {
       return new Promise(async (resolve, reject) => {
@@ -199,7 +201,9 @@ class MelhorEnvioApp {
                     value: service.packages[0].dimensions.length
                   }
                 },
-                weight: service.packages[0].weight
+                weight: {
+                  value: parseInt(service.packages[0].weight)
+                }
               }
             },
             from: {
@@ -238,49 +242,68 @@ class MelhorEnvioApp {
   }
 
   async cart (payload, xstoreId) {
-    let app = await sql.select({ store_id: xstoreId }).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
+    let app = await sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
     if (app) {
-      let meTokens = this.me.auth.refreshToken().catch(e => console.log(new Error(e)))
+      let meTokens = await this.me.auth.refreshToken(app.me_refresh_token).catch(e => console.log(new Error(e)))
       this.me.setToken = meTokens.access_token
 
       let update = { me_refresh_token: meTokens.refresh_token }
       let where = { store_id: xstoreId }
       sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
     }
-
-    let order = this.meCartSchema(payload)
-
-    this.me.user.cart(order)
-      .then(resp => {
-        this.me.shipment.checkout()
-          .then(resp => {
-            return resp.purchase
-          })
-          .catch(erro => console.log(new Error('Erro ao processar checkout do carrinho de frete | Erro: '), erro))
-      })
-      .catch(erro => console.log(new Error('Erro ao inserir cotação no carrinho de frete | Erro: '), erro))
+    let order = await this.meCartSchema(payload, 1149, xstoreId)
+    return new Promise((resolve, reject) => {
+      this.me.user.cart(order)
+        .then(resp => {
+          // console.log(resp)
+          this.registerLabel(resp, xstoreId, payload._id)
+          this.me.shipment.checkout()
+            .then(resp => {
+              resolve(resp)
+            })
+            .catch(erro => reject(new Error('Erro ao processar checkout do carrinho de frete | Erro: ' + erro)))
+        })
+        .catch(erro => reject(new Error('Erro ao inserir cotação no carrinho de frete | Erro: ' + erro)))
+    })
   }
 
-  meCartSchema (payload, order, service, agency) {
+  async meCartSchema (payload, agency, xstoreId) {
     return {
-      'service': service,
+      'service': payload.shipping_lines[0].app.service_code,
       'agency': agency,
-      'from': this.parseOrder.from(payload),
-      'to': this.parseOrder.to(order),
-      'products': [this.parseOrder.products(order)],
-      'package': this.parseOrder.package(order),
-      'options': this.parseOrder.options(order)
+      'from': await this.parseOrder.from(xstoreId),
+      'to': this.parseOrder.to(payload),
+      'products': [this.parseOrder.products(payload.items)],
+      'package': this.parseOrder.package(payload.shipping_lines[0].package),
+      'options': this.parseOrder.options(payload)
     }
   }
 
   async getSellerInfor (xstoreId) {
-    let app = await sql.select({ store_id: xstoreId }).catch(e => console.log(new Error('Erro ao buscar seller | Error: '), e))
-    let meTokens = await this.me.auth.refreshToken(app.me_refresh_token).catch(e => console.log(new Error(e)))
-    let update = { me_refresh_token: meTokens.refresh_token }
-    let where = { store_id: xstoreId }
-    sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
-    this.me.setToken = meTokens.access_token
+    let app = await sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
+    if (app) {
+      let meTokens = await this.me.auth.refreshToken(app.me_refresh_token).catch(e => console.log(new Error(e)))
+      this.me.setToken = meTokens.access_token
+
+      let update = { me_refresh_token: meTokens.refresh_token }
+      let where = { store_id: xstoreId }
+      sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
+    }
     return this.me.user.me().catch(e => console.log(new Error('Erro ao buscar seller | Error: '), e))
+  }
+
+  async registerLabel (label, xstoreId, resourceId) {
+    let params = {
+      label_id: label.id,
+      status: label.status,
+      resource_id: resourceId,
+      store_id: xstoreId
+    }
+    sql.insert(params, 'me_tracking')
+      .then(r => {
+        console.log('Label Registrada.')
+      })
+      .catch(e => console.log(e))
   }
 }
 

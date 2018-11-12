@@ -7,7 +7,7 @@ class EcomPlus {
     this.melhorEnvioApp = new MelhorEnvioApp()
   }
 
-  async getNewOrder (payload, resource, xstoreid) {
+  async verifyOrder (payload, resource, xstoreid) {
     let app = await SQL.select({ store_id: xstoreid }, ENTITY).catch(e => console.log(new Error('Erro ao buscar informações relacionadas ao X-Store-id informado | Erro: '), e))
     let options = {
       uri: 'https://api.e-com.plus/v1/orders/' + resource + '.json',
@@ -18,21 +18,40 @@ class EcomPlus {
         'X-My-ID': app.authentication_id
       }
     }
-    RQ.get(options, (erro, resp) => {
-      if (resp.statusCode >= 400) {
-        return false
-      }
-      if (typeof resp.fulfillment_status !== 'undefined') {
-        if (resp.fulfillment_status.current === 'ready_for_shipping') {
-          if (typeof resp.shipping_lines[0].app !== 'undefined' && resp.shipping_lines[0].app.service_code === '3') {
-            if (resp.shipping_lines[0].invoices[0].issuer_doc_number !== 'undefined') {
-              this.melhorEnvioApp.cart(resp, xstoreid)
+    return new Promise((resolve, reject) => {
+      RQ.get(options, async (erro, resp, body) => {
+        if (resp.statusCode >= 400) {
+          reject(resp.body)
+        }
+        body = JSON.parse(body)
+        if (typeof body.fulfillment_status !== 'undefined') {
+          if (typeof body.fulfillment_status.current !== 'undefined') {
+            if (body.fulfillment_status.current === 'ready_for_shipping') {
+              if (typeof body.shipping_lines !== 'undefined') {
+                if (typeof body.shipping_lines[0].app !== 'undefined' && body.shipping_lines[0].app.service_code === '3') {
+                  if (typeof body.shipping_lines[0].invoices !== 'undefined') {
+                    if (typeof body.shipping_lines[0].invoices[0].issuer.doc_number !== 'undefined') {
+                      resolve(this.melhorEnvioApp.cart(body, xstoreid))
+                    }
+                  }
+                }
+              }
+            } else if (body.fulfillment_status.current === 'ready_for_shipping' ||
+                      body.fulfillment_status.current === 'invoice_issued' ||
+                      body.fulfillment_status.current === 'in_production' ||
+                      body.fulfillment_status.current === 'in_separation' ||
+                      body.fulfillment_status.current === 'partially_shippend' ||
+                      body.fulfillment_status.current === 'shipped' ||
+                      body.fulfillment_status.current === 'partially_delivered' ||
+                      body.fulfillment_status.current === 'returned_for_exchange' ||
+                      body.fulfillment_status.current === 'received_for_exchange' ||
+                      body.fulfillment_status.current === 'returned'
+            ) {
+  
             }
-          } else {
-            this.melhorEnvioApp.cart(resp, xstoreid)
           }
         }
-      }
+      })
     })
   }
 
@@ -78,6 +97,10 @@ class EcomPlus {
         resolve(body)
       })
     })
+  }
+
+  async updateOrder () {
+
   }
 }
 module.exports = EcomPlus
