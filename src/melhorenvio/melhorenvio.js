@@ -97,39 +97,13 @@ class MelhorEnvioApp {
     return this.me.auth.getToken(token)
       .then(retorno => {
         console.log(retorno)
-        let update = { me_refresh_token: retorno.refresh_token }
+        let update = { me_refresh_token: retorno.refresh_token, me_access_token: retorno.access_token }
         let where = { store_id: xstoreId }
         sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
       })
       .catch(e => {
         console.log(new Error('Erro ao solicitar Token ao Melhor Envio. | Erro: '), e)
       })
-  }
-
-  async calculate (payload, xstoreId) {
-    console.log(payload)
-    let app = await sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
-    if (app) {
-      return new Promise(async (resolve, reject) => {
-        let meTokens = await this.me.auth.refreshToken(app.me_refresh_token).catch(e => reject(new Error(e)))
-        if (meTokens) {
-          let update = { me_refresh_token: meTokens.refresh_token }
-          let where = { store_id: xstoreId }
-          sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
-
-          this.me.setToken = meTokens.access_token
-
-          let schema = this.meCalculateSchema(payload)
-          if (!schema) {
-            reject(new Error('Formato inválido.'))
-          }
-
-          this.me.shipment.calculate(schema)
-            .then(resp => resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to))))
-            .catch(e => reject(new Error(e)))
-        }
-      })
-    }
   }
 
   meCalculateSchema (payload) {
@@ -241,29 +215,45 @@ class MelhorEnvioApp {
     }
   }
 
-  async cart (payload, xstoreId) {
-    let app = await sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
-    if (app) {
-      let meTokens = await this.me.auth.refreshToken(app.me_refresh_token).catch(e => console.log(new Error(e)))
-      this.me.setToken = meTokens.access_token
+  async calculate (payload, xstoreId) {
+    console.log(payload)
+    return new Promise(async (resolve, reject) => {
+      let meTokens = await this.getAppinfor(xstoreId)
+      if (meTokens) {
+        this.me.setToken = meTokens.me_access_token
+        let schema = this.meCalculateSchema(payload)
+        if (!schema) {
+          reject(new Error('Formato inválido.'))
+        }
+        this.me.shipment.calculate(schema)
+          .then(resp => resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to))))
+          .catch(e => reject(new Error(e)))
+      } else {
+        reject(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'))
+      }
+    })
+  }
 
-      let update = { me_refresh_token: meTokens.refresh_token }
-      let where = { store_id: xstoreId }
-      sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
-    }
-    let order = await this.meCartSchema(payload, 1149, xstoreId)
-    return new Promise((resolve, reject) => {
-      this.me.user.cart(order)
-        .then(resp => {
-          // console.log(resp)
-          this.registerLabel(resp, xstoreId, payload._id)
-          this.me.shipment.checkout()
-            .then(resp => {
-              resolve(resp)
-            })
-            .catch(erro => reject(new Error('Erro ao processar checkout do carrinho de frete | Erro: ' + erro)))
-        })
-        .catch(erro => reject(new Error('Erro ao inserir cotação no carrinho de frete | Erro: ' + erro)))
+  async cart (payload, xstoreId) {
+    return new Promise(async (resolve, reject) => {
+      let order = await this.meCartSchema(payload, 1149, xstoreId)
+      let meTokens = await this.getAppinfor(xstoreId)
+      if (meTokens) {
+        this.me.setToken = meTokens.me_access_token
+        this.me.user.cart(order)
+          .then(resp => {
+            // console.log(resp)
+            this.registerLabel(resp, xstoreId, payload._id)
+            this.me.shipment.checkout()
+              .then(resp => {
+                resolve(resp)
+              })
+              .catch(erro => reject(new Error('Erro ao processar checkout do carrinho de frete | Erro: ' + erro)))
+          })
+          .catch(erro => reject(new Error('Erro ao inserir cotação no carrinho de frete | Erro: ' + erro)))
+      } else {
+        reject(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'))
+      }
     })
   }
 
@@ -280,16 +270,9 @@ class MelhorEnvioApp {
   }
 
   async getSellerInfor (xstoreId) {
-    let app = await sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
-    if (app) {
-      let meTokens = await this.me.auth.refreshToken(app.me_refresh_token).catch(e => console.log(new Error(e)))
-      this.me.setToken = meTokens.access_token
-
-      let update = { me_refresh_token: meTokens.refresh_token }
-      let where = { store_id: xstoreId }
-      sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
-    }
-    return this.me.user.me().catch(e => console.log(new Error('Erro ao buscar seller | Error: '), e))
+    let meTokens = await this.getAppinfor(xstoreId)
+    this.me.setToken = meTokens.me_access_token
+    return this.me.user.me().catch(e => console.log(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'), e))
   }
 
   async registerLabel (label, xstoreId, resourceId) {
@@ -304,6 +287,10 @@ class MelhorEnvioApp {
         console.log('Label Registrada.')
       })
       .catch(e => console.log(e))
+  }
+
+  async getAppinfor (xstoreId) {
+    return sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
   }
 }
 
