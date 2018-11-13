@@ -285,6 +285,16 @@ class MelhorEnvioApp {
     sql.insert(params, 'me_tracking')
       .then(r => {
         console.log('Label Registrada.')
+        let Ecomplus = require('./ecomplus')
+        let controller = new Ecomplus()
+        controller.updateMetafields(label, resourceId, xstoreId)
+          .then(v => {
+            console.log('Hidden Metafields atualizado.')
+            console.log(v)
+          })
+          .catch(e => {
+            console.log(new Error('Erro: '), e)
+          })
       })
       .catch(e => console.log(e))
   }
