@@ -31,13 +31,17 @@ class EcomPlus {
                 if (typeof body.shipping_lines[0].app !== 'undefined' && body.shipping_lines[0].app.service_code === '3') {
                   if (typeof body.shipping_lines[0].invoices !== 'undefined') {
                     if (typeof body.shipping_lines[0].invoices[0].issuer.doc_number !== 'undefined') {
-                      resolve(this.melhorEnvioApp.cart(body, xstoreid))
+                      if (typeof body.hidden_metafields !== 'undefined') {
+                        let label = body.hidden_metafields.find(hidden => hidden.field === 'melhor_envio_label_id')
+                        if (!label) {
+                          resolve(this.melhorEnvioApp.cart(body, xstoreid))
+                        }
+                      }
                     }
                   }
                 }
               }
-            } else if (body.fulfillment_status.current === 'ready_for_shipping' ||
-                      body.fulfillment_status.current === 'invoice_issued' ||
+            } else if (body.fulfillment_status.current === 'invoice_issued' ||
                       body.fulfillment_status.current === 'in_production' ||
                       body.fulfillment_status.current === 'in_separation' ||
                       body.fulfillment_status.current === 'partially_shippend' ||
@@ -98,8 +102,34 @@ class EcomPlus {
     })
   }
 
-  async updateOrder () {
+  async updateOrder (resource, status) {
 
+  }
+
+  async updateMetafields (label, resource, xstoreid) {
+    let app = await SQL.select({ store_id: xstoreid }, ENTITY).catch(e => console.log(new Error('Erro ao buscar informações relacionadas ao X-Store-id informado | Erro: '), e))
+    return new Promise((resolve, reject) => {
+      let options = {
+        uri: 'https://api.e-com.plus/v1/orders/' + resource + '/hidden_metafields.json',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Store-ID': xstoreid,
+          'X-Access-Token': app.app_token,
+          'X-My-ID': app.authentication_id
+        },
+        body: {
+          field: 'melhor_envio_label_id',
+          value: label.id
+        },
+        json: true
+      }
+      RQ.post(options, (erro, resp, body) => {
+        if (resp.statusCode >= 400) {
+          reject(new Error(JSON.stringify(resp.body)))
+        }
+        resolve(body)
+      })
+    })
   }
 }
 module.exports = EcomPlus
