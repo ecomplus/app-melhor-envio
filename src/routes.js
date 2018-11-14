@@ -87,6 +87,7 @@ let routes = {
           response.send(r)
         })
         .catch(e => {
+          console.log(e)
           response.status(400)
           response.end()
         })
@@ -98,7 +99,7 @@ let routes = {
       let meController = new MelhorEnvioApp()
       meController.calculate(request.body, request.headers['x-store-id'])
         .then(resp => {
-          console.log(resp)
+          //console.log(resp)
           response.status(200)
           return response.send(resp)
         })

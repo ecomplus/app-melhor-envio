@@ -9,53 +9,58 @@ class EcomPlus {
 
   async verifyOrder (payload, resource, xstoreid) {
     let app = await SQL.select({ store_id: xstoreid }, ENTITY).catch(e => console.log(new Error('Erro ao buscar informações relacionadas ao X-Store-id informado | Erro: '), e))
-    let options = {
-      uri: 'https://api.e-com.plus/v1/orders/' + resource + '.json',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Store-ID': xstoreid,
-        'X-Access-Token': app.app_token,
-        'X-My-ID': app.authentication_id
-      }
-    }
-    return new Promise((resolve, reject) => {
-      RQ.get(options, async (erro, resp, body) => {
-        if (resp.statusCode >= 400) {
-          reject(resp.body)
+    if (app) {
+      let options = {
+        uri: 'https://api.e-com.plus/v1/orders/' + resource + '.json',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Store-ID': xstoreid,
+          'X-Access-Token': app.app_token,
+          'X-My-ID': app.authentication_id
         }
-        body = JSON.parse(body)
-        if (typeof body.fulfillment_status !== 'undefined') {
-          if (typeof body.fulfillment_status.current !== 'undefined') {
-            if (body.fulfillment_status.current === 'ready_for_shipping') {
-              if (typeof body.shipping_lines !== 'undefined') {
-                if (typeof body.shipping_lines[0].app !== 'undefined' && body.shipping_lines[0].app.service_code === '3') {
-                  if (typeof body.shipping_lines[0].invoices !== 'undefined') {
-                    if (typeof body.shipping_lines[0].invoices[0].issuer.doc_number !== 'undefined') {
-                      if (typeof body.hidden_metafields !== 'undefined') {
-                        let label = body.hidden_metafields.find(hidden => hidden.field === 'melhor_envio_label_id')
-                        if (!label) {
-                          resolve(this.melhorEnvioApp.cart(body, xstoreid))
+      }
+      return new Promise((resolve, reject) => {
+        RQ.get(options, async (erro, resp, body) => {
+          if (resp.statusCode >= 400) {
+            reject(resp.body)
+          }
+          body = JSON.parse(body)
+          if (typeof body.fulfillment_status !== 'undefined') {
+            if (typeof body.fulfillment_status.current !== 'undefined') {
+              if (body.fulfillment_status.current === 'ready_for_shipping') {
+                if (typeof body.shipping_lines !== 'undefined') {
+                  if (typeof body.shipping_lines[0].app !== 'undefined' && body.shipping_lines[0].app.service_code === '3') {
+                    if (typeof body.shipping_lines[0].invoices !== 'undefined') {
+                      if (typeof body.shipping_lines[0].invoices[0].issuer.doc_number !== 'undefined') {
+                        if (typeof body.hidden_metafields !== 'undefined') {
+                          let label = body.hidden_metafields.find(hidden => hidden.field === 'melhor_envio_label_id')
+                          if (!label) {
+                            resolve(this.melhorEnvioApp.cart(body, xstoreid))
+                          } else {
+                            reject(new Error('Etiqueta já foi gerada.'))
+                          }
                         }
                       }
                     }
                   }
                 }
+              } else if (body.fulfillment_status.current === 'invoice_issued' ||
+                        body.fulfillment_status.current === 'in_production' ||
+                        body.fulfillment_status.current === 'in_separation' ||
+                        body.fulfillment_status.current === 'partially_shippend' ||
+                        body.fulfillment_status.current === 'shipped' ||
+                        body.fulfillment_status.current === 'partially_delivered' ||
+                        body.fulfillment_status.current === 'returned_for_exchange' ||
+                        body.fulfillment_status.current === 'received_for_exchange' ||
+                        body.fulfillment_status.current === 'returned'
+              ) {
+  
               }
-            } else if (body.fulfillment_status.current === 'invoice_issued' ||
-                      body.fulfillment_status.current === 'in_production' ||
-                      body.fulfillment_status.current === 'in_separation' ||
-                      body.fulfillment_status.current === 'partially_shippend' ||
-                      body.fulfillment_status.current === 'shipped' ||
-                      body.fulfillment_status.current === 'partially_delivered' ||
-                      body.fulfillment_status.current === 'returned_for_exchange' ||
-                      body.fulfillment_status.current === 'received_for_exchange' ||
-                      body.fulfillment_status.current === 'returned'
-            ) {
             }
           }
-        }
+        })
       })
-    })
+    }
   }
 
   async registerProcedure (xstoreid) {

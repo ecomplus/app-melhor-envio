@@ -1,6 +1,7 @@
 const config = require('./../config')
 const sql = require('./sql')
 const MelhorEnvioSDK = require('melhor-envio')
+const rq = require('request')
 const ENTITY = 'app_auth'
 
 class MelhorEnvioApp {
@@ -106,15 +107,15 @@ class MelhorEnvioApp {
       })
   }
 
-  meCalculateSchema (payload) {
+  meCalculateSchema (payload, hidden) {
     if (!payload.params) {
       return false
     }
     return {
       'from': {
-        'postal_code': payload.params.from.zip,
-        'address': payload.params.from.street,
-        'number': payload.params.from.number
+        'postal_code': payload.application.hidden_data.from.zip,
+        'address': payload.application.hidden_data.from.street,
+        'number': payload.application.hidden_data.from.number
       },
       'to': {
         'postal_code': payload.params.to.zip,
@@ -146,7 +147,8 @@ class MelhorEnvioApp {
     return products
   }
 
-  ecpReponseSchema (payload, from, to) {
+  ecpReponseSchema (payload, from, to, pkgRequest) {
+    //console.log(payload)
     if (typeof payload !== 'undefined') {
       let retorno = []
       retorno = payload.filter(service => {
@@ -190,7 +192,7 @@ class MelhorEnvioApp {
               street: to.address,
               number: to.number
             },
-            price: parseFloat(service.price),
+            price: this.discount(pkgRequest, service),
             discount: service.discount,
             posting_deadline: {
               days: service.delivery_time
@@ -216,17 +218,26 @@ class MelhorEnvioApp {
   }
 
   async calculate (payload, xstoreId) {
-    console.log(payload)
+    //console.log(payload)
     return new Promise(async (resolve, reject) => {
       let meTokens = await this.getAppinfor(xstoreId)
       if (meTokens) {
         this.me.setToken = meTokens.me_access_token
+        if (typeof payload.params.items === 'undefined') {
+          if (typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
+            if (payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
+              resolve({ free_shipping_from_value: payload.application.hidden_data.shipping_discount[0].minimum_subtotal })
+            } 
+          } else {
+            resolve({ shipping_services: [] })
+          }
+        }
         let schema = this.meCalculateSchema(payload)
         if (!schema) {
           reject(new Error('Formato inválido.'))
         }
         this.me.shipment.calculate(schema)
-          .then(resp => resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to))))
+          .then(resp => resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to, payload))))
           .catch(e => reject(new Error(e)))
       } else {
         reject(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'))
@@ -258,15 +269,19 @@ class MelhorEnvioApp {
   }
 
   async meCartSchema (payload, agency, xstoreId) {
+    let app = await this.getAppinfor(xstoreId)
+    let hiddenData = await this.getAppHiddenData(app)
+    hiddenData = JSON.parse(hiddenData)
     return {
       'service': payload.shipping_lines[0].app.service_code,
-      'agency': agency,
+      'agency': hiddenData.jadlog_agency,
       'from': await this.parseOrder.from(xstoreId),
       'to': this.parseOrder.to(payload),
       'products': [this.parseOrder.products(payload.items)],
       'package': this.parseOrder.package(payload.shipping_lines[0].package),
       'options': this.parseOrder.options(payload)
     }
+
   }
 
   async getSellerInfor (xstoreId) {
@@ -301,6 +316,51 @@ class MelhorEnvioApp {
 
   async getAppinfor (xstoreId) {
     return sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
+  }
+
+  async getAppHiddenData (app) {
+    return new Promise((resolve, reject) => {
+      let options = {
+        uri: 'https://api.e-com.plus/v1/applications/' + app.application_id + '/hidden_data.json',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Store-ID': app.store_id,
+          'X-Access-Token': app.app_token,
+          'X-My-ID': app.authentication_id
+        }
+      }
+      rq.get(options, (erro, resp, body) => {
+        if (resp.statusCode >= 400) {
+          reject(resp.body)
+        }
+        resolve(body)
+      })
+    })
+  }
+
+  discount (payload, calculate) {
+    if (typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
+      if (payload.params.subtotal >= payload.application.hidden_data.shipping_discount[0].minimum_subtotal) {
+        let states = payload.application.hidden_data.shipping_discount[0].states.find(state => {
+          if (payload.params.to.zip >= state.from && state.to <= payload.params.to.zip) {
+            return true
+          }
+          return false
+        })
+        if (states) {
+          let total
+          if (typeof payload.application.hidden_data.shipping_discount[0].fixed_value !== 'undefined') {
+            total = calculate.price - payload.application.hidden_data.shipping_discount[0].fixed_value
+          }
+          if (typeof payload.application.hidden_data.shipping_discount[0].percent_value !== 'undefined') {
+            total -= (total * payload.application.hidden_data.shipping_discount[0].percent_value)
+          }
+          return Math.sign(total) === 1 ? parseFloat(total) : 0
+        }
+      }
+    } else {
+      return parseFloat(calculate.price)
+    }
   }
 }
 

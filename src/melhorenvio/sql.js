@@ -74,6 +74,28 @@ let select = async (data, entity) => {
   })
 }
 
+let setectAll = async (data, entity) => {
+  return new Promise((resolve, reject) => {
+    let key, value
+    for (const index in data) {
+      if (data.hasOwnProperty(index)) {
+        key = index
+        value = data[index]
+      }
+    }
+
+    let query = 'SELECT * FROM ' + entity + ' WHERE ' + key + ' = ?'
+
+    db.all(query, value, (err, row) => {
+      if (err) {
+        reject(new Error(err.message))
+      } else {
+        resolve(row || false)
+      }
+    })
+  })
+}
+
 let update = async (data, clause, entity) => {
   return new Promise((resolve, reject) => {
     let sets = []
