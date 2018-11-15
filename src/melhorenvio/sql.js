@@ -74,7 +74,7 @@ let select = async (data, entity) => {
   })
 }
 
-let setectAll = async (data, entity) => {
+let selectAll = async (data, entity) => {
   return new Promise((resolve, reject) => {
     let key, value
     for (const index in data) {
@@ -93,6 +93,14 @@ let setectAll = async (data, entity) => {
         resolve(row || false)
       }
     })
+  })
+}
+
+let each = (query, func) => {
+  db.each(query, (err, row) => {
+    if (!err) {
+      func(err, row)
+    }
   })
 }
 
@@ -127,5 +135,7 @@ let update = async (data, clause, entity) => {
 module.exports = {
   insert,
   select,
-  update
+  selectAll,
+  update,
+  each
 }
