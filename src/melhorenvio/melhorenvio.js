@@ -15,7 +15,7 @@ class MelhorEnvioApp {
     })
 
     this.parseOrder = {
-      from: async (xstoreId) => {
+      from: async (xstoreId, hiddenData) => {
         let seller = await this.getSellerInfor(xstoreId).catch(e => console.log(new Error('Seller não encontrado.')))
         seller = JSON.parse(seller)
         return {
@@ -148,7 +148,7 @@ class MelhorEnvioApp {
   }
 
   ecpReponseSchema (payload, from, to, pkgRequest) {
-    //console.log(payload)
+    // console.log(payload)
     if (typeof payload !== 'undefined') {
       let retorno = []
       retorno = payload.filter(service => {
@@ -218,7 +218,7 @@ class MelhorEnvioApp {
   }
 
   async calculate (payload, xstoreId) {
-    //console.log(payload)
+    // console.log(payload)
     return new Promise(async (resolve, reject) => {
       let meTokens = await this.getAppinfor(xstoreId)
       if (meTokens) {
@@ -227,7 +227,7 @@ class MelhorEnvioApp {
           if (typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
             if (payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
               resolve({ free_shipping_from_value: payload.application.hidden_data.shipping_discount[0].minimum_subtotal })
-            } 
+            }
           } else {
             resolve({ shipping_services: [] })
           }
@@ -247,7 +247,7 @@ class MelhorEnvioApp {
 
   async cart (payload, xstoreId) {
     return new Promise(async (resolve, reject) => {
-      let order = await this.meCartSchema(payload, 1149, xstoreId)
+      let order = await this.meCartSchema(payload, xstoreId)
       let meTokens = await this.getAppinfor(xstoreId)
       if (meTokens) {
         this.me.setToken = meTokens.me_access_token
@@ -268,20 +268,19 @@ class MelhorEnvioApp {
     })
   }
 
-  async meCartSchema (payload, agency, xstoreId) {
+  async meCartSchema (payload, xstoreId) {
     let app = await this.getAppinfor(xstoreId)
     let hiddenData = await this.getAppHiddenData(app)
     hiddenData = JSON.parse(hiddenData)
     return {
       'service': payload.shipping_lines[0].app.service_code,
       'agency': hiddenData.jadlog_agency,
-      'from': await this.parseOrder.from(xstoreId),
+      'from': await this.parseOrder.from(xstoreId, hiddenData),
       'to': this.parseOrder.to(payload),
       'products': [this.parseOrder.products(payload.items)],
       'package': this.parseOrder.package(payload.shipping_lines[0].package),
       'options': this.parseOrder.options(payload)
     }
-
   }
 
   async getSellerInfor (xstoreId) {
@@ -361,6 +360,39 @@ class MelhorEnvioApp {
     } else {
       return parseFloat(calculate.price)
     }
+  }
+
+  async getLabel (xstoreId, id) {
+    let meTokens = await this.getAppinfor(xstoreId)
+    this.me.setToken = meTokens.me_access_token
+    let ids = {
+      orders: [id]
+    }
+    return this.me.shipment.tracking(ids)
+  }
+
+  updateTokens () {
+    let query = 'SELECT me_refresh_token, me_access_token, store_id FROM ' + ENTITY
+    sql.each(query, (err, row) => {
+      if (!err) {
+        try {
+          this.me.setToken = row.me_access_token
+          this.me.auth.refreshToken(row.me_refresh_token)
+            .then(resp => {
+              if (resp) {
+                let data = {
+                  me_access_token: resp.access_token,
+                  me_refresh_token: resp.refresh_token
+                }
+                let where = { store_id: row.store_id }
+                sql.update(data, where, ENTITY).catch(e => console.log(new Error('Erro with melhor envio refresh token')))
+              }
+            })
+        } catch (error) {
+          console.log(new Error('Erro with auth request.', error))
+        }
+      }
+    })
   }
 }
 
