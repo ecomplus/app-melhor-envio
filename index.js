@@ -37,3 +37,5 @@ app.post('/calculate', routes.calculate.post)
 
 app.post('/notifications', routes.procedure.orders)
 app.listen(port)
+
+require('./src/tasks')
