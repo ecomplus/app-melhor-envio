@@ -37,7 +37,7 @@ class EcomPlus {
                           if (!label) {
                             resolve(this.melhorEnvioApp.cart(body, xstoreid))
                           } else {
-                            reject(new Error('Etiqueta já foi gerada.'))
+                            reject(new Error('Existe etiquetas vinculadas a order.'))
                           }
                         }
                       }
@@ -54,13 +54,43 @@ class EcomPlus {
                         body.fulfillment_status.current === 'received_for_exchange' ||
                         body.fulfillment_status.current === 'returned'
               ) {
-  
+                console.log("Update shipment status")
+                resolve(this.orderHasSameStatus(xstoreid, body))
               }
             }
           }
         })
       })
     }
+  }
+
+  async orderHasSameStatus (xstoreId, order) {
+    let orderLabel = order.hidden_metafields.find(hidden => hidden.field === 'melhor_envio_label_id')
+    console.log(orderLabel.value)
+    if (orderLabel) {
+      let melhorEnvioLabel = await this.melhorEnvioApp.getLabel(xstoreId, orderLabel.value)
+      if (melhorEnvioLabel[orderLabel.value]) {
+        melhorEnvioLabel = melhorEnvioLabel[orderLabel.value]
+        if (melhorEnvioLabel.status === 'posted') {
+          if (order.shipping_lines[0].status !== 'shipped') {
+            console.log("Update to shipped")
+            return this.updateOrderStatus(xstoreId, order._id, 'shipped')
+          }
+        } else if (melhorEnvioLabel.status === 'delivered') {
+          if (order.shipping_lines[0].status !== 'delivered') {
+            console.log("Update to delivered")
+            return this.updateOrderStatus(xstoreId, order._id, 'delivered')
+          }
+        } else if (melhorEnvioLabel.status === 'undelivered') {
+          if (order.shipping_lines[0].status !== 'returned') {
+            console.log("Update to undelivered")
+            return this.updateOrderStatus(xstoreId, order._id, 'returned')
+          }
+        }
+      }
+      return false
+    }
+    return false
   }
 
   async registerProcedure (xstoreid) {
@@ -107,8 +137,31 @@ class EcomPlus {
     })
   }
 
-  async updateOrder (resource, status) {
-
+  async updateOrderStatus (xstoreId, resource, status) {
+    let app = await SQL.select({ store_id: xstoreId }, ENTITY).catch(e => console.log(new Error('Erro ao buscar informações relacionadas ao X-Store-id informado | Erro: '), e))
+    return new Promise((resolve, reject) => {
+      let options = {
+        uri: 'https://api.e-com.plus/v1/orders/' + resource + '/shipping_lines.json',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Store-ID': xstoreId,
+          'X-Access-Token': app.app_token,
+          'X-My-ID': app.authentication_id
+        },
+        body: {
+          status: {
+            current: status
+          }
+        },
+        json: true
+      }
+      RQ.post(options, (erro, resp, body) => {
+        if (resp.statusCode >= 400) {
+          reject(new Error(JSON.stringify(resp.body)))
+        }
+        resolve(body)
+      })
+    })
   }
 
   async updateMetafields (label, resource, xstoreid) {
