@@ -52,6 +52,27 @@ class Authentication {
       return console.log(e)
     }
   }
+
+  async updateRefreshToken () {
+    let query = 'SELECT authentication_id, store_id FROM ' + ENTITY + ' WHERE updated_at < ' +
+    new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().replace('Z', '').replace('T', ' ')
+    // let params = [ new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().replace('Z', '').replace('T', ' ') ]
+    sql.each(query, (err, row) => {
+      if (!err) {
+        try {
+          let app = {
+            authentication: {
+              id: row.authentication_id
+            },
+            store_id: row.store_id
+          }
+          this.getAppToken(app)
+        } catch (error) {
+          console.log(new Error('Erro with auth request.', error))
+        }
+      }
+    })
+  }
 }
 
 module.exports = Authentication
