@@ -11,7 +11,9 @@ class TrackingQueqe {
   }
   async verifyStatus () {
     await this.getAllLabel()
-    console.log(this.label)
+    if (!this.label) {
+    }
+
   }
   getOrder () {
   }

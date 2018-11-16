@@ -54,10 +54,9 @@ class Authentication {
   }
 
   async updateRefreshToken () {
-    let query = 'SELECT authentication_id, store_id FROM ' + ENTITY + ' WHERE updated_at < ' +
-    new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().replace('Z', '').replace('T', ' ')
-    // let params = [ new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().replace('Z', '').replace('T', ' ') ]
+    let query = 'SELECT authentication_id, store_id FROM ' + ENTITY + ' WHERE updated_at < datetime("now", "-8 hours")'
     sql.each(query, (err, row) => {
+      console.log(row)
       if (!err) {
         try {
           let app = {
