@@ -224,7 +224,7 @@ class MelhorEnvioApp {
       let meTokens = await this.getAppinfor(xstoreId)
       if (meTokens) {
         this.me.setToken = meTokens.me_access_token
-        if (typeof payload.params.items === 'undefined') {
+        if (typeof payload.params.items !== 'undefined') {
           if (typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
             if (payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
               resolve({ free_shipping_from_value: payload.application.hidden_data.shipping_discount[0].minimum_subtotal })
