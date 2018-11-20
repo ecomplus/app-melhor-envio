@@ -108,7 +108,7 @@ class MelhorEnvioApp {
   }
 
   meCalculateSchema (payload, hidden) {
-    if (!payload.params) {
+    if (!payload.params || !payload.application.hidden_data) {
       return false
     }
     return {
@@ -235,7 +235,8 @@ class MelhorEnvioApp {
         }
         let schema = this.meCalculateSchema(payload)
         if (!schema) {
-          reject(new Error('Formato inválido.'))
+          resolve({ shipping_services: [] })
+          //reject(new Error('Formato inválido.'))
         }
         this.me.shipment.calculate(schema)
           .then(resp => resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to, payload))))
@@ -339,7 +340,7 @@ class MelhorEnvioApp {
   }
 
   discount (payload, calculate) {
-    if (typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
+    if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
       if (payload.params.subtotal >= payload.application.hidden_data.shipping_discount[0].minimum_subtotal) {
         let states = payload.application.hidden_data.shipping_discount[0].states.find(state => {
           if (payload.params.to.zip >= state.from && state.to <= payload.params.to.zip) {
