@@ -141,7 +141,7 @@ class EcomPlus {
     let app = await SQL.select({ store_id: xstoreId }, ENTITY).catch(e => console.log(new Error('Erro ao buscar informações relacionadas ao X-Store-id informado | Erro: '), e))
     return new Promise((resolve, reject) => {
       let options = {
-        uri: 'https://api.e-com.plus/v1/orders/' + resource + '/shipping_lines.json',
+        uri: 'https://api.e-com.plus/v1/orders/' + resource + '.json',
         headers: {
           'Content-Type': 'application/json',
           'X-Store-ID': xstoreId,
