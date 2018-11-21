@@ -1,5 +1,6 @@
 const ENTITY = 'me_tracking'
 const SQL = require('./sql')
+const logger = require('console-files')
 
 class TrackingQueqe {
   constructor (xstoreid) {
@@ -7,13 +8,12 @@ class TrackingQueqe {
     this.label = null
   }
   async getAllLabel () {
-    this.label = await SQL.select({ store_id: this.xstoreid }, ENTITY).catch(e => console.log('Erro: ', e))
+    this.label = await SQL.select({ store_id: this.xstoreid }, ENTITY).catch(e => logger.log('Erro: ', e))
   }
   async verifyStatus () {
     await this.getAllLabel()
     if (!this.label) {
     }
-
   }
   getOrder () {
   }
