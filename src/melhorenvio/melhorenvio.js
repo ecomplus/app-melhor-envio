@@ -192,7 +192,7 @@ class MelhorEnvioApp {
                 street: to.address,
                 number: to.number
               },
-              discount: service.discount,
+              discount: parseFloat(service.discount),
               posting_deadline: {
                 days: service.delivery_time
               },
