@@ -6,7 +6,7 @@ let melhorenvio = new ME()
 
 //
 setInterval(authentication.updateRefreshToken, 60 * 60 * 1000)
-// authentication.updateRefreshToken()
+authentication.updateRefreshToken()
 
 //
 setInterval(melhorenvio.updateTokens, 1000 * 60 * 60 * 24)

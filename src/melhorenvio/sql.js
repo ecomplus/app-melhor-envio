@@ -2,8 +2,7 @@ const config = require('../config')
 const sqlite = require('sqlite3').verbose()
 const path = require('path')
 const fs = require('fs')
-const dbPath = path.resolve(__dirname, config.BD_PATH)
-
+const dbPath = path.resolve(config.BD_PATH)
 const db = new sqlite.Database(dbPath)
 
 db.serialize(async () => {
@@ -20,11 +19,24 @@ db.serialize(async () => {
       authentication_id         INTEGER      NOT NULL,
       authentication_permission TEXT,
       me_refresh_token          TEXT,
-      store_id                  INTEGER      NOT NULL,
-      procedure_id              VARCHAR (24),
-      app_token                 TEXT
+      store_id                  INTEGER  NOT NULL,
+      app_token                 TEXT,
+      me_access_token           STRING
     );`
     db.run(auth)
+
+    let q2 = `CREATE TABLE IF NOT EXISTS me_tracking (
+      id          INTEGER  PRIMARY KEY AUTOINCREMENT
+                           NOT NULL,
+      created_at  DATETIME DEFAULT (CURRENT_TIMESTAMP) 
+                           NOT NULL,
+      label_id    STRING   NOT NULL,
+      status      STRING   NOT NULL,
+      resource_id STRING   NOT NULL,
+      updated_at  DATETIME,
+      store_id    INTEGER  NOT NULL
+    ); `
+    db.run(q2)
   }
 })
 
