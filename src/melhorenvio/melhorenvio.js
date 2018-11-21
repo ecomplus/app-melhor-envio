@@ -198,18 +198,18 @@ class MelhorEnvioApp {
               delivery_time: {
                 days: service.delivery_time
               },
-              price: this.discount(pkgRequest, service)
-            },
-            custom_fields: [
-              {
-                field: 'by_melhor_envio',
-                value: 'true'
-              },
-              {
-                field: 'jadlog_agency',
-                value: 1
-              }
-            ]
+              price: this.discount(pkgRequest, service),
+              custom_fields: [
+                {
+                  field: 'by_melhor_envio',
+                  value: 'true'
+                },
+                {
+                  field: 'jadlog_agency',
+                  value: 1
+                }
+              ]
+            }
           }
         }
       })
