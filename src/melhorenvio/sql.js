@@ -4,47 +4,39 @@ const path = require('path')
 const fs = require('fs')
 const dbPath = path.resolve(config.BD_PATH)
 const db = new sqlite.Database(dbPath)
-console.log(dbPath)
+
 db.serialize(async () => {
   if (!fs.existsSync(dbPath)) {
     console.log("Can't find a SQLite database, creating one now...")
-    let auth = `DROP TABLE IF EXISTS app_auth;
-
-    CREATE TABLE app_auth (
-        id                        INTEGER  PRIMARY KEY
-                                           UNIQUE
-                                           NOT NULL,
-        created_at                DATETIME NOT NULL
-                                           DEFAULT CURRENT_TIMESTAMP,
-        updated_at                DATETIME DEFAULT (CURRENT_TIMESTAMP),
-        application_app_id        INTEGER  NOT NULL,
-        application_id            INTEGER  NOT NULL,
-        application_title         VARCHAR  NOT NULL,
-        authentication_id         INTEGER  NOT NULL,
-        authentication_permission TEXT,
-        me_refresh_token          TEXT,
-        store_id                  INTEGER  NOT NULL,
-        app_token                 TEXT,
-        me_access_token           STRING
-    );
-    -- Table: me_tracking
-    DROP TABLE IF EXISTS me_tracking;
-    
-    CREATE TABLE me_tracking (
-        id          INTEGER  PRIMARY KEY AUTOINCREMENT
-                             NOT NULL,
-        created_at  DATETIME DEFAULT (CURRENT_TIMESTAMP) 
-                             NOT NULL,
-        label_id    STRING   NOT NULL,
-        status      STRING   NOT NULL,
-        resource_id STRING   NOT NULL,
-        updated_at  DATETIME,
-        store_id    INTEGER  NOT NULL
+    let auth = `CREATE TABLE IF NOT EXISTS app_auth (
+      id                        INTEGER      PRIMARY KEY
+      UNIQUE  NOT NULL,
+      created_at                DATETIME     NOT NULL
+            DEFAULT CURRENT_TIMESTAMP,
+      application_id            INTEGER      NOT NULL,
+      application_app_id        INTEGER      NOT NULL,
+      application_title         VARCHAR      NOT NULL,
+      authentication_id         INTEGER      NOT NULL,
+      authentication_permission TEXT,
+      me_refresh_token          TEXT,
+      store_id                  INTEGER      NOT NULL,
+      procedure_id              VARCHAR (24),
+      app_token                 TEXT
     );`
-    db.run(auth, (result, erro) => {
-      console.log(result)
-      console.log(erro)
-    })
+    db.run(auth)
+
+    let q2 = `CREATE TABLE IF NOT EXISTS me_tracking (
+      id          INTEGER  PRIMARY KEY AUTOINCREMENT
+                           NOT NULL,
+      created_at  DATETIME DEFAULT (CURRENT_TIMESTAMP) 
+                           NOT NULL,
+      label_id    STRING   NOT NULL,
+      status      STRING   NOT NULL,
+      resource_id STRING   NOT NULL,
+      updated_at  DATETIME,
+      store_id    INTEGER  NOT NULL
+    ); `
+    db.run(q2)
   }
 })
 
