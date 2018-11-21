@@ -207,7 +207,7 @@ class MelhorEnvioApp {
                 },
                 {
                   field: 'jadlog_agency',
-                  value: 1
+                  value: '1'
                 }
               ]
             }
