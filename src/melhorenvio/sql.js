@@ -19,9 +19,9 @@ db.serialize(async () => {
       authentication_id         INTEGER      NOT NULL,
       authentication_permission TEXT,
       me_refresh_token          TEXT,
-      store_id                  INTEGER      NOT NULL,
-      procedure_id              VARCHAR (24),
-      app_token                 TEXT
+      store_id                  INTEGER  NOT NULL,
+      app_token                 TEXT,
+      me_access_token           STRING
     );`
     db.run(auth)
 
