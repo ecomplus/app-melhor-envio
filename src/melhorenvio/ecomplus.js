@@ -2,7 +2,7 @@ const SQL = require('./sql')
 const RQ = require('request')
 const MelhorEnvioApp = require('./melhorenvio')
 const ENTITY = 'app_auth'
-const logger = require('logger-files')
+const logger = require('console-files')
 
 class EcomPlus {
   constructor () {

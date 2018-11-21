@@ -3,10 +3,10 @@ const sql = require('./sql')
 const MelhorEnvioSDK = require('melhor-envio')
 const rq = require('request')
 const ENTITY = 'app_auth'
-const logger = require('logger-files')
+const logger = require('console-files')
 
 class MelhorEnvioApp {
-  constructor() {
+  constructor () {
     this.me = new MelhorEnvioSDK({
       client_id: config.ME_CLIENT_ID,
       client_secret: config.ME_CLIENT_SECRET,
@@ -91,11 +91,11 @@ class MelhorEnvioApp {
     }
   }
 
-  requestOAuth(xstoreId) {
+  requestOAuth (xstoreId) {
     return this.me.auth.getAuth() + '&state=' + xstoreId
   }
 
-  setToken(token, xstoreId) {
+  setToken (token, xstoreId) {
     return this.me.auth.getToken(token)
       .then(retorno => {
         logger.log(retorno)
@@ -108,7 +108,7 @@ class MelhorEnvioApp {
       })
   }
 
-  meCalculateSchema(payload, hidden) {
+  meCalculateSchema (payload, hidden) {
     if (!payload.params || !payload.application.hidden_data) {
       return false
     }
@@ -132,7 +132,7 @@ class MelhorEnvioApp {
     }
   }
 
-  meCalculateSchemaProducts(itens) {
+  meCalculateSchemaProducts (itens) {
     let products = []
     products = itens.map(element => {
       let p = {
@@ -148,7 +148,7 @@ class MelhorEnvioApp {
     return products
   }
 
-  ecpReponseSchema(payload, from, to, pkgRequest) {
+  ecpReponseSchema (payload, from, to, pkgRequest) {
     // logger.log(payload)
     if (typeof payload !== 'undefined') {
       let retorno = []
@@ -218,7 +218,7 @@ class MelhorEnvioApp {
     }
   }
 
-  async calculate(payload, xstoreId) {
+  async calculate (payload, xstoreId) {
     return new Promise(async (resolve, reject) => {
       let meTokens = await this.getAppinfor(xstoreId)
       if (meTokens) {
@@ -235,7 +235,7 @@ class MelhorEnvioApp {
         let schema = this.meCalculateSchema(payload)
         if (!schema) {
           resolve({ shipping_services: [] })
-          //reject(new Error('Formato inválido.'))
+          // reject(new Error('Formato inválido.'))
         }
         this.me.shipment.calculate(schema)
           .then(resp => resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to, payload))))
@@ -246,7 +246,7 @@ class MelhorEnvioApp {
     })
   }
 
-  async cart(payload, xstoreId) {
+  async cart (payload, xstoreId) {
     return new Promise(async (resolve, reject) => {
       let order = await this.meCartSchema(payload, xstoreId)
       let meTokens = await this.getAppinfor(xstoreId)
@@ -269,7 +269,7 @@ class MelhorEnvioApp {
     })
   }
 
-  async meCartSchema(payload, xstoreId) {
+  async meCartSchema (payload, xstoreId) {
     let app = await this.getAppinfor(xstoreId)
     let hiddenData = await this.getAppHiddenData(app)
     hiddenData = JSON.parse(hiddenData)
@@ -284,13 +284,13 @@ class MelhorEnvioApp {
     }
   }
 
-  async getSellerInfor(xstoreId) {
+  async getSellerInfor (xstoreId) {
     let meTokens = await this.getAppinfor(xstoreId)
     this.me.setToken = meTokens.me_access_token
     return this.me.user.me().catch(e => logger.error(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'), e))
   }
 
-  async registerLabel(label, xstoreId, resourceId) {
+  async registerLabel (label, xstoreId, resourceId) {
     let params = {
       label_id: label.id,
       status: label.status,
@@ -314,11 +314,11 @@ class MelhorEnvioApp {
       .catch(e => logger.log(e))
   }
 
-  async getAppinfor(xstoreId) {
+  async getAppinfor (xstoreId) {
     return sql.select({ store_id: xstoreId }, ENTITY).catch(erro => logger.error(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
   }
 
-  async getAppHiddenData(app) {
+  async getAppHiddenData (app) {
     return new Promise((resolve, reject) => {
       let options = {
         uri: 'https://api.e-com.plus/v1/applications/' + app.application_id + '/hidden_data.json',
@@ -338,7 +338,7 @@ class MelhorEnvioApp {
     })
   }
 
-  discount(payload, calculate) {
+  discount (payload, calculate) {
     logger.log(payload)
     logger.log(calculate)
     if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
@@ -367,7 +367,7 @@ class MelhorEnvioApp {
     }
   }
 
-  async getLabel(xstoreId, id) {
+  async getLabel (xstoreId, id) {
     let meTokens = await this.getAppinfor(xstoreId)
     this.me.setToken = meTokens.me_access_token
     let ids = {
@@ -376,7 +376,7 @@ class MelhorEnvioApp {
     return this.me.shipment.tracking(ids)
   }
 
-  updateTokens() {
+  updateTokens () {
     let query = 'SELECT me_refresh_token, me_access_token, store_id FROM ' + ENTITY
     sql.each(query, (err, row) => {
       if (!err) {

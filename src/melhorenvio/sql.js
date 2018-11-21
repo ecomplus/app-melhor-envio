@@ -4,7 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const dbPath = path.resolve(config.BD_PATH)
 const db = new sqlite.Database(dbPath)
-const logger = require('logger-files')
+const logger = require('console-files')
 
 db.serialize(async () => {
   if (!fs.existsSync(dbPath)) {

@@ -1,6 +1,6 @@
 const ENTITY = 'me_tracking'
 const SQL = require('./sql')
-const logger = require('logger-files')
+const logger = require('console-files')
 
 class TrackingQueqe {
   constructor (xstoreid) {

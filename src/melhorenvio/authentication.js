@@ -1,7 +1,7 @@
 const sql = require('./sql')
 const rq = require('request')
 const ENTITY = 'app_auth'
-const logger = require('logger-files')
+const logger = require('console-files')
 
 class Authentication {
   async getAppInfor (app) {
