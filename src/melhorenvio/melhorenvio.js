@@ -218,7 +218,7 @@ class MelhorEnvioApp {
   }
 
   async calculate (payload, xstoreId) {
-    // console.log(payload)
+    console.log(payload)
     return new Promise(async (resolve, reject) => {
       let meTokens = await this.getAppinfor(xstoreId)
       if (meTokens) {
