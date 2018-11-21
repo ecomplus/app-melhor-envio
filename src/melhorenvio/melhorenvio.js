@@ -200,6 +200,7 @@ class MelhorEnvioApp {
                 days: service.delivery_time
               },
               price: this.discount(pkgRequest, service),
+              total_price: this.discount(pkgRequest, service),
               custom_fields: [
                 {
                   field: 'by_melhor_envio',
@@ -243,11 +244,11 @@ class MelhorEnvioApp {
               shipping_services: this.ecpReponseSchema(resp, schema.from, schema.to, payload)
             }
             //resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to, payload)))
-              if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
-                if (typeof payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
-                  obj.free_shipping_from_value = payload.application.hidden_data.shipping_discount[0].minimum_subtotal
-                }
+            if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
+              if (typeof payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
+                obj.free_shipping_from_value = payload.application.hidden_data.shipping_discount[0].minimum_subtotal
               }
+            }
             resolve(JSON.stringify(obj))
           })
           .catch(e => reject(new Error(e)))
@@ -352,6 +353,7 @@ class MelhorEnvioApp {
   discount(payload, calculate) {
     logger.log(payload)
     logger.log(calculate)
+    let finalPrince
     if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
       if (payload.params.subtotal >= payload.application.hidden_data.shipping_discount[0].minimum_subtotal) {
         let states = payload.application.hidden_data.shipping_discount[0].states.find(state => {
@@ -368,14 +370,27 @@ class MelhorEnvioApp {
           if (typeof payload.application.hidden_data.shipping_discount[0].percent_value !== 'undefined') {
             total -= (total * payload.application.hidden_data.shipping_discount[0].percent_value)
           }
-          return Math.sign(total) === 1 ? parseFloat(total) : 0
+          finalPrince = Math.sign(total) === 1 ? parseFloat(total) : 0
         }
       } else {
-        return parseFloat(calculate.price)
+        finalPrince = parseFloat(calculate.price)
       }
     } else {
-      return parseFloat(calculate.price)
+      finalPrince = parseFloat(calculate.price)
     }
+
+    if (typeof payload.application.hidden_data !== 'undefined') {
+      if (typeof payload.application.hidden_data.shipping_addition !== 'undefined') {
+        let addition
+        if(payload.application.hidden_data.shipping_addition.type === 'percentage') {
+          finalPrince += (finalPrince * payload.application.hidden_data.shipping_addition.value)
+        } else if (payload.application.hidden_data.shipping_addition.type === 'fixed') {
+          finalPrince = finalPrince + payload.application.hidden_data.shipping_addition.value
+        }
+      }
+    }
+
+    return finalPrince
   }
 
   async getLabel (xstoreId, id) {
