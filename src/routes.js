@@ -1,7 +1,7 @@
 const MelhorEnvioApp = require('./melhorenvio/melhorenvio')
 const Authentication = require('./melhorenvio/authentication')
 const EcomPlus = require('./melhorenvio/ecomplus')
-
+const logger = require('console-files')
 // Rotas do app
 let routes = {
   // Rotas para callback
@@ -96,6 +96,7 @@ let routes = {
   // Cotação de frete
   calculate: {
     post: (request, response) => { // ok
+      logger.error(request.body)
       console.log(request.headers['x-store-id'])
       let meController = new MelhorEnvioApp()
       meController.calculate(request.body, request.headers['x-store-id'])
