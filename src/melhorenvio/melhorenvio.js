@@ -3,7 +3,7 @@ const sql = require('./sql')
 const MelhorEnvioSDK = require('melhor-envio')
 const rq = require('request')
 const ENTITY = 'app_auth'
-const logger = require('console-files')
+const logger = require('logger-files')
 
 class MelhorEnvioApp {
   constructor() {
@@ -98,7 +98,7 @@ class MelhorEnvioApp {
   setToken(token, xstoreId) {
     return this.me.auth.getToken(token)
       .then(retorno => {
-        console.log(retorno)
+        logger.log(retorno)
         let update = { me_refresh_token: retorno.refresh_token, me_access_token: retorno.access_token }
         let where = { store_id: xstoreId }
         sql.update(update, where, ENTITY).catch(erro => logger.error(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
@@ -149,7 +149,7 @@ class MelhorEnvioApp {
   }
 
   ecpReponseSchema(payload, from, to, pkgRequest) {
-    // console.log(payload)
+    // logger.log(payload)
     if (typeof payload !== 'undefined') {
       let retorno = []
       retorno = payload.filter(service => {
@@ -254,7 +254,7 @@ class MelhorEnvioApp {
         this.me.setToken = meTokens.me_access_token
         this.me.user.cart(order)
           .then(resp => {
-            // console.log(resp)
+            // logger.log(resp)
             this.registerLabel(resp, xstoreId, payload._id)
             this.me.shipment.checkout()
               .then(resp => {
@@ -299,19 +299,19 @@ class MelhorEnvioApp {
     }
     sql.insert(params, 'me_tracking')
       .then(r => {
-        console.log('Label Registrada.')
+        logger.log('Label Registrada.')
         let Ecomplus = require('./ecomplus')
         let controller = new Ecomplus()
         controller.updateMetafields(label, resourceId, xstoreId)
           .then(v => {
-            console.log('Hidden Metafields atualizado.')
-            console.log(v)
+            logger.log('Hidden Metafields atualizado.')
+            logger.log(v)
           })
           .catch(e => {
-            console.log(new Error('Erro: '), e)
+            logger.log(new Error('Erro: '), e)
           })
       })
-      .catch(e => console.log(e))
+      .catch(e => logger.log(e))
   }
 
   async getAppinfor(xstoreId) {
@@ -339,8 +339,8 @@ class MelhorEnvioApp {
   }
 
   discount(payload, calculate) {
-    console.log(payload)
-    console.log(calculate)
+    logger.log(payload)
+    logger.log(calculate)
     if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
       if (payload.params.subtotal >= payload.application.hidden_data.shipping_discount[0].minimum_subtotal) {
         let states = payload.application.hidden_data.shipping_discount[0].states.find(state => {

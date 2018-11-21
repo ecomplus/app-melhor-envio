@@ -4,10 +4,11 @@ const path = require('path')
 const fs = require('fs')
 const dbPath = path.resolve(config.BD_PATH)
 const db = new sqlite.Database(dbPath)
+const logger = require('logger-files')
 
 db.serialize(async () => {
   if (!fs.existsSync(dbPath)) {
-    console.log("Can't find a SQLite database, creating one now...")
+    logger.log("Can't find a SQLite database, creating one now...")
     let auth = `CREATE TABLE IF NOT EXISTS app_auth (
       id                        INTEGER      PRIMARY KEY
       UNIQUE  NOT NULL,
@@ -28,7 +29,7 @@ db.serialize(async () => {
     let q2 = `CREATE TABLE IF NOT EXISTS me_tracking (
       id          INTEGER  PRIMARY KEY AUTOINCREMENT
                            NOT NULL,
-      created_at  DATETIME DEFAULT (CURRENT_TIMESTAMP) 
+      created_at  DATETIME DEFAULT (CURRENT_TIMESTAMP)
                            NOT NULL,
       label_id    STRING   NOT NULL,
       status      STRING   NOT NULL,

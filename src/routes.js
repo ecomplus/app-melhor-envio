@@ -1,7 +1,7 @@
 const MelhorEnvioApp = require('./melhorenvio/melhorenvio')
 const Authentication = require('./melhorenvio/authentication')
 const EcomPlus = require('./melhorenvio/ecomplus')
-const logger = require('console-files')
+const logger = require('logger-files')
 // Rotas do app
 let routes = {
   // Rotas para callback
@@ -43,7 +43,7 @@ let routes = {
     melhorenvio: (request, response) => {
       let meController = new MelhorEnvioApp()
       let url = meController.requestOAuth() + '&state=' + request.query.x_store_id
-      console.log(url)
+      logger.log(url)
       return response.redirect(301, url)
     }
   },
@@ -60,12 +60,12 @@ let routes = {
       let eComController = new EcomPlus()
       eComController.registerProcedure(request.query.state)
         .then(r => {
-          console.log('Procedure registrado. ', r)
+          logger.log('Procedure registrado. ', r)
           response.write('<script>window.close()</script>')
           response.end()
         })
         .catch(e => {
-          console.log(e)
+          logger.log(e)
           response.status(400)
           return response.send(e)
         })
@@ -87,7 +87,7 @@ let routes = {
           response.send(r)
         })
         .catch(e => {
-          console.log(e)
+          logger.log(e)
           response.status(400)
           response.end()
         })
@@ -97,16 +97,16 @@ let routes = {
   calculate: {
     post: (request, response) => { // ok
       logger.error(request.body)
-      console.log(request.headers['x-store-id'])
+      logger.log(request.headers['x-store-id'])
       let meController = new MelhorEnvioApp()
       meController.calculate(request.body, request.headers['x-store-id'])
         .then(resp => {
-          //console.log(resp)
+          // logger.log(resp)
           response.status(200)
           return response.send(resp)
         })
         .catch(e => {
-          console.log(e)
+          logger.error(e)
           response.status(400)
           return response.send(e)
         })
