@@ -4,6 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const dbPath = path.resolve(config.BD_PATH)
 const db = new sqlite.Database(dbPath)
+console.log(dbPath)
 db.serialize(async () => {
   if (!fs.existsSync(dbPath)) {
     console.log("Can't find a SQLite database, creating one now...")
