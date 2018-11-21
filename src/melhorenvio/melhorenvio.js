@@ -357,12 +357,14 @@ class MelhorEnvioApp {
     if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
       if (payload.params.subtotal >= payload.application.hidden_data.shipping_discount[0].minimum_subtotal) {
         let states = payload.application.hidden_data.shipping_discount[0].states.find(state => {
-          if (payload.params.to.zip >= state.from && state.to <= payload.params.to.zip) {
+          console.log(parseInt(payload.params.to.zip) <= parseInt(state.from))
+          console.log(parseInt(state.to) >= parseInt(payload.params.to.zip))
+          if (parseInt(payload.params.to.zip) <= parseInt(state.from) && parseInt(state.to) >= parseInt(payload.params.to.zip)) {
             return true
           }
           return false
         })
-        if (states) {
+        if (typeof states !== 'undefined') {
           let total
           if (typeof payload.application.hidden_data.shipping_discount[0].fixed_value !== 'undefined') {
             total = calculate.price - payload.application.hidden_data.shipping_discount[0].fixed_value
@@ -371,6 +373,8 @@ class MelhorEnvioApp {
             total -= (total * payload.application.hidden_data.shipping_discount[0].percent_value)
           }
           finalPrince = Math.sign(total) === 1 ? parseFloat(total) : 0
+        } else {
+          finalPrince = parseFloat(calculate.price)
         }
       } else {
         finalPrince = parseFloat(calculate.price)
@@ -378,18 +382,17 @@ class MelhorEnvioApp {
     } else {
       finalPrince = parseFloat(calculate.price)
     }
-
-    if (typeof payload.application.hidden_data !== 'undefined') {
-      if (typeof payload.application.hidden_data.shipping_addition !== 'undefined') {
-        let addition
-        if(payload.application.hidden_data.shipping_addition.type === 'percentage') {
-          finalPrince += (finalPrince * payload.application.hidden_data.shipping_addition.value)
-        } else if (payload.application.hidden_data.shipping_addition.type === 'fixed') {
-          finalPrince = finalPrince + payload.application.hidden_data.shipping_addition.value
+    if (finalPrince > 0) {
+      if (typeof payload.application.hidden_data !== 'undefined') {
+        if (typeof payload.application.hidden_data.shipping_addition !== 'undefined') {
+          if (payload.application.hidden_data.shipping_addition.type === 'percentage') {
+            finalPrince += (finalPrince * payload.application.hidden_data.shipping_addition.value)
+          } else if (payload.application.hidden_data.shipping_addition.type === 'fixed') {
+            finalPrince += payload.application.hidden_data.shipping_addition.value
+          }
         }
       }
     }
-
     return finalPrince
   }
 
