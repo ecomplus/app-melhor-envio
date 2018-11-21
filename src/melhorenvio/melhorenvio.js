@@ -3,6 +3,7 @@ const sql = require('./sql')
 const MelhorEnvioSDK = require('melhor-envio')
 const rq = require('request')
 const ENTITY = 'app_auth'
+const logger = require('console-files')
 
 class MelhorEnvioApp {
   constructor() {
@@ -16,7 +17,7 @@ class MelhorEnvioApp {
 
     this.parseOrder = {
       from: async (xstoreId, hiddenData) => {
-        let seller = await this.getSellerInfor(xstoreId).catch(e => console.log(new Error('Seller não encontrado.')))
+        let seller = await this.getSellerInfor(xstoreId).catch(e => logger.error(new Error('Seller não encontrado.')))
         seller = JSON.parse(seller)
         return {
           'name': seller.firstname + seller.lastname,
@@ -100,10 +101,10 @@ class MelhorEnvioApp {
         console.log(retorno)
         let update = { me_refresh_token: retorno.refresh_token, me_access_token: retorno.access_token }
         let where = { store_id: xstoreId }
-        sql.update(update, where, ENTITY).catch(erro => console.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
+        sql.update(update, where, ENTITY).catch(erro => logger.error(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
       })
       .catch(e => {
-        console.log(new Error('Erro ao solicitar Token ao Melhor Envio. | Erro: '), e)
+        logger.error(new Error('Erro ao solicitar Token ao Melhor Envio. | Erro: '), e)
       })
   }
 
@@ -286,7 +287,7 @@ class MelhorEnvioApp {
   async getSellerInfor(xstoreId) {
     let meTokens = await this.getAppinfor(xstoreId)
     this.me.setToken = meTokens.me_access_token
-    return this.me.user.me().catch(e => console.log(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'), e))
+    return this.me.user.me().catch(e => logger.error(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'), e))
   }
 
   async registerLabel(label, xstoreId, resourceId) {
@@ -314,7 +315,7 @@ class MelhorEnvioApp {
   }
 
   async getAppinfor(xstoreId) {
-    return sql.select({ store_id: xstoreId }, ENTITY).catch(erro => console.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
+    return sql.select({ store_id: xstoreId }, ENTITY).catch(erro => logger.error(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
   }
 
   async getAppHiddenData(app) {
@@ -389,11 +390,11 @@ class MelhorEnvioApp {
                   me_refresh_token: resp.refresh_token
                 }
                 let where = { store_id: row.store_id }
-                sql.update(data, where, ENTITY).catch(e => console.log(new Error('Erro with melhor envio refresh token')))
+                sql.update(data, where, ENTITY).catch(e => logger.error(new Error('Erro with melhor envio refresh token')))
               }
             })
         } catch (error) {
-          console.log(new Error('Erro with auth request.', error))
+          logger.error(new Error('Erro with auth request.', error))
         }
       }
     })
