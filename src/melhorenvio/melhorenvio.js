@@ -163,7 +163,7 @@ class MelhorEnvioApp {
             label: service.name,
             carrier: service.company.name,
             service_name: service.name,
-            service_code: service.id,
+            service_code: 'ME' + service.id,
             icon: service.company.picture,
             shipping_line: {
               package: {
