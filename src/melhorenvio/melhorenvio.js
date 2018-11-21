@@ -180,25 +180,25 @@ class MelhorEnvioApp {
                 weight: {
                   value: parseInt(service.packages[0].weight)
                 }
-              }
-            },
-            from: {
-              zip: from.postal_code,
-              street: from.address,
-              number: from.number
-            },
-            to: {
-              zip: to.postal_code,
-              street: to.address,
-              number: to.number
-            },
-            price: this.discount(pkgRequest, service),
-            discount: service.discount,
-            posting_deadline: {
-              days: service.delivery_time
-            },
-            delivery_time: {
-              days: service.delivery_time
+              },
+              from: {
+                zip: from.postal_code,
+                street: from.address,
+                number: from.number
+              },
+              to: {
+                zip: to.postal_code,
+                street: to.address,
+                number: to.number
+              },
+              discount: service.discount,
+              posting_deadline: {
+                days: service.delivery_time
+              },
+              delivery_time: {
+                days: service.delivery_time
+              },
+              price: this.discount(pkgRequest, service)
             },
             custom_fields: [
               {
@@ -230,7 +230,7 @@ class MelhorEnvioApp {
           } else {
             resolve({ shipping_services: [] })
           }
-        } 
+        }
         let schema = this.meCalculateSchema(payload)
         if (!schema) {
           resolve({ shipping_services: [] })
@@ -338,6 +338,8 @@ class MelhorEnvioApp {
   }
 
   discount(payload, calculate) {
+    console.log(payload)
+    console.log(calculate)
     if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
       if (payload.params.subtotal >= payload.application.hidden_data.shipping_discount[0].minimum_subtotal) {
         let states = payload.application.hidden_data.shipping_discount[0].states.find(state => {
@@ -356,6 +358,8 @@ class MelhorEnvioApp {
           }
           return Math.sign(total) === 1 ? parseFloat(total) : 0
         }
+      } else {
+        return parseFloat(calculate.price)
       }
     } else {
       return parseFloat(calculate.price)
