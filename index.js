@@ -1,7 +1,7 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 3000
 const routes = require('./src/routes')
 
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -23,14 +23,19 @@ process.on('uncaughtException', (err) => {
   }
 
   let fs = require('fs')
-  fs.appendFile('_stderr', msg, () => {
+  fs.appendFile('/var/log/nodejs/_stderr', msg, () => {
     process.exit(1)
   })
 })
 
+app.get('/redirect', routes.redirect.melhorenvio)
+
 app.post('/callback', routes.callback.post)
 app.get('/callback', routes.callback.get)
-app.get('/redirect', routes.redirect.melhorenvio)
+
 app.post('/calculate', routes.calculate.post)
-app.post('/procedure/orders', routes.procedure.orders)
+
+app.post('/notifications', routes.procedure.orders)
 app.listen(port)
+
+require('./src/tasks')
