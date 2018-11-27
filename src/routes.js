@@ -96,17 +96,13 @@ let routes = {
   // Cotação de frete
   calculate: {
     post: (request, response) => { // ok
-      logger.error(request.body)
-      console.log(request.headers['x-store-id'])
-      let meController = new MelhorEnvioApp()
-      meController.calculate(request.body, request.headers['x-store-id'])
+      let controller = new MelhorEnvioApp(request.headers['x-store-id'])
+      controller.calculate(request.body, request.headers['x-store-id'])
         .then(resp => {
-          //console.log(resp)
           response.status(200)
           return response.send(resp)
         })
         .catch(e => {
-          console.log(e)
           response.status(400)
           return response.send(e)
         })

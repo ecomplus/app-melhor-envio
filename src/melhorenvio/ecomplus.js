@@ -1,6 +1,6 @@
 const SQL = require('./sql')
 const RQ = require('request')
-const MelhorEnvioApp = require('./melhorenvio')
+const MelhorEnvioApp = require('./melhorenvio_old')
 const ENTITY = 'app_auth'
 class EcomPlus {
   constructor () {

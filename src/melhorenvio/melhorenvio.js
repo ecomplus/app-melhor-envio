@@ -1,287 +1,256 @@
-const config = require('./../config')
-const sql = require('./sql')
 const MelhorEnvioSDK = require('melhor-envio')
-const rq = require('request')
-const ENTITY = 'app_auth'
 const logger = require('console-files')
+const rq = require('request')
+const config = require('../config')
+const sql = require('./sql')
+const AUTH_ENTITY = 'app_auth'
 
 class MelhorEnvioApp {
-  constructor() {
+
+  constructor (storeId) {
+    // instancia sdk melhor envio
     this.me = new MelhorEnvioSDK({
       client_id: config.ME_CLIENT_ID,
       client_secret: config.ME_CLIENT_SECRET,
       sandbox: config.ME_SANDBOX,
       redirect_uri: config.ME_REDIRECT_URI,
-      request_scope: config.ME_SCOPE
+      request_scope: 'cart-read cart-write companies-read coupons-read notifications-read products-read products-write purchases-read shipping-calculate shipping-cancel shipping-checkout shipping-companies shipping-generate shipping-preview shipping-print shipping-share shipping-tracking ecommerce-shipping transactions-read users-read webhooks-read webhooks-write'
     })
-
-    this.parseOrder = {
-      from: async (xstoreId, hiddenData) => {
-        let seller = await this.getSellerInfor(xstoreId).catch(e => logger.log(new Error('Seller não encontrado.')))
-        seller = JSON.parse(seller)
-        return {
-          'name': seller.firstname + seller.lastname,
-          'phone': seller.phone.phone,
-          'email': seller.email, // email (opcional)
-          'document': seller.document, // cpf (opcional)
-          // 'company_document': '89794131000100', // cnpj (obrigatório se não for Correios)
-          // 'state_register': '123456', // inscrição estadual (obrigatório se não for Correios) pode ser informado 'isento'
-          'address': seller.address.address,
-          'complement': seller.address.complement,
-          'number': seller.address.number,
-          'district': seller.address.district,
-          'city': seller.address.city.city,
-          'state_abbr': seller.address.city.state.state_abbr,
-          'country_id': seller.address.city.state.country.id,
-          'postal_code': seller.address.postal_code
-        }
-      },
-      to: (order) => {
-        return { // destinatário
-          'name': order.shipping_lines[0].to.name,
-          'phone': order.shipping_lines[0].to.phone.number, // telefone com ddd (obrigatório se não for Correios)
-          'email': order.buyers[0].main_email,
-          'document': order.buyers[0].doc_number, // obrigatório se for transportadora e não for logística reversa
-          // 'company_document': '89794131000100', // (opcional) (a menos que seja transportadora e logística reversa)
-          // 'state_register': '123456', // (opcional) (a menos que seja transportadora e logística reversa)
-          'address': order.shipping_lines[0].to.street,
-          'complement': order.shipping_lines[0].to.complement,
-          'number': order.shipping_lines[0].to.number,
-          'district': order.shipping_lines[0].to.borough,
-          'city': order.shipping_lines[0].to.city,
-          'state_abbr': order.shipping_lines[0].to.province_code,
-          'country_id': order.shipping_lines[0].to.country_code,
-          'postal_code': order.shipping_lines[0].to.zip,
-          'note': order.shipping_lines[0].to.near_to // (opcional) impresso na etiqueta
-        }
-      },
-      products: (items) => {
-        let products = {}
-        items.forEach(element => {
-          products = {
-            'name': element.name, // nome do produto (max 255 caracteres)
-            'quantity': element.quantity, // quantidade de items desse produto
-            'unitary_value': element.price // R$ 4,50 valor do produto
-          }
-        }, products)
-        return products
-      },
-      package: (packages) => {
-        return {
-          'weight': packages.weight,
-          'width': packages.dimensions.width.value,
-          'height': packages.dimensions.height.value,
-          'length': packages.dimensions.length.value
-        }
-      },
-      options: (order) => {
-        return { // opções
-          'insurance_value': order.shipping_lines[0].declared_value, // valor declarado/segurado
-          'receipt': false, // aviso de recebimento
-          'own_hand': false, // mão pŕopria
-          'collect': false, // coleta
-          'reverse': false, // logística reversa (se for reversa = true, ainda sim from será o remetente e to o destinatário)
-          'non_commercial': false, // envio de objeto não comercializável (flexibiliza a necessidade de pessoas júridicas para envios com transportadoras como Latam Cargo, porém se for um envio comercializável a mercadoria pode ser confisca pelo fisco)
-          'invoice': { // nota fiscal (opcional se for Correios)
-            'number': order.shipping_lines[0].invoices[0].number, // número da nota
-            'key': order.shipping_lines[0].invoices[0].access_key // chave da nf-e
-          }
-        }
-      }
+    // se o store_id for informado
+    // na instancia da class
+    // então as informações sobre
+    // o aplicativo são setadas como access_token
+    if (storeId) {
+      this.storeId = storeId
     }
   }
 
-  requestOAuth(xstoreId) {
-    return this.me.auth.getAuth() + '&state=' + xstoreId
+  // seta access token se store_id for informado na instancia da class
+  async init () {
+    let meTokens = await this.getAppinfor(this.storeId)
+    if (meTokens) {
+      this.me.setToken = meTokens.me_access_token
+    }
   }
 
-  setToken(token, xstoreId) {
+  async setToken () {
+    let meTokens = await this.getAppinfor(this.storeId)
+    if (meTokens) {
+      this.me.setToken = meTokens.me_access_token
+    }
+  }
+
+  async getAppinfor (xstoreId) {
+    return sql.select({ store_id: xstoreId }, AUTH_ENTITY)
+      .catch(erro => {
+        logger.log(new Error('Não existe aplicativo instalado para X-Store-Id informado' + xstoreId + ' - Erro #409 - ' + erro))
+      })
+  }
+
+  requestOAuth (xstoreId) {
+    let storeId = xstoreId || this.storeId
+    return this.me.auth.getAuth() + '&state=' + storeId
+  }
+
+  setAppToken (token, storeId) {
     return this.me.auth.getToken(token)
-      .then(retorno => {
-        logger.log(retorno)
-        let update = { me_refresh_token: retorno.refresh_token, me_access_token: retorno.access_token }
-        let where = { store_id: xstoreId }
-        sql.update(update, where, ENTITY).catch(erro => logger.log(new Error('Erro ao atualizar Refresh Token do melhor envio | Erro: '), erro))
-      })
-      .catch(e => {
-        logger.log(new Error('Erro ao solicitar Token ao Melhor Envio. | Erro: '), e)
+      .then(ret => {
+        let update = { me_refresh_token: ret.refresh_token, me_access_token: ret.access_token }
+        let where = { store_id: storeId || this.storeId }
+        sql.update(update, where, AUTH_ENTITY)
+          .catch(erro => {
+            logger.log(new Error('Erro ao salvar melhor envio access_token no banco | Erro #410 - ' + erro))
+          })
       })
   }
 
-  meCalculateSchema(payload, hidden) {
-    if (!payload.params || !payload.application.hidden_data) {
+  schemaCalculate (payload) {
+    if (typeof payload.application.hidden_data.from === 'undefined') {
+      logger.error(new Error('Propriedade hidden_data.from não informada - Erro #412'))
       return false
     }
-    return {
-      'from': {
-        'postal_code': payload.application.hidden_data.from.zip,
-        'address': payload.application.hidden_data.from.street,
-        'number': payload.application.hidden_data.from.number
-      },
-      'to': {
-        'postal_code': payload.params.to.zip,
-        'address': payload.params.to.street,
-        'number': payload.params.to.number
-      },
-      'products': this.meCalculateSchemaProducts(payload.params.items),
-      'options': {
-        'receipt': false,
-        'own_hand': false,
-        'collect': false
-      }
+
+    if (typeof payload.params.to === 'undefined') {
+      logger.error(new Error('Propriedade params.to não informada - Erro #412'))
+      return false
     }
+
+    let calculateObj = {}
+    calculateObj.from = {}
+    calculateObj.from.postal_code = payload.application.hidden_data.from.zip
+    calculateObj.from.address = payload.application.hidden_data.from.street
+    calculateObj.from.number = payload.application.hidden_data.from.number
+
+    calculateObj.to = {}
+    calculateObj.to.postal_code = payload.params.to.zip
+    calculateObj.to.address = payload.params.to.street
+    calculateObj.to.number = payload.params.to.number
+
+    calculateObj.products = this.schemaCalculateProducts(payload.params.items) || null
+    
+    calculateObj.options = {}
+    calculateObj.options.receipt = false
+    calculateObj.options.own_hand = false
+    calculateObj.options.collect = false
+    return calculateObj
   }
 
-  meCalculateSchemaProducts(itens) {
-    let products = []
-    products = itens.map(element => {
-      let p = {
-        id: element.product_id,
-        weight: element.dimensions.weight,
-        width: element.dimensions.width.value,
-        height: element.dimensions.height.value,
-        length: element.dimensions.length.value,
-        insurance_value: element.final_price
-      }
-      return p
-    })
-    return products
-  }
-
-  ecpReponseSchema(payload, from, to, pkgRequest) {
-    // logger.log(payload)
-    if (typeof payload !== 'undefined') {
-      let retorno = []
-      retorno = payload.filter(service => {
-        if (service.error) {
-          return false
+  schemaCalculateProducts (items) {
+    if (items) {
+      let products = []
+      products = items.map(item => {
+        let p = {
+          id: item.product_id,
+          weight: item.dimensions.weight,
+          width: item.dimensions.width.value,
+          height: item.dimensions.height.value,
+          length: item.dimensions.length.value,
+          insurance_value: item.final_price
         }
-        return true
-      }).map(service => {
-        if (!service.error) {
-          return {
-            label: service.name,
-            carrier: service.company.name,
-            service_name: service.name,
-            service_code: 'ME' + service.id,
-            icon: service.company.picture,
-            shipping_line: {
-              package: {
-                dimensions: {
-                  width: {
-                    value: service.packages[0].dimensions.width
-                  },
-                  height: {
-                    value: service.packages[0].dimensions.height
-                  },
-                  length: {
-                    value: service.packages[0].dimensions.length
-                  }
-                },
-                weight: {
-                  value: parseInt(service.packages[0].weight)
-                }
-              },
-              from: {
-                zip: from.postal_code,
-                street: from.address,
-                number: from.number
-              },
-              to: {
-                zip: to.postal_code,
-                street: to.address,
-                number: to.number
-              },
-              discount: parseFloat(service.discount),
-              posting_deadline: {
-                days: service.delivery_time
-              },
-              delivery_time: {
-                days: service.delivery_time
-              },
-              price: this.discount(pkgRequest, service),
-              total_price: this.discount(pkgRequest, service),
-              custom_fields: [
-                {
-                  field: 'by_melhor_envio',
-                  value: 'true'
-                },
-                {
-                  field: 'jadlog_agency',
-                  value: '1'
-                }
-              ]
-            }
-          }
-        }
+        return p
       })
-      return retorno
+      return products
     }
+    return false
   }
 
-  async calculate(payload, xstoreId) {
-    return new Promise(async (resolve, reject) => {
-      let meTokens = await this.getAppinfor(xstoreId)
-      if (meTokens) {
-        this.me.setToken = meTokens.me_access_token
-        if (typeof payload.params.items === 'undefined') {
-          if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
-            if (payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
-              resolve({ free_shipping_from_value: payload.application.hidden_data.shipping_discount[0].minimum_subtotal })
-            }
-          } else {
-            resolve({ shipping_services: [] })
-          }
-        }
-        let schema = this.meCalculateSchema(payload)
-        if (!schema) {
-          resolve({ shipping_services: [] })
-          //reject(new Error('Formato inválido.'))
-        }
-        this.me.shipment.calculate(schema)
-          .then(resp => {
-            let obj = {
-              shipping_services: this.ecpReponseSchema(resp, schema.from, schema.to, payload)
-            }
-            //resolve(JSON.stringify(this.ecpReponseSchema(resp, schema.from, schema.to, payload)))
-            if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
-              if (typeof payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
-                obj.free_shipping_from_value = payload.application.hidden_data.shipping_discount[0].minimum_subtotal
+  schemaCalculateResponse (payload, from, to, packageRequest) {
+    let retorno = []
+    retorno = payload.filter(servico => {
+      if (servico.error) {
+        return false
+      }
+      return true
+    }).map(service => {
+      return {
+        label: service.name,
+        carrier: service.company.name,
+        service_name: service.name,
+        service_code: 'ME ' + service.id,
+        icon: service.company.picture,
+        shipping_line: {
+          package: {
+            dimensions: {
+              width: {
+                value: service.packages[0].dimensions.width
+              },
+              height: {
+                value: service.packages[0].dimensions.height
+              },
+              length: {
+                value: service.packages[0].dimensions.length
               }
+            },
+            weight: {
+              value: parseInt(service.packages[0].weight)
             }
-            resolve(JSON.stringify(obj))
-          })
-          .catch(e => reject(new Error(e)))
-      } else {
-        reject(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'))
+          },
+          from: {
+            zip: from.postal_code,
+            street: from.address,
+            number: from.number
+          },
+          to: {
+            zip: to.postal_code,
+            street: to.address,
+            number: to.number
+          },
+          discount: parseFloat(service.discount),
+          posting_deadline: {
+            days: service.delivery_time
+          },
+          delivery_time: {
+            days: service.delivery_time
+          },
+          price: service.name === 'PAC' ? this.discount(packageRequest, service) : parseFloat(service.price),
+          total_price: service.name === 'PAC' ? this.discount(packageRequest, service) : parseFloat(service.price),
+          custom_fields: [
+            {
+              field: 'by_melhor_envio',
+              value: 'true'
+            },
+            {
+              field: 'jadlog_agency',
+              value: '1'
+            }
+          ]
+        }
       }
     })
+    return retorno
   }
 
-  async cart(payload, xstoreId) {
+  async calculate (payload, storeId) {
     return new Promise(async (resolve, reject) => {
-      let order = await this.meCartSchema(payload, xstoreId)
-      let meTokens = await this.getAppinfor(xstoreId)
-      if (meTokens) {
-        this.me.setToken = meTokens.me_access_token
-        this.me.user.cart(order)
-          .then(resp => {
-            // logger.log(resp)
-            this.registerLabel(resp, xstoreId, payload._id)
-            this.me.shipment.checkout()
-              .then(resp => {
-                resolve(resp)
-              })
-              .catch(erro => reject(new Error('Erro ao processar checkout do carrinho de frete | Erro: ' + erro)))
-          })
-          .catch(erro => reject(new Error('Erro ao inserir cotação no carrinho de frete | Erro: ' + erro)))
-      } else {
-        reject(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'))
+      // se não houve items
+      // a requisição é para saber quao valor mínimo para desconto no frete
+      // configurado no hidden_data do app
+      if (typeof payload.params.items === 'undefined') {
+        if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
+          if (payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
+            resolve({ free_shipping_from_value: payload.application.hidden_data.shipping_discount[0].minimum_subtotal })
+          }
+        } else {
+          resolve({ shipping_services: [] })
+        }
       }
+      // se houver items a requisição
+      // é para calculo do frete
+      let schema = this.schemaCalculate(payload)
+      // se o schema não for válido
+      // retorna false e rejeita a promise
+      // com o shipping_service vazio
+      if (!schema) {
+        resolve({ shipping_services: [] })
+      }
+      // se o schema for válido
+      // realiza o calculo no melhor envio
+      await this.setToken()
+      this.me.shipment.calculate(schema)
+        .then(resp => {
+          let objResponse = {}
+          objResponse.shipping_services = this.schemaCalculateResponse(resp, schema.from, schema.to, payload)
+          // Se a propriedade hidden_data.shipping_discount[0].minimum_subtotal
+          // estiver configurada no hidden_data do app retornamos ela também
+          if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
+            if (typeof payload.application.hidden_data.shipping_discount[0].minimum_subtotal !== 'undefined') {
+              objResponse.free_shipping_from_value = payload.application.hidden_data.shipping_discount[0].minimum_subtotal
+            }
+          }
+          // tudo ok?
+          // resolve com o payload no schema da ecom-plus-api
+          resolve(JSON.stringify(objResponse))
+        })
+        .catch(e => {
+          console.log(e)
+          logger.error(new Error('Falha com a solicitação no Melhor Envio API | Erro: - ' + e))
+          reject(new Error(e))
+        })
     })
   }
 
-  async meCartSchema(payload, xstoreId) {
+  async cart (payload, xstoreId) {
+    return new Promise(async (resolve, reject) => {
+      this.me.user.cart(this.schemaCartMe(payload, xstoreId))
+        .then(resp => {
+          this.registerLabel(resp, xstoreId, payload._id)
+          this.me.shipment.checkout()
+            .then(resp => {
+              resolve(resp)
+            })
+            .catch(e => {
+              logger.error(new Error('Falha ao realizar pagamento da etiqueta no Melhor Envio API | Erro: - ' + e))
+              reject(new Error(e))
+            })
+        })
+        .catch(e => {
+          logger.error(new Error('Falha ao solicitar compra da etiqueta no Melhor Envio API | Erro: - ' + e))
+          reject(new Error(e))
+        })
+    })
+  }
+
+  async schemaCartMe (payload, xstoreId) {
     let app = await this.getAppinfor(xstoreId)
     let hiddenData = await this.getAppHiddenData(app)
     hiddenData = JSON.parse(hiddenData)
@@ -296,53 +265,20 @@ class MelhorEnvioApp {
     }
   }
 
-  async getSellerInfor(xstoreId) {
-    let meTokens = await this.getAppinfor(xstoreId)
-    this.me.setToken = meTokens.me_access_token
-    return this.me.user.me().catch(e => logger.log(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'), e))
-  }
-
-  async registerLabel(label, xstoreId, resourceId) {
-    let params = {
-      label_id: label.id,
-      status: label.status,
-      resource_id: resourceId,
-      store_id: xstoreId
-    }
-    sql.insert(params, 'me_tracking')
-      .then(r => {
-        logger.log('Label Registrada.')
-        let Ecomplus = require('./ecomplus')
-        let controller = new Ecomplus()
-        controller.updateMetafields(label, resourceId, xstoreId)
-          .then(v => {
-            logger.log('Hidden Metafields atualizado.')
-            logger.log(v)
-          })
-          .catch(e => {
-            logger.log(new Error('Erro: '), e)
-          })
-      })
-      .catch(e => logger.log(e))
-  }
-
-  async getAppinfor(xstoreId) {
-    return sql.select({ store_id: xstoreId }, ENTITY).catch(erro => logger.log(new Error('Erro buscar dados do aplicativo vinculado ao x-store-id informado. | Erro: '), erro))
-  }
-
-  async getAppHiddenData(app) {
+  async getAppHiddenData (application) {
     return new Promise((resolve, reject) => {
       let options = {
-        uri: 'https://api.e-com.plus/v1/applications/' + app.application_id + '/hidden_data.json',
+        uri: 'https://api.e-com.plus/v1/applications/' + application.application_id + '/hidden_data.json',
         headers: {
           'Content-Type': 'application/json',
-          'X-Store-ID': app.store_id,
-          'X-Access-Token': app.app_token,
-          'X-My-ID': app.authentication_id
+          'X-Store-ID': application.store_id,
+          'X-Access-Token': application.app_token,
+          'X-My-ID': application.authentication_id
         }
       }
       rq.get(options, (erro, resp, body) => {
         if (resp.statusCode >= 400) {
+          logger.error(new Error('Erro com a requisição na E-com-plus API | Erro : ' + resp.body))
           reject(resp.body)
         }
         resolve(body)
@@ -350,15 +286,43 @@ class MelhorEnvioApp {
     })
   }
 
-  discount(payload, calculate) {
-    logger.log(payload)
-    logger.log(calculate)
+  async getSellerInfor (xstoreId) {
+    return this.me.user.me()
+      .catch(e => {
+        logger.log(new Error('Não existe access_token vinculado ao x-store-id informado, realize outra autenticação.'), e)
+      })
+  }
+
+  async registerLabel (label, xstoreId, resourceId) {
+    let params = {
+      label_id: label.id,
+      status: label.status,
+      resource_id: resourceId,
+      store_id: xstoreId
+    }
+    sql.insert(params, AUTH_ENTITY)
+      .then(resp => {
+        let Ecomplus = require('./ecomplus')
+        let controller = new Ecomplus()
+        controller.updateMetafields(label, resourceId, xstoreId)
+          .catch(e => {
+            logger.log(new Error('Erro ao atualizar metafield da order ' + resourceId + ' com id da etiqueta gerada (' + label + ') no melhor envio'))
+          })
+      })
+  }
+
+  async getLabel (xstoreId, id) {
+    let ids = {
+      orders: [id]
+    }
+    return this.me.shipment.tracking(ids)
+  }
+
+  discount (payload, calculate) {
     let finalPrince
     if (typeof payload.application.hidden_data !== 'undefined' && typeof payload.application.hidden_data.shipping_discount !== 'undefined') {
       if (payload.params.subtotal >= payload.application.hidden_data.shipping_discount[0].minimum_subtotal) {
         let states = payload.application.hidden_data.shipping_discount[0].states.find(state => {
-          console.log(parseInt(payload.params.to.zip) <= parseInt(state.from))
-          console.log(parseInt(state.to) >= parseInt(payload.params.to.zip))
           if (parseInt(payload.params.to.zip) <= parseInt(state.from) && parseInt(state.to) >= parseInt(payload.params.to.zip)) {
             return true
           }
@@ -392,41 +356,11 @@ class MelhorEnvioApp {
           }
         }
       }
+      // desconto defualt
+      finalPrince -= finalPrince * 0.5
+      finalPrince = finalPrince <= 0 ? 0 : finalPrince
     }
     return finalPrince
-  }
-
-  async getLabel(xstoreId, id) {
-    let meTokens = await this.getAppinfor(xstoreId)
-    this.me.setToken = meTokens.me_access_token
-    let ids = {
-      orders: [id]
-    }
-    return this.me.shipment.tracking(ids)
-  }
-
-  updateTokens() {
-    let query = 'SELECT me_refresh_token, me_access_token, store_id FROM ' + ENTITY
-    sql.each(query, (err, row) => {
-      if (!err) {
-        try {
-          this.me.setToken = row.me_access_token
-          this.me.auth.refreshToken(row.me_refresh_token)
-            .then(resp => {
-              if (resp) {
-                let data = {
-                  me_access_token: resp.access_token,
-                  me_refresh_token: resp.refresh_token
-                }
-                let where = { store_id: row.store_id }
-                sql.update(data, where, ENTITY).catch(e => logger.log(new Error('Erro with melhor envio refresh token')))
-              }
-            })
-        } catch (error) {
-          logger.log(new Error('Erro with auth request.', error))
-        }
-      }
-    })
   }
 }
 

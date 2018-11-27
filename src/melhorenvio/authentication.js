@@ -5,7 +5,7 @@ const ENTITY = 'app_auth'
 class Authentication {
   async getAppInfor (app) {
     console.log(app)
-    let find = await sql.select({ application_app_id: app.application.app_id }, ENTITY).catch(e => console.log(e))
+    let find = await sql.selectAll({ application_app_id: app.application.app_id }, ENTITY).catch(e => console.log(e))
     let params = {
       application_id: app.application._id,
       application_app_id: app.application.app_id,
