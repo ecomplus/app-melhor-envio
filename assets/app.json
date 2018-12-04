@@ -1,0 +1,94 @@
+{
+  "app_id": 1236,
+  "title": "Melhor Envio",
+  "slug": "melhor-envio",
+  "paid": false,
+  "version": "1.0.1",
+  "type": "external",
+  "github_repository": "https://github.com/ecomclub/app-melhor-envio",
+  "authentication": true,
+  "auth_callback_uri": "https://melhorenvio.ecomplus.biz/callback",
+  "auth_scope": {
+    "orders": [
+      "GET",
+      "PATCH",
+      "POST"
+    ],
+    "orders/hidden_metafields": [
+      "POST",
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "orders/shipping_lines": [
+      "POST",
+      "GET",
+      "PATCH",
+      "DELETE"
+    ],
+    "procedures": [
+      "POST"
+    ]
+  },
+  "modules": {
+    "calculate_shipping": {
+      "enabled": true,
+      "endpoint": "https://melhorenvio.ecomplus.biz/calculate"
+    }
+  },
+  "data": {
+    "receipt": false,
+    "own_hand": false,
+    "jadlog_agency": 4
+  },
+  "hidden_data": {
+    "from": {
+      "zip": "13160000",
+      "street": "Rodovia SP 332, Km 153, s/n, Jardim Blumenau, Artur Nogueira - SP",
+      "number": 0
+    },
+    "minimum_subtotal": 140,
+    "shipping_discount": [
+      {
+        "states": [
+          {
+            "from": "01000000",
+            "to": "39999999"
+          },
+          {
+            "from": "55555555",
+            "to": "99999999"
+          }
+        ],
+        "discount": {
+          "fixed_value": 0,
+          "percent_value": 0.5
+        },
+        "addition": {
+          "type": "fixed",
+          "value": 3.50
+        }
+      },
+      {
+        "states": [
+          {
+            "from": "01000000",
+            "to": "39999999"
+          },
+          {
+            "from": "55555555",
+            "to": "99999999"
+          }
+        ],
+        "discount": {
+          "fixed_value": 0,
+          "percent_value": 0.3
+        },
+        "addition": {
+          "type": "fixed",
+          "value": 3.50
+        }
+      }
+    ]
+  }
+}
