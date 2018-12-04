@@ -11,4 +11,5 @@ app.use(bodyParser.json())
 app.use(require('./lib/routes'))
 app.listen(port)
 
-//
+// jobs
+require('./lib/services/jobs')
