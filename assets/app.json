@@ -39,7 +39,8 @@
   "data": {
     "receipt": false,
     "own_hand": false,
-    "jadlog_agency": 4
+    "jadlog_agency": 4,
+    "posting_deadline": 6
   },
   "hidden_data": {
     "from": {
@@ -88,6 +89,21 @@
           "type": "fixed",
           "value": 3.50
         }
+      }
+    ],
+    "unavailable_for": [
+      {
+        "states": [
+          {
+            "from": "01000000",
+            "to": "39999999"
+          },
+          {
+            "from": "55555555",
+            "to": "99999999"
+          }
+        ],
+        "services": ["PAC", ".Com"]
       }
     ]
   }
