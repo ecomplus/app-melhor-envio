@@ -40,7 +40,10 @@
     "receipt": false,
     "own_hand": false,
     "jadlog_agency": 4,
-    "posting_deadline": 6
+    "posting_deadline": 6,
+    "sort": {
+      "by": "-price"
+    }
   },
   "hidden_data": {
     "from": {
