@@ -2,7 +2,7 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 4000
 
 require('./bin/uncaughtException')
 
@@ -11,5 +11,4 @@ app.use(bodyParser.json())
 app.use(require('./lib/routes'))
 app.listen(port)
 
-// jobs
 require('./lib/services/jobs')
