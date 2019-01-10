@@ -26,6 +26,10 @@
       "PATCH",
       "DELETE"
     ],
+    "orders/fulfillments": [
+      "POST",
+      "PATCH"
+    ],
     "procedures": [
       "POST"
     ]
