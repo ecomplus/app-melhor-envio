@@ -55,9 +55,9 @@
       "street": "Rodovia SP 332, Km 153, s/n, Jardim Blumenau, Artur Nogueira - SP",
       "number": 0
     },
-    "minimum_subtotal": 140,
     "shipping_discount": [
       {
+        "minimum_subtotal": 150,
         "states": [
           {
             "from": "01000000",
