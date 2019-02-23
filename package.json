@@ -20,11 +20,11 @@
     "dependencies": {
         "console-files": "^2.1.0",
         "dotenv": "^6.2.0",
-        "ecomplus-app-sdk": "^1.9.4",
+        "ecomplus-app-sdk": "^1.9.6",
         "express": "^4.16.4",
-        "melhor-envio": "^1.6.0",
+        "melhor-envio": "^1.6.1",
         "request": "^2.88.0",
-        "sqlite3": "^4.0.4",
+        "sqlite3": "^4.0.6",
         "standard": "^12.0.1"
     }
 }
