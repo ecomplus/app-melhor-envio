@@ -6,6 +6,17 @@
   "version": "1.0.1",
   "type": "external",
   "github_repository": "https://github.com/ecomclub/app-melhor-envio",
+  "admin_settings": {
+    "receipt": {
+      "schema": {
+        "title": "Aviso de recebimento",
+        "type": "boolean",
+        "default": true,
+        "description": "Lorem ipsum dolor sit amet"
+      },
+      "hide": false
+    }
+  },
   "authentication": true,
   "auth_callback_uri": "https://melhorenvio.ecomplus.biz/callback",
   "auth_scope": {
