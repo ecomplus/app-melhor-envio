@@ -9,12 +9,251 @@
   "admin_settings": {
     "receipt": {
       "schema": {
-        "title": "Aviso de recebimento",
+        "title": "Aviso de Recebimento",
         "type": "boolean",
         "default": true,
-        "description": "Lorem ipsum dolor sit amet"
+        "description": "Aviso de recebimento."
       },
       "hide": false
+    },
+    "own_hand": {
+      "schema": {
+        "title": "Mão própria",
+        "type": "boolean",
+        "default": false,
+        "description": "Exigir assinatura do destinário no recebimento da encomenda. Obs: Somente o rementente poderá receber a encomenda quase a opção seja marcada."
+      },
+      "hide": false
+    },
+    "jadlog_agency": {
+      "schema": {
+        "title": "Agência Jadlog",
+        "type": "interge",
+        "description": "Agência da transportadora jadlog que fará a coleta das encomendas"
+      },
+      "hide": false
+    },
+    "posting_deadline": {
+      "schema": {
+        "type": "integer",
+        "title": "Prazo de despacho",
+        "min": 1,
+        "max": 999,
+        "description": "Prazo de envio da encomenda após confirmação do pagamento"
+      },
+      "hide": false
+    },
+    "sort": {
+      "schema": {
+        "type": "object",
+        "title": "Ordem dos serviços",
+        "description": "Ordem em que os serviços serão exibidos quando realizado o cálculo do frete",
+        "required": [
+          "by"
+        ],
+        "properties": {
+          "by": {
+            "type": "string",
+            "title": "Preço ou Prazo",
+            "enum": [
+              "-price",
+              "price",
+              "-delivery",
+              "delivery"
+            ]
+          }
+        }
+      },
+      "hide":false
+    },
+    "from":{
+      "schema":{
+        "type": "object",
+        "description": "Endereço do remetente",
+        "required": [
+          "zip",
+          "street",
+          "number"
+        ],
+        "properties": {
+          "zip": {
+            "type": "string",
+            "maxLength": 30,
+            "description": "ZIP (CEP, postal...) code"
+          },
+          "street": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Street or public place name"
+          },
+          "number": {
+            "type": "integer",
+            "min": 1,
+            "max": 9999999,
+            "description": "House or building street number"
+          }
+        }
+      },
+      "hide":true
+    },
+    "shipping_discount": {
+      "schema":{
+        "type": "array",
+        "description": "Configurações de Desconto",
+        "items": {
+          "type": "object",
+          "required": [
+            "minimum_subtotal",
+            "states",
+            "discount"
+          ],
+          "properties": {
+            "minimum_subtotal": {
+              "type": "number",
+              "description": "Valor minimo para desconto de frete",
+              "minimum": 0,
+              "maximum": 999999999
+            },
+            "states": {
+              "type": "array",
+              "title": "Faixa de Cep",
+              "items": {
+                "type": "object",
+                "required": [
+                  "from",
+                  "to"
+                ],
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "title": "CEP inicial"
+                  },
+                  "to": {
+                    "type": "string",
+                    "title": "CEP final"
+                  }
+                }
+              }
+            },
+            "discount": {
+              "type": "object",
+              "title": "Opções de desconto.",
+              "required": [
+                "fixed_value",
+                "percent_value"
+              ],
+              "properties": {
+                "fixed_value": {
+                  "type": "number",
+                  "title": "Valor do fixo.",
+                  "min": 1,
+                  "max": 9999999,
+                  "examples": [
+                    10
+                  ]
+                },
+                "percent_value": {
+                  "type": "number",
+                  "title": "Valor em porcentagem",
+                  "min": 1,
+                  "max": 9999999,
+                  "examples": [
+                    15
+                  ]
+                }
+              }
+            },
+            "addition": {
+              "type": "object",
+              "title": "Valor adicional ao frete",
+              "required": [
+                "type",
+                "value"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "title": "Taxa adicional",
+                  "examples": [
+                    "fixed"
+                  ],
+                  "enum": [
+                    "percentage",
+                    "fixed"
+                  ]
+                },
+                "value": {
+                  "title": "Valor adicional",
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 9999999999,
+                  "examples": [
+                    10
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "hide":true
+    },
+    "unavailable_for": {
+      "schema":{
+        "type": "array",
+        "title": "Desabilitar serviço de envio para determinada faixa de cep",
+        "items": {
+          "type": "object",
+          "required": [
+            "states",
+            "services"
+          ],
+          "properties": {
+            "states": {
+              "type": "array",
+              "title": "Faixa de Cep",
+              "items": {
+                "type": "object",
+                "required": [
+                  "from",
+                  "to"
+                ],
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "title": "Cep inicial",
+                    "examples": [
+                      "01000000"
+                    ]
+                  },
+                  "to": {
+                    "type": "string",
+                    "title": "Cep final",
+                    "examples": [
+                      "39999999"
+                    ]
+                  }
+                }
+              }
+            },
+            "services": {
+              "type": "array",
+              "title": "Serviços desabilitados",
+              "items": {
+                "type": "string",
+                "title": "The Items Schema",
+                "enum": [
+                  "PAC",
+                  ".Package",
+                  "EXPRESSO",
+                  ".Com"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "hide":true
     }
   },
   "authentication": true,
@@ -121,7 +360,10 @@
             "to": "99999999"
           }
         ],
-        "services": ["PAC", ".Com"]
+        "services": [
+          "PAC",
+          ".Com"
+        ]
       }
     ]
   }
