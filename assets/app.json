@@ -12,7 +12,7 @@
         "title": "Aviso de Recebimento",
         "type": "boolean",
         "default": true,
-        "description": "Aviso de recebimento."
+        "description": "Notificar ao destinatário quando seu pacote for recebido."
       },
       "hide": false
     },
@@ -21,7 +21,7 @@
         "title": "Mão própria",
         "type": "boolean",
         "default": false,
-        "description": "Exigir assinatura do destinário no recebimento da encomenda. Obs: Somente o rementente poderá receber a encomenda quase a opção seja marcada."
+        "description": "Exigir assinatura do destinário no recebimento da encomenda. Obs: Somente o destinário poderá receber a encomenda caso a opção seja marcada."
       },
       "hide": false
     },
@@ -45,31 +45,22 @@
     },
     "sort": {
       "schema": {
-        "type": "object",
         "title": "Ordem dos serviços",
-        "description": "Ordem em que os serviços serão exibidos quando realizado o cálculo do frete",
-        "required": [
-          "by"
-        ],
-        "properties": {
-          "by": {
-            "type": "string",
-            "title": "Preço ou Prazo",
-            "enum": [
-              "-price",
-              "price",
-              "-delivery",
-              "delivery"
-            ]
-          }
-        }
+        "type": "string",
+        "description": "Para ordernar o resultado dos serviços do menor prazo de envio para o maior selecione `-delivery` caso contrário selecione a opção `delivery`. Se preferir ordernar o resultado do cálculo do frete do menor preço para maior use `-price`, do contrário selecione `price`.",
+        "enum": [
+          "-price",
+          "price",
+          "-delivery",
+          "delivery"
+        ]
       },
-      "hide":false
+      "hide": false
     },
-    "from":{
-      "schema":{
+    "from": {
+      "schema": {
         "type": "object",
-        "description": "Endereço do remetente",
+        "title": "Endereço do remetente das encomendas.",
         "required": [
           "zip",
           "street",
@@ -77,29 +68,33 @@
         ],
         "properties": {
           "zip": {
+            "title": "CEP",
             "type": "string",
             "maxLength": 30,
             "description": "ZIP (CEP, postal...) code"
           },
           "street": {
+            "title": "Rua",
             "type": "string",
             "maxLength": 200,
-            "description": "Street or public place name"
+            "description": "Nome da rua"
           },
           "number": {
+            "title": "Número",
             "type": "integer",
             "min": 1,
             "max": 9999999,
-            "description": "House or building street number"
+            "description": "Número"
           }
         }
       },
-      "hide":true
+      "hide": true
     },
     "shipping_discount": {
-      "schema":{
+      "schema": {
         "type": "array",
-        "description": "Configurações de Desconto",
+        "title": "Configurações de Desconto",
+        "description": "Regras para aplicação de desconto no cálculo do frete.",
         "items": {
           "type": "object",
           "required": [
@@ -109,14 +104,16 @@
           ],
           "properties": {
             "minimum_subtotal": {
+              "title": "Valor mínimo",
               "type": "number",
-              "description": "Valor minimo para desconto de frete",
+              "description": "Valor mínimo para aplicação de desconto no frete.",
               "minimum": 0,
               "maximum": 999999999
             },
             "states": {
               "type": "array",
-              "title": "Faixa de Cep",
+              "title": "Faixa de CEP",
+              "description": "Faixa de códigos postais que podem ter desconto aplicado no frete.",
               "items": {
                 "type": "object",
                 "required": [
@@ -126,18 +123,21 @@
                 "properties": {
                   "from": {
                     "type": "string",
-                    "title": "CEP inicial"
+                    "title": "CEP inicial",
+                    "description": "Cep inicial para aplicação do desconto - ex: 31920-310"
                   },
                   "to": {
                     "type": "string",
-                    "title": "CEP final"
+                    "title": "CEP final",
+                    "description": "Cep final para aplicação do desconto - ex: 31920-999"
                   }
                 }
               }
             },
             "discount": {
               "type": "object",
-              "title": "Opções de desconto.",
+              "title": "Descontos",
+              "description": "Opções de desconto a ser aplicado, valor fixo ou porcentagem.",
               "required": [
                 "fixed_value",
                 "percent_value"
@@ -145,27 +145,24 @@
               "properties": {
                 "fixed_value": {
                   "type": "number",
-                  "title": "Valor do fixo.",
+                  "title": "Fixo",
+                  "description": "Valor fixo a ser aplicado como desconto - ex 2,00",
                   "min": 1,
-                  "max": 9999999,
-                  "examples": [
-                    10
-                  ]
+                  "max": 9999999
                 },
                 "percent_value": {
                   "type": "number",
-                  "title": "Valor em porcentagem",
+                  "title": "Porcentagem",
+                  "description": "Valor em porcetagem a ser aplicado como desconto",
                   "min": 1,
-                  "max": 9999999,
-                  "examples": [
-                    15
-                  ]
+                  "max": 9999999
                 }
               }
             },
             "addition": {
               "type": "object",
-              "title": "Valor adicional ao frete",
+              "title": "Valor adicional",
+              "description": "É possível incluir um valor adicional a um frete, tanto fixo quanto porcentagem.",
               "required": [
                 "type",
                 "value"
@@ -173,7 +170,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "title": "Taxa adicional",
+                  "title": "Tipo de valor",
                   "examples": [
                     "fixed"
                   ],
@@ -184,24 +181,23 @@
                 },
                 "value": {
                   "title": "Valor adicional",
+                  "description": "Valor adicional a ser aplicado.",
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 9999999999,
-                  "examples": [
-                    10
-                  ]
+                  "maximum": 9999999999
                 }
               }
             }
           }
         }
       },
-      "hide":true
+      "hide": true
     },
     "unavailable_for": {
-      "schema":{
+      "schema": {
         "type": "array",
-        "title": "Desabilitar serviço de envio para determinada faixa de cep",
+        "title": "Desativar serviços",
+        "description": "É possível desabilitar determinados serviços de envio para determinadas faixas de cep ou para todo o Brasil.",
         "items": {
           "type": "object",
           "required": [
@@ -212,6 +208,7 @@
             "states": {
               "type": "array",
               "title": "Faixa de Cep",
+              "description": "Faixa de códigos postais para qual serão desabalitados os serviços.",
               "items": {
                 "type": "object",
                 "required": [
@@ -222,26 +219,24 @@
                   "from": {
                     "type": "string",
                     "title": "Cep inicial",
-                    "examples": [
-                      "01000000"
-                    ]
+                    "description": "Cep inicial para desabilitar determinado serviço de envio - ex: 31920-310"
                   },
                   "to": {
                     "type": "string",
                     "title": "Cep final",
-                    "examples": [
-                      "39999999"
-                    ]
+                    "description": "Cep final para desabilitar determinado serviço de envio - ex: 31920-310"
                   }
                 }
               }
             },
             "services": {
               "type": "array",
-              "title": "Serviços desabilitados",
+              "title": "Serviços",
+              "description": "Serviços que podem ser desabilitados",
               "items": {
                 "type": "string",
-                "title": "The Items Schema",
+                "description": "Caso algum serviço seja selecionado e nenhuma faixa de cep seja informada, o serviço estará indisponível para todo Brasil.",
+                "title": "Opções",
                 "enum": [
                   "PAC",
                   ".Package",
@@ -253,7 +248,7 @@
           }
         }
       },
-      "hide":true
+      "hide": true
     }
   },
   "authentication": true,
@@ -295,9 +290,7 @@
     "own_hand": false,
     "jadlog_agency": 4,
     "posting_deadline": 6,
-    "sort": {
-      "by": "-price"
-    }
+    "sort": "-price"
   },
   "hidden_data": {
     "from": {
