@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "Melhor Envio App admin configuration",
   "type": "object",
-  "title": "Melhor Envio Settings",
+  "title": "Melhor Envio",
+  "description": "Melhor Envio Settings",
   "required": [
     "data",
     "hidden_data"
@@ -11,57 +11,45 @@
     "data": {
       "$id": "#/properties/data",
       "type": "object",
-      "title": "The Data Schema",
+      "title": "Data",
       "required": [
         "jadlog_agency",
-        "posting_deadline",
+        "posting_deadline"
       ],
       "properties": {
         "receipt": {
-          "$id": "#/properties/data/properties/receipt",
           "type": "boolean",
           "title": "Recibo de entrega",
           "default": false,
-          "examples": [
-            false
-          ]
+          "description": "Exigir Recibo de entrega"
         },
         "own_hand": {
-          "$id": "#/properties/data/properties/own_hand",
           "type": "boolean",
           "title": "Mão Própria",
           "default": false,
-          "examples": [
-            false
-          ]
+          "description": "A encomenda só poderá ser retirada pelo destinatário"
         },
         "jadlog_agency": {
-          "$id": "#/properties/data/properties/jadlog_agency",
           "type": "integer",
-          "title": "The Jadlog_agency Schema",
-          "examples": [
-            1234
-          ]
+          "title": "Agência Jadlog",
+          "description": "Agência da transportadora jadlog que fará a coleta das encomendas"
         },
         "posting_deadline": {
-          "$id": "#/properties/data/properties/posting_deadline",
           "type": "integer",
           "title": "Prazo de despacho",
-          "default": 6,
-          "examples": [
-            6
-          ]
+          "min": 1,
+          "max": 999,
+          "description": "Prazo de envio da encomenda após confirmação do pagamento"
         },
         "sort": {
-          "$id": "#/properties/data/properties/sort",
           "type": "object",
           "title": "Ordem dos serviços",
+          "description": "Ordem em que os serviços serão exibidos quando realizado o cálculo do frete",
           "required": [
             "by"
           ],
           "properties": {
             "by": {
-              "$id": "#/properties/data/properties/sort/properties/by",
               "type": "string",
               "title": "Preço ou Prazo",
               "enum": [
@@ -77,14 +65,14 @@
     },
     "hidden_data": {
       "type": "object",
-      "title": "The Hidden_data Schema",
+      "description": "Configurações ocultas do applicativo",
       "required": [
         "from"
       ],
       "properties": {
         "from": {
           "type": "object",
-          "title": "Endereço do remetente",
+          "description": "Endereço do remetente",
           "required": [
             "zip",
             "street",
@@ -93,38 +81,27 @@
           "properties": {
             "zip": {
               "type": "string",
-              "title": "CEP",
-              "default": "",
-              "examples": [
-                "13160000"
-              ],
-              "pattern": "^(.*)$"
+              "maxLength": 30,
+              "description": "ZIP (CEP, postal...) code"
             },
             "street": {
               "type": "string",
-              "title": "Rua",
-              "default": "",
-              "examples": [
-                "Rua Célia"
-              ],
-              "pattern": "^(.*)$"
+              "maxLength": 200,
+              "description": "Street or public place name"
             },
             "number": {
-              "$id": "#/properties/hidden_data/properties/from/properties/number",
               "type": "integer",
-              "title": "Número",
-              "examples": [
-                123
-              ]
+              "min": 1,
+              "max": 9999999,
+              "description": "House or building street number"
             }
           }
         },
         "shipping_discount": {
           "type": "array",
-          "title": "Configurações de Desconto",
+          "description": "Configurações de Desconto",
           "items": {
             "type": "object",
-            "title": "The Items Schema",
             "required": [
               "minimum_subtotal",
               "states",
@@ -133,19 +110,15 @@
             "properties": {
               "minimum_subtotal": {
                 "type": "number",
-                "title": "Valor minimo para desconto de frete",
+                "description": "Valor minimo para desconto de frete",
                 "minimum": 0,
-                "maximum": 999999999,
-                "examples": [
-                  150
-                ]
+                "maximum": 999999999
               },
               "states": {
                 "type": "array",
-                "title": "Faixa de Cep onde o desconto se aplica",
+                "title": "Faixa de Cep",
                 "items": {
                   "type": "object",
-                  "title": "The Items Schema",
                   "required": [
                     "from",
                     "to"
@@ -153,17 +126,11 @@
                   "properties": {
                     "from": {
                       "type": "string",
-                      "title": "CEP inicial",
-                      "examples": [
-                        "01000000"
-                      ]
+                      "title": "CEP inicial"
                     },
                     "to": {
                       "type": "string",
-                      "title": "CEP final",
-                      "examples": [
-                        "39999999"
-                      ]
+                      "title": "CEP final"
                     }
                   }
                 }
@@ -234,7 +201,6 @@
           "title": "Desabilitar serviço de envio para determinada faixa de cep",
           "items": {
             "type": "object",
-            "title": "The Items Schema",
             "required": [
               "states",
               "services"
@@ -245,7 +211,6 @@
                 "title": "Faixa de Cep",
                 "items": {
                   "type": "object",
-                  "title": "The Items Schema",
                   "required": [
                     "from",
                     "to"
