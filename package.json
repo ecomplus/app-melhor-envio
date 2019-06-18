@@ -18,13 +18,13 @@
     },
     "homepage": "https://github.com/ecomclub/app-melhor-envio#readme",
     "dependencies": {
-        "console-files": "^2.1.0",
+        "console-files": "^2.3.1",
         "dotenv": "^6.2.0",
-        "ecomplus-app-sdk": "^1.9.6",
-        "express": "^4.16.4",
+        "ecomplus-app-sdk": "^1.9.7",
+        "express": "^4.17.1",
         "melhor-envio": "^1.6.1",
         "request": "^2.88.0",
-        "sqlite3": "^4.0.6",
+        "sqlite3": "^4.0.9",
         "standard": "^12.0.1"
     }
 }

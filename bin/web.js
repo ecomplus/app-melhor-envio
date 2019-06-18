@@ -27,7 +27,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // E-Com Plus Store ID from request header
-let storeId
 app.use((req, res, next) => {
   if (req.originalUrl.startsWith('/ecom/') && process.env.NODE_ENV === 'production') {
     // check if request is comming from E-Com Plus servers
@@ -35,7 +34,7 @@ app.use((req, res, next) => {
       res.status(403).send('Who are you? Unauthorized IP address')
     } else {
       // get store ID from request header
-      storeId = parseInt(req.get('x-store-id'), 10)
+      req.storeId = parseInt(req.get('x-store-id'), 10)
       next()
     }
   } else {
@@ -50,13 +49,13 @@ ecomAuth.then(appSdk => {
   router.get('/', require(`${routes}/`)())
 
   // base routes for E-Com Plus Store API
-  ;['auth-callback', 'webhook'].forEach(endpoint => {
+  ;['auth-callback', 'webhook', 'modules/calculate'].forEach(endpoint => {
     let filename = `/ecom/${endpoint}`
-    router.post(filename, require(`${routes}${filename}`)(appSdk, storeId))
+    router.post(filename, require(`${routes}${filename}`)(appSdk, me))
   })
 
   /* Add custom app routes here */
-  ;['auth-callback, request-auth'].forEach(endpoint => {
+  ;['auth-callback', 'request-auth'].forEach(endpoint => {
     let filename = `/melhorenvio/${endpoint}`
     router.get(filename, require(`${routes}${filename}`)(me))
   })
