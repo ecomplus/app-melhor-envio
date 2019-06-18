@@ -33,6 +33,7 @@ const freeShippingFromValue = (application, params) => {
 module.exports = (appSdk, me) => {
   return (req, res) => {
     let schema = {}
+    logger.log(req.body)
     const { application, params } = req.body
     const { storeId } = req
     const moduleResponse = {
@@ -63,14 +64,14 @@ module.exports = (appSdk, me) => {
             return me.shipment.calculate(schema)
           })
           .then(services => {
-            console.log('--> Calculate Shipping')
+            logger.log('--> Calculate Shipping')
             // shipping services
             moduleResponse.shipping_services = calculateResponse(services, application, params, schema.from)
             // response
             return res.status(200).send(moduleResponse)
           })
-          .catch(e => console.log(e))
+          .catch(e => logger.error(e))
       })
-      .catch(e => console.log(e))
+      .catch(e => logger.error(e))
   }
 }
