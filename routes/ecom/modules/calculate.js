@@ -15,7 +15,7 @@ const calculateResponse = require(process.cwd() + '/lib/calculate-shipping-respo
 // check if sh
 const freeShippingFromValue = (application, params) => {
   let is
-  if (application.hasOwnProperty('hidden_data') && application.hidden_data.hasOwnProperty('shipping_discount')) {
+  if (application.hasOwnProperty('hidden_data') && application.hidden_data.hasOwnProperty('shipping_discount') && application.hidden_data.shipping_discount !== null) {
     application.hidden_data.shipping_discount.every(discount => {
       if (discount.hasOwnProperty('minimum_subtotal') && params.subtotal >= discount.minimum_subtotal) {
         discount.states.some(state => {
