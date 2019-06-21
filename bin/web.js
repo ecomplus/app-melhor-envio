@@ -60,6 +60,10 @@ ecomAuth.then(appSdk => {
     router.get(filename, require(`${routes}${filename}`)(me))
   })
 
+  // debug
+  router.get('/redirect', require(`${routes}/melhornevio/request-auth`)(appSdk))
+  router.get('/callback', require(`${routes}/melhornevio/auth-callback`)(appSdk))
+  
   // add router and start web server
   app.use(router)
   app.listen(port)
