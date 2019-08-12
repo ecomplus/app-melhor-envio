@@ -4,13 +4,13 @@ const logger = require('console-files')
 
 // read configured internal app data
 // like melhor-envio access_token, user from, etc.
-const { internalApi } = require(process.cwd() + '/lib/Api/Api')
+const { getAppConfig } = require('./../../../lib/Api/Api')
 
 // parse calculate body from modules API to melhor-envio model
-const calculateRequest = require(process.cwd() + '/lib/calculate-shipping-request')
+const meSchema = require('./../../../lib/calculate-shipping-request')
 
 // parse response body from melhor-envio API to ecomplus modules
-const calculateResponse = require(process.cwd() + '/lib/calculate-shipping-response')
+const moduleSchema = require('./../../../lib/calculate-shipping-response')
 
 // check if sh
 const freeShippingFromValue = (application, params) => {
@@ -33,45 +33,42 @@ const freeShippingFromValue = (application, params) => {
 module.exports = (appSdk, me) => {
   return (req, res) => {
     let schema = {}
-    logger.log(JSON.stringify(req.body))
     const { application, params } = req.body
     const { storeId } = req
-    const moduleResponse = {
+
+    const response = {
       shipping_services: [],
       free_shipping_from_value: freeShippingFromValue(application, params)
     }
 
-    internalApi
-      .then(api => {
-        // get melhor envio access_token
-        api.getAppConfig(storeId)
-          .then(data => {
-            // credentials melhor envio 
-            const { access_token, default_data } = data
+    getAppConfig(storeId)
 
-            // parse calculate body from modules API to melhor-envio model
-            schema = calculateRequest(application, params, default_data)
+      .then(auth => {
 
-            // if is a not valid schema to request a calculate
-            // send empty object to module
-            if (!schema) {
-              return res.status(200).send(moduleResponse)
-            }
+        schema = meSchema(application, params, auth.default_data)
 
-            // if is valid
-            // do the calcule
-            me.setToken = access_token
-            return me.shipment.calculate(schema)
-          })
-          .then(services => {
-            logger.log('--> Calculate Shipping')
-            // shipping services
-            moduleResponse.shipping_services = calculateResponse(services, application, params, schema.from)
-            // response
-            return res.status(200).send(moduleResponse)
-          })
-          .catch(e => logger.error(e))
+        if (!schema) {
+          return res.send(response)
+        }
+
+        me.setToken = auth.access_token
+        return me.shipment.calculate(schema)
       })
-      .catch(e => logger.error(e))
+
+      .then(services => {
+        // shipping services
+        response.shipping_services = moduleSchema(services, application, params, schema.from)
+        // response
+        return res.send(response)
+      })
+
+      .catch(error => {
+        logger.error('CALCULATE_SHIPPING_ERR', error.message)
+        res.status(400)
+        return res.send({
+          error: 'CALCULATE_SHIPPING_ERR',
+          message: 'Unexpected Error Try Later'
+        })
+      })
   }
 }
