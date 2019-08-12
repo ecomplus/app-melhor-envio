@@ -23,6 +23,9 @@ ecomAuth.then(appSdk => {
       }
     })
   }
+
+  // tracking code
+  require('./../lib/update-tracking-code')(appSdk)
 })
 
 ecomAuth.catch(err => {
@@ -34,3 +37,5 @@ ecomAuth.catch(err => {
 })
 
 /* Run other app background processes here */
+// update tokens
+require('./../lib/UpdateTokens')()
