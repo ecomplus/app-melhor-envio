@@ -1,5 +1,5 @@
 'use strict'
-
+const logger = require('console-files')
 // read configured E-Com Plus app data
 const getConfig = require(process.cwd() + '/lib/store-api/get-config')
 
@@ -9,9 +9,9 @@ const ECHO_SKIP = 'SKIP'
 const ECHO_API_ERROR = 'STORE_API_ERR'
 
 //
-const { internalApi } = require(process.cwd() + '/lib/Api/Api')
-const labelCanBeGenereted = require(process.cwd() + '/lib/label-can-be-generated')
-const generateLabelSchema = require(process.cwd() + '/lib/generate-label-request')
+const { getAppConfig, addNewLabel } = require('./../../lib/Api/Api')
+const labelCanBeGenereted = require('./../../lib/label-can-be-generated')
+const generateLabelSchema = require('./../../lib/generate-label-request')
 
 module.exports = (appSdk, me) => {
   return (req, res) => {
@@ -22,86 +22,76 @@ module.exports = (appSdk, me) => {
     */
     const { storeId } = req
     const resourceId = req.body.resource_id || req.body.inserted_id
+
     // get app configured options
     getConfig({ appSdk, storeId }, true)
 
       .then(configObj => {
         /* Do the stuff */
-        return internalApi
-          .then(iApi => {
-            return {
-              iApi,
-              configObj
-            }
-          })
-      })
+        return getAppConfig(storeId)
 
-      .then(({ iApi, configObj }) => {
-        return iApi.getAppConfig(storeId)
-
-          .then(data => {
-            const { access_token } = data
-            /* Do the stuff */
-            let resource = 'orders/' + resourceId
+          .then(auth => {
+            let resource = `orders/${resourceId}`
             let method = 'GET'
-            // get order
+
+            // get order ecomplus
             return appSdk.apiRequest(storeId, resource, method)
 
               .then(async result => {
-                let order = result.response.data
-                
-                // checks whether the order has required properties as fulfillment_status, service_code, invoices and issuer.doc_number
-                // or checks if the order already has a label generated
+                const order = result.response.data
+
+                // Checks if the order has the properties required to purchase the tag and binds it to order
                 if (!labelCanBeGenereted(order)) {
                   return res.send(ECHO_SKIP)
                 }
 
-                // melhor-envio-sdk set access_token after instance
-                me.setToken = access_token
-                
-                // get seller data
-                let seller = await me.user.me()
+                // sdk
+                me.setToken = auth.access_token // set token
+                let seller = await me.user.me() // get seller address current
 
-                // parser order to melhor envio model
+                // create a schema valid to
+                // generate label at melhor-envio
                 let schema = generateLabelSchema(order, seller, configObj)
 
-                // insert schema at melhor envio cart
-                me.user.cart(schema)
+                // insert schema at cart
+                await me.user.cart(schema)
 
-                  .then(label => {
-                    // try to pay the label genereted
-                    me.shipment.checkout(label.id)
+                  .then(async label => {
+                    // request checkout at melhor-envio
+                    return me.shipment.checkout([label.id])
 
                       .then(() => {
-                        // then save label at database
-                        return iApi.addNewLabel(label.id, label.status, resourceId, storeId)
-                          // then update order at ecomplus-api
-                          .then(() => {
-                            let resource = 'orders/' + resourceId + '/hidden_metafields.json'
-                            let method = 'POST'
-                            let params = {
-                              field: 'melhor_envio_label_id',
-                              value: label.id
-                            }
-                            //
-                            return appSdk.apiRequest(storeId, resource, method, params)
-                          })
+                        // saves the tag to the database for later tracking
+                        return addNewLabel(label.id, label.status, resourceId, storeId)
+                      })
 
-                          .then(() => {
-                            // done
-                            res.send(ECHO_SUCCESS)
-                          })
+                      .then(() => {
+                        logger.log('--> Label purchased for order:', order._id)
+                        // updates hidden_metafields with the generated tag id
+                        let resource = `orders/${resourceId}/hidden_metafields.json`
+                        let method = 'POST'
+                        let params = {
+                          field: 'melhor_envio_label_id',
+                          value: label.id
+                        }
+                        return appSdk.apiRequest(storeId, resource, method, params)
+                      })
+
+                      .then(() => {
+                        // done
+                        res.send(ECHO_SUCCESS)
                       })
                   })
               })
           })
       })
+
       .catch(err => {
         if (err.name === SKIP_TRIGGER_NAME) {
           // trigger ignored by app configuration
           res.send(ECHO_SKIP)
         } else {
-          // logger.error(err)
+          logger.error('--> WEBHOOK_ERR', err)
           // request to Store API with error response
           // return error status code
           res.status(500)
