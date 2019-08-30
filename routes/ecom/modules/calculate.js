@@ -32,6 +32,7 @@ const freeShippingFromValue = (application, params) => {
 
 module.exports = (appSdk, me) => {
   return (req, res) => {
+    logger.log(JSON.stringify(req.body))
     let schema = {}
     const { application, params } = req.body
     const { storeId } = req
