@@ -26,61 +26,65 @@ module.exports = (appSdk, me) => {
     // get app configured options
     getConfig({ appSdk, storeId }, true)
 
-      .then(configObj => {
+      .then(async configObj => {
         /* Do the stuff */
-        return getAppConfig(storeId)
+        let accessToken = null
+        if (!configObj.access_token) {
+          let auth = await getAppConfig(storeId)
+          accessToken = auth.access_token
+        } else {
+          accessToken = configObj.access_token
+        }
 
-          .then(auth => {
-            let resource = `orders/${resourceId}`
-            let method = 'GET'
+        let resource = `orders/${resourceId}`
+        let method = 'GET'
 
-            // get order ecomplus
-            return appSdk.apiRequest(storeId, resource, method)
+        // get order ecomplus
+        return appSdk.apiRequest(storeId, resource, method)
 
-              .then(async result => {
-                const order = result.response.data
+          .then(async result => {
+            const order = result.response.data
 
-                // Checks if the order has the properties required to purchase the tag and binds it to order
-                if (!labelCanBeGenereted(order)) {
-                  return res.send(ECHO_SKIP)
-                }
+            // Checks if the order has the properties required to purchase the tag and binds it to order
+            if (!labelCanBeGenereted(order)) {
+              return res.send(ECHO_SKIP)
+            }
 
-                // sdk
-                me.setToken = auth.access_token // set token
-                let seller = await me.user.me() // get seller address current
+            // sdk
+            me.setToken = accessToken // set token
+            let seller = await me.user.me() // get seller address current
 
-                // create a schema valid to
-                // generate label at melhor-envio
-                let schema = generateLabelSchema(order, seller, configObj)
+            // create a schema valid to
+            // generate label at melhor-envio
+            let schema = generateLabelSchema(order, seller, configObj)
 
-                // insert schema at cart
-                await me.user.cart(schema)
+            // insert schema at cart
+            await me.user.cart(schema)
 
-                  .then(async label => {
-                    // request checkout at melhor-envio
-                    return me.shipment.checkout([label.id])
+              .then(async label => {
+                // request checkout at melhor-envio
+                return me.shipment.checkout([label.id])
 
-                      .then(() => {
-                        // saves the tag to the database for later tracking
-                        return addNewLabel(label.id, label.status, resourceId, storeId)
-                      })
+                  .then(() => {
+                    // saves the tag to the database for later tracking
+                    return addNewLabel(label.id, label.status, resourceId, storeId)
+                  })
 
-                      .then(() => {
-                        logger.log('--> Label purchased for order:', order._id)
-                        // updates hidden_metafields with the generated tag id
-                        let resource = `orders/${resourceId}/hidden_metafields.json`
-                        let method = 'POST'
-                        let params = {
-                          field: 'melhor_envio_label_id',
-                          value: label.id
-                        }
-                        return appSdk.apiRequest(storeId, resource, method, params)
-                      })
+                  .then(() => {
+                    logger.log('--> Label purchased for order:', order._id)
+                    // updates hidden_metafields with the generated tag id
+                    let resource = `orders/${resourceId}/hidden_metafields.json`
+                    let method = 'POST'
+                    let params = {
+                      field: 'melhor_envio_label_id',
+                      value: label.id
+                    }
+                    return appSdk.apiRequest(storeId, resource, method, params)
+                  })
 
-                      .then(() => {
-                        // done
-                        res.send(ECHO_SUCCESS)
-                      })
+                  .then(() => {
+                    // done
+                    res.send(ECHO_SUCCESS)
                   })
               })
           })
