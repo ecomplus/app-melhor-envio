@@ -57,39 +57,6 @@
       },
       "hide": false
     },
-    "from": {
-      "schema": {
-        "type": "object",
-        "title": "Endereço do remetente das encomendas.",
-        "required": [
-          "zip",
-          "street",
-          "number"
-        ],
-        "properties": {
-          "zip": {
-            "title": "CEP",
-            "type": "string",
-            "maxLength": 30,
-            "description": "ZIP (CEP, postal...) code"
-          },
-          "street": {
-            "title": "Rua",
-            "type": "string",
-            "maxLength": 200,
-            "description": "Nome da rua"
-          },
-          "number": {
-            "title": "Número",
-            "type": "integer",
-            "min": 1,
-            "max": 9999999,
-            "description": "Número"
-          }
-        }
-      },
-      "hide": true
-    },
     "shipping_discount": {
       "schema": {
         "type": "array",
@@ -249,10 +216,18 @@
         }
       },
       "hide": true
+    },
+    "access_token": {
+      "schema": {
+        "title": "Melhor Envio Token",
+        "type": "string",
+        "description": "Token vinculado a sua conta no melhor envio."
+      },
+      "hide": true
     }
   },
   "authentication": true,
-  "auth_callback_uri": "https://melhorenvio.ecomplus.biz/callback",
+  "auth_callback_uri": "https://melhorenvio.ecomplus.biz/ecom/auth-callback",
   "auth_scope": {
     "orders": [
       "GET",
