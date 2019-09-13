@@ -42,7 +42,7 @@ const freeShippingFromValue = (application, params) => {
 
 module.exports = (appSdk, me) => {
   return async (req, res) => {
-    logger.log(JSON.stringify(req.body))
+    //logger.log(JSON.stringify(req.body))
     let schema = {}
     const { application, params } = req.body
     const { storeId } = req
@@ -81,7 +81,11 @@ module.exports = (appSdk, me) => {
 
       promise.then(services => {
         // shipping services
-        response.shipping_services = moduleSchema(services, application, params, schema.from)
+        const payload = moduleSchema(services, application, params, schema.from)
+        response.shipping_services = payload
+        if (!payload.length) {
+          logger.error('MELHORENVIO_API_REQUEST_ERR', JSON.stringify(services))
+        }
         // response
         return res.send(response)
       })
