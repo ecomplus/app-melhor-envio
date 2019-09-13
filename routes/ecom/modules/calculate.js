@@ -83,18 +83,22 @@ module.exports = (appSdk, me) => {
         // shipping services
         const payload = moduleSchema(services, application, params, schema.from)
         response.shipping_services = payload
-        if (!payload.length) {
-          logger.error('MELHORENVIO_API_REQUEST_ERR', JSON.stringify(services))
+        if (!payload.length && services.length) {
+          let erros = services.map(service => service.name)
+          return res.status(400).send({
+            error: 'MELHORENVIO_SERVICE_UNAVAILABLE',
+            message: erros
+          })
         }
         // response
         return res.send(response)
       })
 
         .catch(error => {
-          logger.error('CALCULATE_SHIPPING_ERR', error)
+          logger.error('MELHORENVIO_CALCULATE_SHIPPING_ERR', error)
           res.status(400)
           return res.send({
-            error: 'CALCULATE_SHIPPING_ERR',
+            error: 'MELHORENVIO_CALCULATE_SHIPPING_ERR',
             message: 'Unexpected Error Try Later'
           })
         })
