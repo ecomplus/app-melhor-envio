@@ -84,9 +84,9 @@ module.exports = (appSdk, me) => {
         const payload = moduleSchema(services, application, params, schema.from)
         response.shipping_services = payload
         if (!payload.length && services.length) {
-          let erros = services.map(service => service.name)
+          let erros = services.map(service => `${service.name} - ${service.error}`)
           return res.status(400).send({
-            error: 'MELHORENVIO_SERVICE_UNAVAILABLE',
+            error: 'Serviço indisponível',
             message: erros
           })
         }
