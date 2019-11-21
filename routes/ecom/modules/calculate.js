@@ -95,7 +95,7 @@ module.exports = (appSdk, me) => {
       })
 
         .catch(error => {
-          logger.error('MELHORENVIO_CALCULATE_SHIPPING_ERR', error)
+          logger.error('MELHORENVIO_CALCULATE_SHIPPING_ERR', error.message)
           res.status(400)
           return res.send({
             error: 'MELHORENVIO_CALCULATE_SHIPPING_ERR',
