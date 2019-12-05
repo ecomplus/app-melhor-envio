@@ -33,6 +33,20 @@
       },
       "hide": false
     },
+    "sort_services": {
+      "schema": {
+        "title": "Ordem dos serviços",
+        "type": "string",
+        "description": "Para ordernar o resultado dos serviços do menor prazo de envio para o maior selecione `-delivery` caso contrário selecione a opção `delivery`. Se preferir ordernar o resultado do cálculo do frete do menor preço para maior use `-price`, do contrário selecione `price`.",
+        "enum": [
+          "-price",
+          "price",
+          "-delivery",
+          "delivery"
+        ]
+      },
+      "hide": false
+    },
     "posting_deadline": {
       "schema": {
         "title": "Prazo de postagem",
@@ -60,20 +74,6 @@
             "title": "Após aprovação do pagamento"
           }
         }
-      },
-      "hide": false
-    },
-    "sort_services": {
-      "schema": {
-        "title": "Ordem dos serviços",
-        "type": "string",
-        "description": "Para ordernar o resultado dos serviços do menor prazo de envio para o maior selecione `-delivery` caso contrário selecione a opção `delivery`. Se preferir ordernar o resultado do cálculo do frete do menor preço para maior use `-price`, do contrário selecione `price`.",
-        "enum": [
-          "-price",
-          "price",
-          "-delivery",
-          "delivery"
-        ]
       },
       "hide": false
     },
