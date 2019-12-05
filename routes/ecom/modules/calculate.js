@@ -146,7 +146,7 @@ module.exports = (appSdk, me) => {
               custom_fields: [
                 {
                   field: 'by_melhor_envio',
-                  value: true
+                  value: 'true'
                 },
                 {
                   field: 'jadlog_agency',
