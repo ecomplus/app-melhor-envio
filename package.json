@@ -1,30 +1,30 @@
 {
-    "name": "app-melhor-envio",
-    "version": "1.0.0",
-    "description": "Integração e-com.plus e melhor envio",
-    "main": "index.js",
-    "scripts": {
-        "start": "node main.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/ecomclub/app-melhor-envio.git"
-    },
-    "author": "Talisson Ferreira",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/ecomclub/app-melhor-envio/issues"
-    },
-    "homepage": "https://github.com/ecomclub/app-melhor-envio#readme",
-    "dependencies": {
-        "console-files": "^2.3.1",
-        "dotenv": "^6.2.0",
-        "ecomplus-app-sdk": "^1.9.8",
-        "express": "^4.17.1",
-        "melhor-envio": "^1.6.2",
-        "request": "^2.88.0",
-        "sqlite3": "^4.0.9",
-        "standard": "^12.0.1"
-    }
+  "name": "app-melhor-envio",
+  "version": "1.0.0",
+  "description": "Integração e-com.plus e melhor envio",
+  "main": "index.js",
+  "scripts": {
+    "start": "ME_SANDBOX=false ECOM_AUTH_DB=/var/dbs/melhorenvio.sqlite LOGGER_OUTPUT=/var/log/nodejs/melhorenvio.out LOGGER_ERRORS=/var/log/nodejs/melhorenvio.error nodemon main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecomclub/app-melhor-envio.git"
+  },
+  "author": "Talisson Ferreira",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ecomclub/app-melhor-envio/issues"
+  },
+  "homepage": "https://github.com/ecomclub/app-melhor-envio#readme",
+  "dependencies": {
+    "console-files": "^2.3.1",
+    "dotenv": "^6.2.0",
+    "ecomplus-app-sdk": "^1.9.8",
+    "express": "^4.17.1",
+    "melhor-envio": "^1.6.2",
+    "request": "^2.88.0",
+    "sqlite3": "^4.0.9",
+    "standard": "^12.0.1"
+  }
 }

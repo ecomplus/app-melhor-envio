@@ -11,8 +11,8 @@
       "schema": {
         "title": "Aviso de Recebimento",
         "type": "boolean",
-        "default": true,
-        "description": "Notificar ao destinatário quando seu pacote for recebido."
+        "default": false,
+        "description": "Aviso de Recebimento está disponível para os Correios e para as transportadoras privadas. Marcando esta opção, o entregador deve obter as informações de quem receber a encomenda no destino, permitindo ao remetente comprovar o recebimento do volume. Esse é um serviço adicional e pode, ou não, alterar o valor do envio."
       },
       "hide": false
     },
@@ -21,7 +21,7 @@
         "title": "Mão própria",
         "type": "boolean",
         "default": false,
-        "description": "Exigir assinatura do destinário no recebimento da encomenda. Obs: Somente o destinário poderá receber a encomenda caso a opção seja marcada."
+        "description": "Marcando esta opção, você garante que apenas o destinatário possa receber a encomenda. Esse é um serviço adicional e deve alterar o valor do envio. No momento, a modalidade Mini não possui a possibilidade de contratação do serviço de Mão Própria."
       },
       "hide": false
     },
@@ -35,15 +35,35 @@
     },
     "posting_deadline": {
       "schema": {
-        "type": "integer",
-        "title": "Prazo de despacho",
-        "min": 1,
-        "max": 999,
-        "description": "Prazo de envio da encomenda após confirmação do pagamento"
+        "title": "Prazo de postagem",
+        "type": "object",
+        "required": [
+          "days"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "days": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 999999,
+            "title": "Número de dias",
+            "description": "Dias de prazo para postar os produtos após a compra"
+          },
+          "working_days": {
+            "type": "boolean",
+            "default": true,
+            "title": "Dias úteis"
+          },
+          "after_approval": {
+            "type": "boolean",
+            "default": true,
+            "title": "Após aprovação do pagamento"
+          }
+        }
       },
       "hide": false
     },
-    "sort": {
+    "sort_services": {
       "schema": {
         "title": "Ordem dos serviços",
         "type": "string",
@@ -57,108 +77,91 @@
       },
       "hide": false
     },
-    "shipping_discount": {
+    "additional_price": {
       "schema": {
+        "type": "number",
+        "minimum": -999999,
+        "maximum": 999999,
+        "title": "Custo adicional",
+        "description": "Valor a adicionar (negativo para descontar) no frete calculado via Correios"
+      },
+      "hide": false
+    },
+    "shipping_rules": {
+      "schema": {
+        "title": "Regras de envio",
+        "description": "Aplicar descontos/adicionais condicionados ou desabilitar regiões",
         "type": "array",
-        "title": "Configurações de Desconto",
-        "description": "Regras para aplicação de desconto no cálculo do frete.",
+        "maxItems": 300,
         "items": {
+          "title": "Regra de envio",
           "type": "object",
-          "required": [
-            "minimum_subtotal",
-            "states",
-            "discount"
-          ],
+          "minProperties": 1,
           "properties": {
-            "minimum_subtotal": {
-              "title": "Valor mínimo",
-              "type": "number",
-              "description": "Valor mínimo para aplicação de desconto no frete.",
-              "minimum": 0,
-              "maximum": 999999999
+            "service_code": {
+              "type": "string",
+              "maxLength": 9,
+              "pattern": "^[0-9]+$",
+              "title": "Código do serviço"
             },
-            "states": {
-              "type": "array",
+            "zip_range": {
               "title": "Faixa de CEP",
-              "description": "Faixa de códigos postais que podem ter desconto aplicado no frete.",
-              "items": {
-                "type": "object",
-                "required": [
-                  "from",
-                  "to"
-                ],
-                "properties": {
-                  "from": {
-                    "type": "string",
-                    "title": "CEP inicial",
-                    "description": "Cep inicial para aplicação do desconto - ex: 31920-310"
-                  },
-                  "to": {
-                    "type": "string",
-                    "title": "CEP final",
-                    "description": "Cep final para aplicação do desconto - ex: 31920-999"
-                  }
-                }
-              }
-            },
-            "discount": {
               "type": "object",
-              "title": "Descontos",
-              "description": "Opções de desconto a ser aplicado, valor fixo ou porcentagem.",
               "required": [
-                "fixed_value",
-                "percent_value"
+                "min",
+                "max"
               ],
               "properties": {
-                "fixed_value": {
-                  "type": "number",
-                  "title": "Fixo",
-                  "description": "Valor fixo a ser aplicado como desconto - ex 2,00",
-                  "min": 1,
-                  "max": 9999999
+                "min": {
+                  "type": "integer",
+                  "minimum": 10000,
+                  "maximum": 999999999,
+                  "title": "CEP inicial"
                 },
-                "percent_value": {
-                  "type": "number",
-                  "title": "Porcentagem",
-                  "description": "Valor em porcetagem a ser aplicado como desconto",
-                  "min": 1,
-                  "max": 9999999
+                "max": {
+                  "type": "integer",
+                  "minimum": 10000,
+                  "maximum": 999999999,
+                  "title": "CEP final"
                 }
               }
             },
-            "addition": {
+            "min_amount": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 999999999,
+              "title": "Valor mínimo da compra"
+            },
+            "free_shipping": {
+              "type": "boolean",
+              "default": false,
+              "title": "Frete grátis"
+            },
+            "discount": {
+              "title": "Desconto",
               "type": "object",
-              "title": "Valor adicional",
-              "description": "É possível incluir um valor adicional a um frete, tanto fixo quanto porcentagem.",
               "required": [
-                "type",
                 "value"
               ],
               "properties": {
-                "type": {
-                  "type": "string",
-                  "title": "Tipo de valor",
-                  "examples": [
-                    "fixed"
-                  ],
-                  "enum": [
-                    "percentage",
-                    "fixed"
-                  ]
+                "percentage": {
+                  "type": "boolean",
+                  "default": false,
+                  "title": "Desconto percentual"
                 },
                 "value": {
-                  "title": "Valor adicional",
-                  "description": "Valor adicional a ser aplicado.",
                   "type": "number",
-                  "minimum": 0,
-                  "maximum": 9999999999
+                  "minimum": -99999999,
+                  "maximum": 99999999,
+                  "title": "Valor do desconto",
+                  "description": "Valor percentual/fixo do desconto ou acréscimo (negativo)"
                 }
               }
             }
           }
         }
       },
-      "hide": true
+      "hide": false
     },
     "unavailable_for": {
       "schema": {
@@ -215,7 +218,7 @@
           }
         }
       },
-      "hide": true
+      "hide": false
     },
     "access_token": {
       "schema": {
@@ -259,80 +262,5 @@
       "enabled": true,
       "endpoint": "https://melhorenvio.ecomplus.biz/calculate"
     }
-  },
-  "data": {
-    "receipt": false,
-    "own_hand": false,
-    "jadlog_agency": 4,
-    "posting_deadline": 6,
-    "sort": "-price"
-  },
-  "hidden_data": {
-    "from": {
-      "zip": "13160000",
-      "street": "Rodovia SP 332, Km 153, s/n, Jardim Blumenau, Artur Nogueira - SP",
-      "number": 0
-    },
-    "shipping_discount": [
-      {
-        "minimum_subtotal": 150,
-        "states": [
-          {
-            "from": "01000000",
-            "to": "39999999"
-          },
-          {
-            "from": "55555555",
-            "to": "99999999"
-          }
-        ],
-        "discount": {
-          "fixed_value": 0,
-          "percent_value": 0.5
-        },
-        "addition": {
-          "type": "fixed",
-          "value": 3.50
-        }
-      },
-      {
-        "states": [
-          {
-            "from": "01000000",
-            "to": "39999999"
-          },
-          {
-            "from": "55555555",
-            "to": "99999999"
-          }
-        ],
-        "discount": {
-          "fixed_value": 0,
-          "percent_value": 0.3
-        },
-        "addition": {
-          "type": "fixed",
-          "value": 3.50
-        }
-      }
-    ],
-    "unavailable_for": [
-      {
-        "states": [
-          {
-            "from": "01000000",
-            "to": "39999999"
-          },
-          {
-            "from": "55555555",
-            "to": "99999999"
-          }
-        ],
-        "services": [
-          "PAC",
-          ".Com"
-        ]
-      }
-    ]
   }
 }
