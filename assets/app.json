@@ -12,7 +12,7 @@
         "title": "Aviso de Recebimento",
         "type": "boolean",
         "default": false,
-        "description": "Aviso de Recebimento está disponível para os Correios e para as transportadoras privadas. Marcando esta opção, o entregador deve obter as informações de quem receber a encomenda no destino, permitindo ao remetente comprovar o recebimento do volume. Esse é um serviço adicional e pode, ou não, alterar o valor do envio."
+        "description": "Serviço com um custo adicional que gera um documento que comprova a entrega do pedido"
       },
       "hide": false
     },
@@ -21,7 +21,7 @@
         "title": "Mão própria",
         "type": "boolean",
         "default": false,
-        "description": "Marcando esta opção, você garante que apenas o destinatário possa receber a encomenda. Esse é um serviço adicional e deve alterar o valor do envio. No momento, a modalidade Mini não possui a possibilidade de contratação do serviço de Mão Própria."
+        "description": "Serviço com custo adicional onde apenas o destinatário pode receber o pedido"
       },
       "hide": false
     },
@@ -37,12 +37,12 @@
       "schema": {
         "title": "Ordem dos serviços",
         "type": "string",
-        "description": "Para ordernar o resultado dos serviços do menor prazo de envio para o maior selecione `-delivery` caso contrário selecione a opção `delivery`. Se preferir ordernar o resultado do cálculo do frete do menor preço para maior use `-price`, do contrário selecione `price`.",
+        "description": "Ordem em que os serviços de envio serão listados.",
         "enum": [
-          "-price",
-          "price",
-          "-delivery",
-          "delivery"
+          "Maior preço",
+          "Menor preço",
+          "Maior prazo de entrega",
+          "Melhor prazo de entrega"
         ]
       },
       "hide": false
@@ -171,31 +171,29 @@
         "items": {
           "type": "object",
           "required": [
-            "states",
+            "zip_range",
             "services"
           ],
           "properties": {
-            "states": {
-              "type": "array",
-              "title": "Faixa de Cep",
-              "description": "Faixa de códigos postais para qual serão desabalitados os serviços.",
-              "items": {
-                "type": "object",
-                "required": [
-                  "from",
-                  "to"
-                ],
-                "properties": {
-                  "from": {
-                    "type": "string",
-                    "title": "Cep inicial",
-                    "description": "Cep inicial para desabilitar determinado serviço de envio - ex: 31920-310"
-                  },
-                  "to": {
-                    "type": "string",
-                    "title": "Cep final",
-                    "description": "Cep final para desabilitar determinado serviço de envio - ex: 31920-310"
-                  }
+            "zip_range": {
+              "title": "Faixa de CEP",
+              "type": "object",
+              "required": [
+                "min",
+                "max"
+              ],
+              "properties": {
+                "min": {
+                  "type": "integer",
+                  "minimum": 10000,
+                  "maximum": 999999999,
+                  "title": "CEP inicial"
+                },
+                "max": {
+                  "type": "integer",
+                  "minimum": 10000,
+                  "maximum": 999999999,
+                  "title": "CEP final"
                 }
               }
             },
@@ -211,7 +209,8 @@
                   "PAC",
                   ".Package",
                   "EXPRESSO",
-                  ".Com"
+                  ".Com",
+                  "Jadlog"
                 ]
               }
             }
@@ -260,7 +259,7 @@
   "modules": {
     "calculate_shipping": {
       "enabled": true,
-      "endpoint": "https://melhorenvio.ecomplus.biz/calculate"
+      "endpoint": "https://melhorenvio.ecomplus.biz/ecom/modules/calculate"
     }
   }
 }
