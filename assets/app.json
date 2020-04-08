@@ -168,11 +168,11 @@
         "type": "array",
         "title": "Desativar serviços",
         "description": "É possível desabilitar determinados serviços de envio para determinadas faixas de cep ou para todo o Brasil.",
+        "uniqueItems": true,
         "items": {
           "type": "object",
           "required": [
-            "zip_range",
-            "services"
+            "service_name"
           ],
           "properties": {
             "zip_range": {
@@ -197,22 +197,10 @@
                 }
               }
             },
-            "services": {
-              "type": "array",
-              "title": "Serviços",
-              "description": "Serviços que podem ser desabilitados",
-              "items": {
-                "type": "string",
-                "description": "Caso algum serviço seja selecionado e nenhuma faixa de cep seja informada, o serviço estará indisponível para todo Brasil.",
-                "title": "Opções",
-                "enum": [
-                  "PAC",
-                  ".Package",
-                  "EXPRESSO",
-                  ".Com",
-                  "Jadlog"
-                ]
-              }
+            "service_name": {
+              "type": "string",
+              "title": "Serviço",
+              "description": "Nome do serviço que será desabilitado, ex: SEDEX"
             }
           }
         }
