@@ -225,7 +225,7 @@ module.exports = (appSdk, me) => {
             errorMsg += `Service ${service.name} erro, ${service.error} \n`
           }
         })
-
+        logger.log('response', JSON.stringify(response))
         return (!Array.isArray(response.shipping_services) || !response.shipping_services.length) &&
           errorMsg
           ? res.status(400).send({
