@@ -18,7 +18,7 @@ module.exports = (appSdk, me) => {
     const response = {
       shipping_services: []
     }
-    logger.log(JSON.stringify(req.body))
+
     // search for configured free shipping rule
     if (Array.isArray(config.shipping_rules)) {
       for (let i = 0; i < config.shipping_rules.length; i++) {
@@ -34,9 +34,9 @@ module.exports = (appSdk, me) => {
       }
     }
 
-    const { to, subtotal, items } = params
+    const { to, items } = params
 
-    if (!to || !subtotal || !items) {
+    if (!to || !items) {
       return res.send(response)
     }
 
@@ -88,7 +88,6 @@ module.exports = (appSdk, me) => {
 
     // done?
     promise.then(services => {
-      logger.log(JSON.stringify(services))
       if (Array.isArray(services) && services.length) {
         let errorMsg = ''
         services.forEach(service => {
@@ -185,7 +184,7 @@ module.exports = (appSdk, me) => {
                   (!rule.service_code || rule.service_code === service.name) &&
                   (!rule.zip_range ||
                     (parseInt(to.zip) >= parseInt(rule.zip_range.min)) && (parseInt(to.zip) <= parseInt(rule.zip_range.max))) &&
-                  !(rule.min_amount > subtotal)
+                  !(rule.min_amount > params.subtotal)
                 ) {
                   // valid shipping rule
                   if (rule.free_shipping) {
@@ -225,7 +224,7 @@ module.exports = (appSdk, me) => {
             errorMsg += `Service ${service.name} erro, ${service.error} \n`
           }
         })
-        logger.log('response', JSON.stringify(response))
+        
         return (!Array.isArray(response.shipping_services) || !response.shipping_services.length) &&
           errorMsg
           ? res.status(400).send({
