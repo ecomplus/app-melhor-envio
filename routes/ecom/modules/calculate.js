@@ -99,9 +99,9 @@ module.exports = (appSdk, me) => {
             for (let i = 0; i < config.unavailable_for.length; i++) {
               const unavailable = config.unavailable_for[i]
               if ((unavailable && unavailable.zip_range) &&
-                (parseInt(to.zip) >= parseInt(unavailable.zip_range.min)) && (parseInt(to.zip) <= parseInt(unavailable.zip_range.max) &&
-                  unavailable.services.includes(service.name))
-              ) {
+                (parseInt(to.zip) >= parseInt(unavailable.zip_range.min)) &&
+                (parseInt(to.zip) <= parseInt(unavailable.zip_range.max)) &&
+                (unavailable.service_name === service.name)) {
                 isAvailable = false
               }
             }
