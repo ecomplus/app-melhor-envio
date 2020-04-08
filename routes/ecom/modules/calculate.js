@@ -18,7 +18,7 @@ module.exports = (appSdk, me) => {
     const response = {
       shipping_services: []
     }
-
+    logger.log(JSON.stringify(req.body))
     // search for configured free shipping rule
     if (Array.isArray(config.shipping_rules)) {
       for (let i = 0; i < config.shipping_rules.length; i++) {
@@ -88,6 +88,7 @@ module.exports = (appSdk, me) => {
 
     // done?
     promise.then(services => {
+      logger.log(JSON.stringify(services))
       if (Array.isArray(services) && services.length) {
         let errorMsg = ''
         services.forEach(service => {
