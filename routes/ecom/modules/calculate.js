@@ -148,12 +148,15 @@ module.exports = (appSdk, me) => {
                 {
                   field: 'by_melhor_envio',
                   value: 'true'
-                },
-                {
-                  field: 'jadlog_agency',
-                  value: String(config.jadlog_agency)
                 }
               ]
+            }
+
+            if (config.jadlog_agency) {
+              shippingLine.custom_fields.push({
+                field: 'jadlog_agency',
+                value: String(config.jadlog_agency)
+              })
             }
 
             // check for default configured additional/discount price
