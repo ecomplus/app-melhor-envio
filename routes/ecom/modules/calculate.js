@@ -98,9 +98,10 @@ module.exports = (appSdk, me) => {
           if (Array.isArray(config.unavailable_for)) {
             for (let i = 0; i < config.unavailable_for.length; i++) {
               const unavailable = config.unavailable_for[i]
+              const shippingTo = parseInt(to.zip.replace('-', ''))
               if ((unavailable && unavailable.zip_range) &&
-                (parseInt(to.zip) >= parseInt(unavailable.zip_range.min)) &&
-                (parseInt(to.zip) <= parseInt(unavailable.zip_range.max)) &&
+                (shippingTo >= parseInt(unavailable.zip_range.min)) &&
+                (shippingTo <= parseInt(unavailable.zip_range.max)) &&
                 (unavailable.service_name === service.name)) {
                 isAvailable = false
               }
