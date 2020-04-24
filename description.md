@@ -1,18 +1,18 @@
-## Frenet
+# Melhor Envio
 
-Faça o frete virar marketing do seu e-commerce. Aproveite uma ferramenta que possibilita integração com mais de 245 transportadoras, além dos correios.
+Faça a cotação de fretes de forma simples e rápida em diversos serviços de envio e transportadoras tais como: **Correios**, **Jadlog**, **Latam Cargo** e **Via Brasil**.
 
-* Não perca mais vendas em sua loja por causa de frete caro
+Com o aplicativo do melhor envio instalado na sua loja, você poderá automizar e otimizar os seus processos, como cálculo de frete, compra de etiquetas para envio, rastreio de encomendas e atualização de status via e-mails transacionais.
 
-* Integre qualquer transportadora na sua loja virtual
+### Vantagens
+- Realize cálculos de fretes.
+- Compre etiquetas para fretes.
+- Múltiplas transportadoras.
+- Cotações simultâneas em diversos serviços ao mesmo tempo.
+- Rastreio de encomendas.
+- Atualização automática de status de entrega.
 
-* Precisão no cálculo de frete
+### Suporte
+[Suporte](https://github.com/ecomclub/app-melhor-envio/issues)
 
-* Prazos sempre atualizados
-
-* Utilize sua transportadora vide orçamento
-
-* Modalidade correios offline
-
-A Frenet conta com uma estrutura robusta que permite não só integrar fretes, mas também garantir estabilidade e precisão no cálculo deles. Além disso, você consegue criar regras de frete, selecionando por exemplo a regra mais barata de ser mostrada na loja, ou configurar frete grátis ou outras.
-
+**Aplicativo desenvolvido e mantido pela [e-com.plus](https://e-com.plus), tire suas dúvidas ou reporte algum problema em nossa [comunidade](https://community.e-com.plus/).**
