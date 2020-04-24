@@ -102,7 +102,7 @@ module.exports = (appSdk, me) => {
               if ((unavailable && unavailable.zip_range) &&
                 (shippingTo >= parseInt(unavailable.zip_range.min)) &&
                 (shippingTo <= parseInt(unavailable.zip_range.max)) &&
-                (unavailable.service_name === service.name)) {
+                (unavailable.service_name.toUpperCase() === service.name.toUpperCase())) {
                 isAvailable = false
               }
             }
@@ -224,7 +224,7 @@ module.exports = (appSdk, me) => {
             errorMsg += `Service ${service.name} erro, ${service.error} \n`
           }
         })
-        
+
         return (!Array.isArray(response.shipping_services) || !response.shipping_services.length) &&
           errorMsg
           ? res.status(400).send({
