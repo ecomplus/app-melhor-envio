@@ -207,6 +207,35 @@
       },
       "hide": false
     },
+    "services": {
+      "schema": {
+        "title": "Rótulo dos Serviços",
+        "description": "Para alterar o nome de exibição de algum seviço basta infomar o código do serviço e um novo rótulo de exibição. ",
+        "type": "array",
+        "maxItems": 6,
+        "items": {
+          "title": "Serviço de entrega",
+          "type": "object",
+          "required": [
+            "service_code",
+            "label"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "maxLength": 50,
+              "title": "Rótulo",
+              "description": "Nome do serviço exibido aos clientes"
+            },
+            "service_code": {
+              "type": "string",
+              "title": "Código do serviço"
+            }
+          }
+        }
+      },
+      "hide": true
+    },
     "access_token": {
       "schema": {
         "title": "Melhor Envio Token",
