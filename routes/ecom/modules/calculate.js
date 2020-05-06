@@ -207,8 +207,17 @@ module.exports = (appSdk, me) => {
               }
             }
 
+            let label = service.name
+
+            if (config.services && Array.isArray(config.services) && config.services.length) {
+              const service = config.services.find(appService => appService.service_code === label)
+              if (service && service.label) {
+                label = service.label
+              }
+            }
+
             response.shipping_services.push({
-              label: service.name,
+              label,
               carrier: service.company.name,
               service_name: service.name,
               service_code: `ME ${service.id}`,
