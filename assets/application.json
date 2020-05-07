@@ -13,7 +13,7 @@
         "type": "boolean",
         "default": false,
         "description": "Serviço com um custo adicional que gera um documento que comprova a entrega do pedido"
-      },
+      },se
       "hide": false
     },
     "own_hand": {
@@ -100,8 +100,7 @@
           "properties": {
             "service_name": {
               "type": "string",
-              "title": "Nome do serviço",
-              "default": "PAC"
+              "title": "Nome do serviço"
             },
             "zip_range": {
               "title": "Faixa de CEP",
