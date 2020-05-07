@@ -210,7 +210,7 @@
     "services": {
       "schema": {
         "title": "Rótulo dos Serviços",
-        "description": "Para alterar o nome de exibição de algum seviço basta infomar o código do serviço e um novo rótulo de exibição. ",
+        "description": "Para alterar o nome de exibição de algum serviço basta infomar o código do serviço e um novo rótulo de exibição. ",
         "type": "array",
         "maxItems": 6,
         "items": {
