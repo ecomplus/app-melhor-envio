@@ -13,7 +13,7 @@
         "type": "boolean",
         "default": false,
         "description": "Serviço com um custo adicional que gera um documento que comprova a entrega do pedido"
-      },se
+      },
       "hide": false
     },
     "own_hand": {
