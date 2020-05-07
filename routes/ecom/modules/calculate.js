@@ -9,6 +9,16 @@ const { getAppConfig } = require('./../../../lib/Api/Api')
 // parse calculate body from modules API to melhor-envio model
 const meSchema = require('./../../../lib/calculate-shipping-request')
 
+const matchService = (service, name) => {
+  const fields = ['service_name', 'service_code']
+  for (let i = 0; i < fields.length; i++) {
+    if (service[fields[i]]) {
+      return service[fields[i]].trim().toUpperCase() === name.toUpperCase()
+    }
+  }
+  return true
+}
+
 module.exports = (appSdk, me) => {
   return async (req, res) => {
     let schema = {}
@@ -35,10 +45,10 @@ module.exports = (appSdk, me) => {
     }
 
     const { to, items } = params
-
     if (!to || !items) {
       return res.send(response)
     }
+    const intZipCode = parseInt(to.zip.replace(/\D/g, ''), 10)
 
     // calculate promise
     let promise = null
@@ -98,11 +108,10 @@ module.exports = (appSdk, me) => {
           if (Array.isArray(config.unavailable_for)) {
             for (let i = 0; i < config.unavailable_for.length; i++) {
               const unavailable = config.unavailable_for[i]
-              const shippingTo = parseInt(to.zip.replace('-', ''))
               if ((unavailable && unavailable.zip_range) &&
-                (shippingTo >= parseInt(unavailable.zip_range.min)) &&
-                (shippingTo <= parseInt(unavailable.zip_range.max)) &&
-                (unavailable.service_name && unavailable.service_name.toUpperCase() === service.name.toUpperCase())) {
+                (intZipCode >= unavailable.zip_range.min) &&
+                (intZipCode <= unavailable.zip_range.max) &&
+                (unavailable.service_name && matchService(unavailable, service.name))) {
                 isAvailable = false
               }
             }
@@ -180,10 +189,9 @@ module.exports = (appSdk, me) => {
               for (let i = 0; i < config.shipping_rules.length; i++) {
                 const rule = config.shipping_rules[i]
                 if (
-                  rule &&
-                  (!rule.service_name || rule.service_name.toUpperCase() === service.name.toUpperCase()) &&
+                  rule && matchService(rule, service.name) &&
                   (!rule.zip_range ||
-                    (parseInt(to.zip) >= parseInt(rule.zip_range.min)) && (parseInt(to.zip) <= parseInt(rule.zip_range.max))) &&
+                    (rule.zip_range.min <= intZipCode && rule.zip_range.max >= intZipCode)) &&
                   !(rule.min_amount > params.subtotal)
                 ) {
                   // valid shipping rule
@@ -208,9 +216,10 @@ module.exports = (appSdk, me) => {
             }
 
             let label = service.name
-
             if (config.services && Array.isArray(config.services) && config.services.length) {
-              const service = config.services.find(appService => appService.service_code === label)
+              const service = config.services.find(service => {
+                return service && matchService(service, label)
+              })
               if (service && service.label) {
                 label = service.label
               }

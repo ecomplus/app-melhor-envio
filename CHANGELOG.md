@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.2...v1.1.3) (2020-05-07)
+
+
+### Bug Fixes
+
+* **calculate:** fix mathcing shipping rules by service ([a5b1849](https://github.com/ecomclub/app-melhor-envio/commit/a5b1849bee3dbdf8e4f3f49e03a0188e4d9e53de))
+
 ### [1.1.2](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.1...v1.1.2) (2020-05-07)
 
 
