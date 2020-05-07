@@ -181,7 +181,7 @@ module.exports = (appSdk, me) => {
                 const rule = config.shipping_rules[i]
                 if (
                   rule &&
-                  (!rule.service_code || rule.service_code === service.name) &&
+                  (!rule.service_name || rule.service_name.toUpperCase() === service.name.toUpperCase()) &&
                   (!rule.zip_range ||
                     (parseInt(to.zip) >= parseInt(rule.zip_range.min)) && (parseInt(to.zip) <= parseInt(rule.zip_range.max))) &&
                   !(rule.min_amount > params.subtotal)
