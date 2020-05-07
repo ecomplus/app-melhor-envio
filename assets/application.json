@@ -98,11 +98,9 @@
           "type": "object",
           "minProperties": 1,
           "properties": {
-            "service_code": {
+            "service_name": {
               "type": "string",
-              "maxLength": 9,
-              "pattern": "^[0-9]+$",
-              "title": "Código do serviço"
+              "title": "Nome do serviço"
             },
             "zip_range": {
               "title": "Faixa de CEP",
