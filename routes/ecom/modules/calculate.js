@@ -102,7 +102,7 @@ module.exports = (appSdk, me) => {
               if ((unavailable && unavailable.zip_range) &&
                 (shippingTo >= parseInt(unavailable.zip_range.min)) &&
                 (shippingTo <= parseInt(unavailable.zip_range.max)) &&
-                (unavailable.service_name.toUpperCase() === service.name.toUpperCase())) {
+                (unavailable.service_name && unavailable.service_name.toUpperCase() === service.name.toUpperCase())) {
                 isAvailable = false
               }
             }
