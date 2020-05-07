@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.2](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.1...v1.1.2) (2020-05-07)
+
+
+### Bug Fixes
+
+* checks property before turning in uppercase ([0fc1e46](https://github.com/ecomclub/app-melhor-envio/commit/0fc1e4693468574239ea140d3224118e1c5a4a45))
+
 ### [1.1.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.0...v1.1.1) (2020-05-06)
 
 ## [1.1.0](https://github.com/ecomclub/app-melhor-envio/compare/v0.2.7...v1.1.0) (2020-05-06)
