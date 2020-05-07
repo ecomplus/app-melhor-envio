@@ -98,11 +98,10 @@
           "type": "object",
           "minProperties": 1,
           "properties": {
-            "service_code": {
+            "service_name": {
               "type": "string",
-              "maxLength": 9,
-              "pattern": "^[0-9]+$",
-              "title": "Código do serviço"
+              "title": "Nome do serviço",
+              "default": "PAC"
             },
             "zip_range": {
               "title": "Faixa de CEP",
@@ -217,19 +216,21 @@
           "title": "Serviço de entrega",
           "type": "object",
           "required": [
-            "service_code",
+            "service_name",
             "label"
           ],
           "properties": {
+            "service_name": {
+              "type": "string",
+              "title": "Serviço",
+              "default": "PAC",
+              "description": "Nome oficial do serviço na transportadora"
+            },
             "label": {
               "type": "string",
               "maxLength": 50,
               "title": "Rótulo",
               "description": "Nome do serviço exibido aos clientes"
-            },
-            "service_code": {
-              "type": "string",
-              "title": "Código do serviço"
             }
           }
         }
