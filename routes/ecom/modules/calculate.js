@@ -29,12 +29,30 @@ module.exports = (appSdk, me) => {
       shipping_services: []
     }
 
+    let shippingRules
+    if (Array.isArray(config.shipping_rules) && config.shipping_rules.length) {
+      shippingRules = config.shipping_rules
+    } else {
+      shippingRules = []
+    }
+
+    const destinationZip = params.to ? params.to.zip.replace(/\D/g, '') : ''
+
+    const checkZipCode = rule => {
+      // validate rule zip range
+      if (destinationZip && rule.zip_range) {
+        const { min, max } = rule.zip_range
+        return Boolean((!min || destinationZip >= min) && (!max || destinationZip <= max))
+      }
+      return true
+    }
+
     // search for configured free shipping rule
     if (Array.isArray(config.shipping_rules)) {
       for (let i = 0; i < config.shipping_rules.length; i++) {
         const rule = config.shipping_rules[i]
         if (rule.free_shipping) {
-          if (!rule.min_amount) {
+          if (!rule.min_amount || !checkZipCode(rule)) {
             response.free_shipping_from_value = 0
             break
           } else if (!(response.free_shipping_from_value <= rule.min_amount)) {
@@ -191,7 +209,7 @@ module.exports = (appSdk, me) => {
                 if (
                   rule && matchService(rule, service.name) &&
                   (!rule.zip_range ||
-                    (rule.zip_range.min <= intZipCode && rule.zip_range.max >= intZipCode)) &&
+                    checkZipCode(rule)) &&
                   !(rule.min_amount > params.subtotal)
                 ) {
                   // valid shipping rule
