@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.5](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.4...v1.1.5) (2020-07-03)
+
+
+### Bug Fixes
+
+* json sintaxe ([92c6b13](https://github.com/ecomclub/app-melhor-envio/commit/92c6b136add346e9eac82cb691ca2c2cdb77ce51))
+* **calculate:** validate zip code for free_shipping_from_value [#37](https://github.com/ecomclub/app-melhor-envio/issues/37) ([de6c531](https://github.com/ecomclub/app-melhor-envio/commit/de6c5310ced0187202162cf8db6d29f3668366c5))
+
 ### [1.1.4](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.2...v1.1.4) (2020-05-07)
 
 
