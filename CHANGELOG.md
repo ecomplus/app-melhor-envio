@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.6](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.5...v1.1.6) (2020-07-03)
+
+
+### Bug Fixes
+
+* preventing errors shipping_rules without service_name ([99d39fd](https://github.com/ecomclub/app-melhor-envio/commit/99d39fd6e8d665cf95d288c916c599a4b2ca0c96))
+* **client:** sandbox mode ([02f207f](https://github.com/ecomclub/app-melhor-envio/commit/02f207f32dbc52b32ed8d957493501143ef6a346))
+
 ### [1.1.5](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.4...v1.1.5) (2020-07-03)
 
 
