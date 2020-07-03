@@ -5,8 +5,8 @@
 // log on files
 const logger = require('console-files')
 // handle app authentication to Store API
-// https://github.com/ecomclub/ecomplus-app-sdk
-const { ecomAuth } = require('ecomplus-app-sdk')
+// https://github.com/ecomplus/application-sdk
+const { ecomAuth } = require('@ecomplus/application-sdk')
 
 logger.log('--> Start running daemon processes')
 
@@ -25,7 +25,7 @@ ecomAuth.then(appSdk => {
   }
 
   // tracking code
-  require('./../lib/update-tracking-code')(appSdk)
+  require('./../lib/melhor-envio/tracking-codes')(appSdk)
 })
 
 ecomAuth.catch(err => {
@@ -35,7 +35,3 @@ ecomAuth.catch(err => {
     process.exit(1)
   }, 1000)
 })
-
-/* Run other app background processes here */
-// update tokens
-require('./../lib/UpdateTokens')()

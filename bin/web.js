@@ -5,17 +5,8 @@
 // log to files
 const logger = require('console-files')
 // handle app authentication to Store API
-// https://github.com/ecomclub/ecomplus-app-sdk
-const { ecomAuth, ecomServerIps } = require('ecomplus-app-sdk')
-
-// melhorenvio-sdk https://github.com/talissonf/melhor-envio-sdk#instance
-const me = require('melhor-envio').config({
-  client_id: process.env.ME_CLIENT_ID,
-  client_secret: process.env.ME_CLIENT_SECRET,
-  sandbox: (process.env.ME_SANDBOX === 'true'),
-  redirect_uri: process.env.ME_REDIRECT_URI,
-  request_scope: `cart-read cart-write companies-read coupons-read notifications-read products-read products-write purchases-read shipping-calculate shipping-cancel shipping-checkout shipping-companies shipping-generate shipping-preview shipping-print shipping-share shipping-tracking ecommerce-shipping transactions-read users-read webhooks-read webhooks-write`
-})
+// https://github.com/ecomplus/application-sdk
+const { ecomAuth, ecomServerIps } = require('@ecomplus/application-sdk')
 
 // web server with Express
 const express = require('express')
@@ -60,18 +51,8 @@ ecomAuth.then(appSdk => {
   // base routes for E-Com Plus Store API
   ;['auth-callback', 'webhook', 'modules/calculate'].forEach(endpoint => {
     let filename = `/ecom/${endpoint}`
-    router.post(filename, require(`${routes}${filename}`)(appSdk, me))
+    router.post(filename, require(`${routes}${filename}`)(appSdk))
   })
-
-  /* Add custom app routes here */
-  ;['auth-callback', 'request-auth'].forEach(endpoint => {
-    let filename = `/melhorenvio/${endpoint}`
-    router.get(filename, require(`${routes}${filename}`)(me))
-  })
-
-  // debug
-  router.get('/redirect', require('./../routes/melhorenvio/request-auth')(me))
-  router.get('/callback', require('./../routes/melhorenvio/auth-callback')(me))
 
   // add router and start web server
   app.use(router)
