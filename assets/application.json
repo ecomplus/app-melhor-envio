@@ -7,6 +7,33 @@
   "type": "external",
   "github_repository": "https://github.com/ecomclub/app-melhor-envio",
   "admin_settings": {
+    "sandbox": {
+      "schema": {
+        "title": "Sandbox",
+        "type": "boolean",
+        "default": false,
+        "description": "Ative caso esteja em ambiente de teste"
+      },
+      "hide": false
+    },
+    "enabled_label_purchase": {
+      "schema": {
+        "title": "Compra de Etiqueta",
+        "type": "boolean",
+        "default": false,
+        "description": "Se habilitado, o aplicativo irá efetuar compra de estiquetas para pedidos marcados como 'Pronto para Envio' e com NF inserida"
+      },
+      "hide": false
+    },
+    "enabled_non_commercial": {
+      "schema": {
+        "title": "Envio não comercial",
+        "type": "boolean",
+        "default": false,
+        "description": "Com a opção habilitada, se torna desnecessário a obrigação de numero de nota fiscal na emissão da etiqueta no melhor envio."
+      },
+      "hide": false
+    },
     "receipt": {
       "schema": {
         "title": "Aviso de Recebimento",
