@@ -1,30 +1,27 @@
-'use strict'
 // log on files
 const logger = require('console-files')
+const { newShipment, matchService, sortServicesBy } = require('../../../lib/melhor-envio/new-shipment')
+const meClient = require('../../../lib/melhor-envio/client')
+const errorHandling = require('../../../lib/store-api/error-handling')
 
-// read configured internal app data
-// like melhor-envio access_token, user from, etc.
-const { getAppConfig } = require('./../../../lib/Api/Api')
-
-// parse calculate body from modules API to melhor-envio model
-const meSchema = require('./../../../lib/calculate-shipping-request')
-
-const matchService = (service, name) => {
-  const fields = ['service_name', 'service_code']
-  for (let i = 0; i < fields.length; i++) {
-    if (service[fields[i]]) {
-      return service[fields[i]].trim().toUpperCase() === name.toUpperCase()
-    }
-  }
-  return true
-}
-
-module.exports = (appSdk, me) => {
+module.exports = appSdk => {
   return async (req, res) => {
-    let schema = {}
-    const { application, params } = req.body
+    // body was already pre-validated on @/bin/web.js
+    // treat module request body
+    const { params, application } = req.body
     const { storeId } = req
+    // app configured options
     const config = Object.assign({}, application.data, application.hidden_data)
+
+    if (!config.access_token) {
+      // no Melhor Envio access_token
+      return res.status(409).send({
+        error: 'CALCULATE_SHIPPING_DISABLED',
+        message: 'Melhor Envio Token is unset on app hidden data'
+      })
+    }
+    // start mounting response body
+    // https://apx-mods.e-com.plus/api/v1/calculate_shipping/response_schema.json?store_id=100
     const response = {
       shipping_services: []
     }
@@ -48,9 +45,9 @@ module.exports = (appSdk, me) => {
     }
 
     // search for configured free shipping rule
-    if (Array.isArray(config.shipping_rules)) {
-      for (let i = 0; i < config.shipping_rules.length; i++) {
-        const rule = config.shipping_rules[i]
+    if (Array.isArray(shippingRules)) {
+      for (let i = 0; i < shippingRules.length; i++) {
+        const rule = shippingRules[i]
         if (rule.free_shipping) {
           if (!rule.min_amount || !checkZipCode(rule)) {
             response.free_shipping_from_value = 0
@@ -62,88 +59,92 @@ module.exports = (appSdk, me) => {
       }
     }
 
-    const { to, items } = params
-    if (!to || !items) {
+    // params object follows calculate shipping request schema:
+    // https://apx-mods.e-com.plus/api/v1/calculate_shipping/schema.json?store_id=100
+    if (!params.to) {
+      // respond only with free shipping option
       return res.send(response)
     }
-    const intZipCode = parseInt(to.zip.replace(/\D/g, ''), 10)
 
-    // calculate promise
-    let promise = null
+    if (params.items) {
+      const intZipCode = parseInt(params.to.zip.replace(/\D/g, ''), 10)
+      const token = config.access_token
+      const sandbox = Boolean(config.sandbox)
 
-    // checks if access_token has been set in the hidden_data of the app
-    if (config.access_token) {
-      me.setToken = config.access_token
-      // get user data
-      promise = me.user.me()
-        .then(seller => {
-          schema = meSchema(application, params, seller)
-          // erro?
-          if (!schema) {
-            return res.send(response)
-          }
+      if (!config.merchant_address) {
+        // get merchant_address
+        const merchantAddress = await meClient({
+          url: '/',
+          method: 'get',
+          token,
+          sandbox
+        }).then(({ data }) => data.address)
 
-          // try calculate
-          return me.shipment.calculate(schema)
+        // update config.merchant_address
+        config.merchant_address = merchantAddress
+
+        // save merchant_address in hidden_data
+        let resource = `/applications/${application._id}/hidden_data.json`
+        let method = 'PATCH'
+        let bodyUpdate = {
+          merchant_address: merchantAddress
+        }
+
+        appSdk
+          .apiRequest(storeId, resource, method, bodyUpdate)
+          .catch(e => {
+            logger.error('!<> Update merchant_address failed', e.message)
+          })
+      }
+
+      let schema
+      try {
+        schema = newShipment(config, params)
+      } catch (e) {
+        logger.error('NEW_SHIPMENT_PARSE_ERR', e)
+        res.status(400)
+        return res.send({
+          error: 'CALCULATE_ERR',
+          message: 'Unexpected Error Try Later'
         })
-    } else {
-      // try to find oauth in db
-      promise = await getAppConfig(storeId)
+      }
 
-        .then(auth => {
-          schema = meSchema(application, params, auth.default_data)
-
-          if (!schema) {
-            return res.send(response)
-          }
-
-          me.setToken = auth.access_token
-          return me.shipment.calculate(schema)
-        }).catch(e => {
-          // not found
-          console.log(e.message)
-        })
-    }
-
-    // oauth not found and access_token not configured, calculation cannot be performed without authentication
-    if (!promise) {
-      res.status(400)
-      return res.send({
-        error: 'The access_token is unset at application settings',
-        message: 'Unexpected Error Try Later'
+      // calculate the shipment
+      return meClient({
+        url: '/shipment/calculate',
+        method: 'post',
+        token,
+        data: schema,
+        sandbox
       })
-    }
 
-    // done?
-    promise.then(services => {
-      if (Array.isArray(services) && services.length) {
-        let errorMsg = ''
-        services.forEach(service => {
-          const { error } = service
-
-          let isAvailable = true
-          // check if service is not disabled
-          if (Array.isArray(config.unavailable_for)) {
-            for (let i = 0; i < config.unavailable_for.length; i++) {
-              const unavailable = config.unavailable_for[i]
-              if ((unavailable && unavailable.zip_range) &&
-                (intZipCode >= unavailable.zip_range.min) &&
-                (intZipCode <= unavailable.zip_range.max) &&
-                (unavailable.service_name && matchService(unavailable, service.name))) {
-                isAvailable = false
+        .then(({ data }) => {
+          let errorMsg
+          data.forEach(service => {
+            let isAvailable = true
+            // check if service is not disabled
+            if (Array.isArray(config.unavailable_for)) {
+              for (let i = 0; i < config.unavailable_for.length; i++) {
+                const unavailable = config.unavailable_for[i]
+                if ((unavailable && unavailable.zip_range) &&
+                  (intZipCode >= unavailable.zip_range.min) &&
+                  (intZipCode <= unavailable.zip_range.max) &&
+                  (unavailable.service_name && matchService(unavailable, service.name))) {
+                  isAvailable = false
+                }
               }
             }
-          }
 
-          if (!error && isAvailable) {
-            const shippingLine = {
-              from: {
-                zip: schema.from.postal_code,
-                street: schema.from.address,
-                number: parseInt(schema.from.number)
-              },
-              to,
-              package: {
+            if (!service.error && isAvailable) {
+              // mounte response body
+              const { to } = params
+              const from = {
+                zip: config.merchant_address.postal_code,
+                street: config.merchant_address.address,
+                number: parseInt(config.merchant_address.number)
+              }
+
+              const package = {
                 dimensions: {
                   width: {
                     value: service.packages ? service.packages[0].dimensions.width : service.volumes[0].dimensions.width
@@ -158,149 +159,138 @@ module.exports = (appSdk, me) => {
                 weight: {
                   value: service.packages ? parseFloat(service.packages[0].weight) : parseFloat(service.volumes[0].weight)
                 }
-              },
-              own_hand: service.additional_services.own_hand,
-              receipt: service.additional_services.receipt,
-              discount: 0,
-              total_price: parseFloat(service.price),
-              delivery_time: {
-                days: parseInt(service.delivery_time, 10),
-                working_days: true
-              },
-              posting_deadline: {
-                days: 3,
-                ...config.posting_deadline
-              },
-              custom_fields: [
-                {
-                  field: 'by_melhor_envio',
-                  value: 'true'
-                }
-              ]
-            }
-
-            if (config.jadlog_agency) {
-              shippingLine.custom_fields.push({
-                field: 'jadlog_agency',
-                value: String(config.jadlog_agency)
-              })
-            }
-
-            // check for default configured additional/discount price
-            if (config.additional_price) {
-              if (config.additional_price > 0) {
-                shippingLine.other_additionals = [{
-                  tag: 'additional_price',
-                  label: 'Adicional padrão',
-                  price: config.additional_price
-                }]
-              } else {
-                // negative additional price to apply discount
-                shippingLine.discount -= config.additional_price
               }
-              // update total price
-              shippingLine.total_price += config.additional_price
-            }
 
-            // search for discount by shipping rule
-            if (Array.isArray(config.shipping_rules)) {
-              for (let i = 0; i < config.shipping_rules.length; i++) {
-                const rule = config.shipping_rules[i]
-                if (
-                  rule && matchService(rule, service.name) &&
-                  (!rule.zip_range ||
-                    checkZipCode(rule)) &&
-                  !(rule.min_amount > params.subtotal)
-                ) {
-                  // valid shipping rule
-                  if (rule.free_shipping) {
-                    shippingLine.discount += shippingLine.total_price
-                    shippingLine.total_price = 0
-                    break
-                  } else if (rule.discount) {
-                    let discountValue = rule.discount.value
-                    if (rule.discount.percentage) {
-                      discountValue *= (shippingLine.total_price / 100)
+              const shippingLines = {
+                to,
+                from,
+                package,
+                own_hand: service.additional_services.own_hand,
+                receipt: service.additional_services.receipt,
+                discount: 0,
+                total_price: parseFloat(service.price),
+                delivery_time: {
+                  days: parseInt(service.delivery_time, 10),
+                  working_days: true
+                },
+                posting_deadline: {
+                  days: 3,
+                  ...config.posting_deadline
+                },
+                custom_fields: [
+                  {
+                    field: 'by_melhor_envio',
+                    value: 'true'
+                  }
+                ]
+              }
+
+              if (config.jadlog_agency) {
+                shippingLines.custom_fields.push({
+                  field: 'jadlog_agency',
+                  value: String(config.jadlog_agency)
+                })
+              }
+
+              // check for default configured additional/discount price
+              if (config.additional_price) {
+                if (config.additional_price > 0) {
+                  shippingLines.other_additionals = [{
+                    tag: 'additional_price',
+                    label: 'Adicional padrão',
+                    price: config.additional_price
+                  }]
+                } else {
+                  // negative additional price to apply discount
+                  shippingLines.discount -= config.additional_price
+                }
+                // update total price
+                shippingLines.total_price += config.additional_price
+              }
+
+              // search for discount by shipping rule
+              if (Array.isArray(shippingRules)) {
+                for (let i = 0; i < shippingRules.length; i++) {
+                  const rule = shippingRules[i]
+                  if (
+                    rule && matchService(rule, service.name) &&
+                    (!rule.zip_range ||
+                      checkZipCode(rule)) &&
+                    !(rule.min_amount > params.subtotal)
+                  ) {
+                    // valid shipping rule
+                    if (rule.free_shipping) {
+                      shippingLines.discount += shippingLines.total_price
+                      shippingLines.total_price = 0
+                      break
+                    } else if (rule.discount) {
+                      let discountValue = rule.discount.value
+                      if (rule.discount.percentage) {
+                        discountValue *= (shippingLines.total_price / 100)
+                      }
+                      shippingLines.discount += discountValue
+                      shippingLines.total_price -= discountValue
+                      if (shippingLines.total_price < 0) {
+                        shippingLines.total_price = 0
+                      }
+                      break
                     }
-                    shippingLine.discount += discountValue
-                    shippingLine.total_price -= discountValue
-                    if (shippingLine.total_price < 0) {
-                      shippingLine.total_price = 0
-                    }
-                    break
                   }
                 }
               }
-            }
 
-            let label = service.name
-            if (config.services && Array.isArray(config.services) && config.services.length) {
-              const service = config.services.find(service => {
-                return service && matchService(service, label)
-              })
-              if (service && service.label) {
-                label = service.label
+              let label = service.name
+              if (config.services && Array.isArray(config.services) && config.services.length) {
+                const service = config.services.find(service => {
+                  return service && matchService(service, label)
+                })
+                if (service && service.label) {
+                  label = service.label
+                }
               }
+
+              response.shipping_services.push({
+                label,
+                carrier: service.company.name,
+                service_name: service.name,
+                service_code: `ME ${service.id}`,
+                icon: service.company.picture,
+                shipping_line: shippingLines
+              })
+            } else {
+              errorMsg += `${service.name}, ${service.error} \n`
             }
-
-            response.shipping_services.push({
-              label,
-              carrier: service.company.name,
-              service_name: service.name,
-              service_code: `ME ${service.id}`,
-              icon: service.company.picture,
-              shipping_line: shippingLine
-            })
-
-            // sort services?
-            if (config.sort_services) {
-              response.shipping_services.sort(sortServicesBy(config.sort_services))
-            }
-          } else {
-            errorMsg += `Service ${service.name} erro, ${service.error} \n`
-          }
-        })
-
-        return (!Array.isArray(response.shipping_services) || !response.shipping_services.length) &&
-          errorMsg
-          ? res.status(400).send({
-            error: 'CALCULATE_ERR_MSG',
-            message: errorMsg
           })
-          // success response with available shipping services
-          : res.send(response)
-      }
-    })
 
-      .catch(error => {
-        logger.error('CALCULATE_ERR', error)
-        res.status(400)
-        return res.send({
-          error: 'CALCULATE_ERR',
-          message: 'Unexpected Error Try Later'
+          // sort services?
+          if (config.sort_services && Array.isArray(response.shipping_services) && response.shipping_services.length) {
+            response.shipping_services.sort(sortServicesBy(config.sort_services))
+          }
+
+          return (!Array.isArray(response.shipping_services) || !response.shipping_services.length) &&
+            errorMsg
+            ? res.status(400).send({
+              error: 'CALCULATE_ERR_MSG',
+              message: errorMsg
+            })
+            // success response with available shipping services
+            : res.send(response)
         })
+
+        .catch(error => {
+          errorHandling(error)
+          res.status(400)
+          return res.send({
+            error: 'CALCULATE_ERR',
+            message: 'Unexpected Error Try Later'
+          })
+        })
+    } else {
+      return res.status(400).send({
+        error: 'CALCULATE_EMPTY_CART',
+        message: 'Cannot calculate shipping without cart items'
       })
+    }
   }
 }
 
-const sortServicesBy = by => {
-  switch (by) {
-    case 'Maior preço':
-      return function (a, b) {
-        return a.shipping_line.total_price < b.shipping_line.total_price
-      }
-    case 'Menor preço':
-      return function (a, b) {
-        return a.shipping_line.total_price > b.shipping_line.total_price
-      }
-    case 'Maior prazo de entrega':
-      return function (a, b) {
-        return a.shipping_line.delivery_time.days < b.shipping_line.delivery_time.days
-      }
-    case 'Menor prazo de entrega':
-      return function (a, b) {
-        return a.shipping_line.delivery_time.days > b.shipping_line.delivery_time.days
-      }
-    default: break
-  }
-}
