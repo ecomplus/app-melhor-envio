@@ -69,7 +69,7 @@ module.exports = appSdk => {
     if (params.items) {
       const intZipCode = parseInt(params.to.zip.replace(/\D/g, ''), 10)
       const token = config.access_token
-      const sandbox = Boolean(config.sandbox)
+      const sandbox = config.sandbox
 
       if (!config.merchant_address) {
         // get merchant_address
