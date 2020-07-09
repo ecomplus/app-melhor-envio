@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.9](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.8...v1.1.9) (2020-07-09)
+
+
+### Bug Fixes
+
+* **new-label:** package dimensions ([1074af3](https://github.com/ecomclub/app-melhor-envio/commit/1074af3d124514642284e6d50a8cda9b8077b52a))
+
 ### [1.1.8](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.7...v1.1.8) (2020-07-09)
 
 
