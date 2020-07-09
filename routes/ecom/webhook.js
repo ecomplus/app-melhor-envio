@@ -2,8 +2,6 @@
 const logger = require('console-files')
 // read configured E-Com Plus app data
 const getConfig = require(process.cwd() + '/lib/store-api/get-config')
-const errorHandling = require(process.cwd() + '/lib/store-api/error-handling')
-
 const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
@@ -31,6 +29,7 @@ module.exports = appSdk => {
       .then(async configObj => {
         /* Do the stuff */
         const token = configObj.access_token
+        const sandbox = configObj.sandbox
         if (!token) {
           return res.send(ECHO_SKIP)
         }
@@ -103,7 +102,30 @@ module.exports = appSdk => {
           // trigger ignored by app configuration
           res.send(ECHO_SKIP)
         } else {
-          errorHandling(err)
+          //errorHandling(err)
+          // treat error
+          const { response } = err
+          if (response && err.isAxiosError) {
+            const payload = {
+              status: response.status,
+              data: response.data,
+              config: response.config
+            }
+
+            const dataStringfy = JSON.stringify(response.data)
+            logger.error('BuyLabelErr: ', JSON.stringify(payload, undefined, 4))
+
+            // update order hidden_metafields
+            const url = `orders/${resourceId}/hidden_metafields.json`
+            const metafields = {
+              namespace: 'app-melhor-envio',
+              field: 'Compra de etiqueta | Erro',
+              value: dataStringfy.substring(0, 255)
+            }
+
+            appSdk.apiRequest(storeId, url, 'post', metafields)
+          }
+
           // request to Store API with error response
           // return error status code
           res.status(500)
