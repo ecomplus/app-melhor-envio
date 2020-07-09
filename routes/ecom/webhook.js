@@ -2,6 +2,7 @@
 const logger = require('console-files')
 // read configured E-Com Plus app data
 const getConfig = require(process.cwd() + '/lib/store-api/get-config')
+const errorHandling = require(process.cwd() + '/lib/store-api/error-handling')
 const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
@@ -84,6 +85,7 @@ module.exports = appSdk => {
                 const resource = `orders/${resourceId}/hidden_metafields.json`
                 const method = 'POST'
                 const params = {
+                  namespace: 'app-melhor-envio',
                   field: 'melhor_envio_label_id',
                   value: data.id
                 }
@@ -102,7 +104,6 @@ module.exports = appSdk => {
           // trigger ignored by app configuration
           res.send(ECHO_SKIP)
         } else {
-          //errorHandling(err)
           // treat error
           const { response } = err
           if (response && err.isAxiosError) {
@@ -119,11 +120,13 @@ module.exports = appSdk => {
             const url = `orders/${resourceId}/hidden_metafields.json`
             const metafields = {
               namespace: 'app-melhor-envio',
-              field: 'Compra de etiqueta | Erro',
+              field: 'melhor_envio_label_error',
               value: dataStringfy.substring(0, 255)
             }
 
             appSdk.apiRequest(storeId, url, 'post', metafields)
+          } else {
+            errorHandling(err)
           }
 
           // request to Store API with error response
