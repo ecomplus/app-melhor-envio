@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.8](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.7...v1.1.8) (2020-07-09)
+
+
+### Bug Fixes
+
+* **new-label:** package values ([39a8a40](https://github.com/ecomclub/app-melhor-envio/commit/39a8a40f4605d81fdf4061baca00ced23435e5b5))
+* **webhook:** save error in order hidden_metafield ([977bf24](https://github.com/ecomclub/app-melhor-envio/commit/977bf2491113f352d72edf20e4df6aecf3e6bb61))
+
 ### [1.1.7](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.6...v1.1.7) (2020-07-09)
 
 
