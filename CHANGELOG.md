@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.12](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.11...v1.1.12) (2020-07-20)
+
+
+### Bug Fixes
+
+* **tracking-codes.js:** ignored orders without labels purshed ([4bf2fd1](https://github.com/ecomclub/app-melhor-envio/commit/4bf2fd138060962c1179b5dbdc58e979feae5d68))
+
 ### [1.1.11](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.10...v1.1.11) (2020-07-20)
 
 
