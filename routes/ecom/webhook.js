@@ -80,7 +80,7 @@ module.exports = appSdk => {
               })
 
               .then(data => {
-                logger.log('--> Label purchased for order:', order._id)
+                logger.log(`>> Label purchased for order: ${order._id} | #${storeId}`)
                 // updates hidden_metafields with the generated tag id
                 const resource = `orders/${resourceId}/hidden_metafields.json`
                 const method = 'POST'
