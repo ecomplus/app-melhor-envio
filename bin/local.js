@@ -14,14 +14,17 @@ ecomAuth.then(appSdk => {
   // configure setup for stores
   // list of procedures to save
   const procedures = require('./../lib/store-api/procedures')
-  if (procedures && procedures.triggers && procedures.triggers.length) {
-    appSdk.configureSetup(procedures, (err, { storeId }) => {
-      if (!err) {
-        logger.log('--> Setup store #' + storeId)
-      } else if (!err.appAuthRemoved) {
-        logger.error(err)
-      }
-    })
+  if (procedures && procedures.length) {
+    const { triggers } = procedures[0]
+    if (triggers && triggers.length) {
+      appSdk.configureSetup(procedures, (err, { storeId }) => {
+        if (!err) {
+          logger.log('--> Setup store #' + storeId)
+        } else if (!err.appAuthRemoved) {
+          logger.error(err)
+        }
+      })
+    }
   }
 
   // tracking code
