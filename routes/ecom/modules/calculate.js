@@ -125,12 +125,13 @@ module.exports = appSdk => {
             // check if service is not disabled
             if (Array.isArray(config.unavailable_for)) {
               for (let i = 0; i < config.unavailable_for.length; i++) {
-                const unavailable = config.unavailable_for[i]
-                if ((unavailable && unavailable.zip_range) &&
-                  (intZipCode >= unavailable.zip_range.min) &&
-                  (intZipCode <= unavailable.zip_range.max) &&
-                  (unavailable.service_name && matchService(unavailable, service.name))) {
-                  isAvailable = false
+                if (config.unavailable_for[i] && config.unavailable_for[i].zip_range && config.unavailable_for[i].service_name) {
+                  const unavailable = config.unavailable_for[i]
+                  if (intZipCode >= unavailable.zip_range.min && 
+                    intZipCode <= unavailable.zip_range.max && 
+                    matchService(unavailable, service.name)) {
+                      isAvailable = false
+                  }
                 }
               }
             }
