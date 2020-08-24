@@ -1,10 +1,10 @@
 {
   "name": "app-melhor-envio",
-  "version": "1.1.13",
+  "version": "1.1.14",
   "description": "Integração e-com.plus e melhor envio",
   "main": "index.js",
   "scripts": {
-    "start": "ME_SANDBOX=false ECOM_AUTH_DB=/var/dbs/melhorenvio.sqlite LOGGER_OUTPUT=/var/log/nodejs/melhorenvio.out LOGGER_ERRORS=/var/log/nodejs/melhorenvio.error nodemon main.js",
+    "start": "ME_SANDBOX=false ECOM_AUTH_DB=/var/dbs/melhorenvio.sqlite LOGGER_OUTPUT=/var/log/nodejs/melhorenvio.out LOGGER_ERRORS=/var/log/nodejs/melhorenvio.error nodemon --inspect main.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "release": "standard-version",
     "publish:market": "node ./scripts/market-publication.js"
