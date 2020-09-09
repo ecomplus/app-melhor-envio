@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.15](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.14...v1.1.15) (2020-09-09)
+
 ### [1.1.14](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.13...v1.1.14) (2020-08-24)
 
 ### [1.1.13](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.12...v1.1.13) (2020-07-20)
