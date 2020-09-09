@@ -3,7 +3,7 @@
   "title": "Melhor Envio",
   "slug": "melhor-envio",
   "paid": false,
-  "version": "1.0.1",
+  "version": "1.1.15",
   "type": "external",
   "github_repository": "https://github.com/ecomclub/app-melhor-envio",
   "admin_settings": {
@@ -55,8 +55,8 @@
     "jadlog_agency": {
       "schema": {
         "title": "Agência Jadlog",
-        "type": "interge",
-        "description": "Agência da transportadora jadlog que fará a coleta das encomendas"
+        "type": "integer",
+        "description": "Código da agência da transportadora jadlog que fará a coleta das encomendas"
       },
       "hide": false
     },
