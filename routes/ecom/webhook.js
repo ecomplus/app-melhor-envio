@@ -55,7 +55,7 @@ module.exports = appSdk => {
             }).then(({ data }) => data)
 
             const label = newLabel(order, configObj, merchantData)
-
+            logger.log(`>> Comprando etiquetas #${storeId}`)
             return meClient({
               url: '/cart',
               method: 'post',
@@ -64,6 +64,7 @@ module.exports = appSdk => {
               data: label
             })
               .then(({ data }) => {
+                logger.log(`>> Etiqueta inserida no carrinho com sucesso #${data.id}`)
                 return meClient({
                   url: '/shipment/checkout',
                   method: 'post',
@@ -76,11 +77,12 @@ module.exports = appSdk => {
               })
 
               .then(data => {
+                logger.log(`>> Carrinho finalizado com sucesso #${data.id}`)
                 return saveLabel(data.id, data.status, resourceId, storeId).then(() => data)
               })
 
               .then(data => {
-                logger.log(`>> Label purchased for order: ${order._id} | #${storeId}`)
+                logger.log(`>> Etiquetas salvas no db para futuros rastreio / # ${order._id} | # ${storeId}`)
                 // updates hidden_metafields with the generated tag id
                 const resource = `orders/${resourceId}/hidden_metafields.json`
                 const method = 'POST'
@@ -93,6 +95,7 @@ module.exports = appSdk => {
               })
 
               .then(() => {
+                logger.log(`>> hidden_metafields do pedido ${order._id} atualizado com sucesso!`)
                 // done
                 res.send(ECHO_SUCCESS)
               })
@@ -108,6 +111,7 @@ module.exports = appSdk => {
           const { response } = err
           if (response && err.isAxiosError) {
             const payload = {
+              storeId,
               status: response.status,
               data: response.data,
               config: response.config
