@@ -127,10 +127,10 @@ module.exports = appSdk => {
               for (let i = 0; i < config.unavailable_for.length; i++) {
                 if (config.unavailable_for[i] && config.unavailable_for[i].zip_range && config.unavailable_for[i].service_name) {
                   const unavailable = config.unavailable_for[i]
-                  if (intZipCode >= unavailable.zip_range.min && 
-                    intZipCode <= unavailable.zip_range.max && 
+                  if (intZipCode >= unavailable.zip_range.min &&
+                    intZipCode <= unavailable.zip_range.max &&
                     matchService(unavailable, service.name)) {
-                      isAvailable = false
+                    isAvailable = false
                   }
                 }
               }
@@ -278,8 +278,21 @@ module.exports = appSdk => {
             : res.send(response)
         })
 
-        .catch(error => {
-          errorHandling(error)
+        .catch(err => {
+          const { response } = err
+          if (response && err.isAxiosError) {
+            const payload = {
+              storeId,
+              status: response.status,
+              data: response.data,
+              config: response.config
+            }
+
+            logger.error('CalculateShippingErr', JSON.stringify(payload, undefined, 4))
+          } else {
+            errorHandling(err)
+          }
+
           res.status(400)
           return res.send({
             error: 'CALCULATE_ERR',
