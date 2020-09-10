@@ -55,7 +55,7 @@ module.exports = appSdk => {
             }).then(({ data }) => data)
 
             const label = newLabel(order, configObj, merchantData)
-            logger.log(`>> Comprando etiquetas #${storeId}`)
+            logger.log(`>> Comprando etiquetas #${storeId} | `, JSON.stringify(label))
             return meClient({
               url: '/cart',
               method: 'post',
