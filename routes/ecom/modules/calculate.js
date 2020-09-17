@@ -48,8 +48,8 @@ module.exports = appSdk => {
     if (Array.isArray(shippingRules)) {
       for (let i = 0; i < shippingRules.length; i++) {
         const rule = shippingRules[i]
-        if (rule.free_shipping) {
-          if (!rule.min_amount || !checkZipCode(rule)) {
+        if (rule.free_shipping && checkZipCode(rule)) {
+          if (!rule.min_amount) {
             response.free_shipping_from_value = 0
             break
           } else if (!(response.free_shipping_from_value <= rule.min_amount)) {
@@ -125,11 +125,16 @@ module.exports = appSdk => {
             // check if service is not disabled
             if (Array.isArray(config.unavailable_for)) {
               for (let i = 0; i < config.unavailable_for.length; i++) {
-                if (config.unavailable_for[i] && config.unavailable_for[i].zip_range && config.unavailable_for[i].service_name) {
+                if (
+                  config.unavailable_for[i] && config.unavailable_for[i].zip_range &&
+                  config.unavailable_for[i].service_name
+                ) {
                   const unavailable = config.unavailable_for[i]
-                  if (intZipCode >= unavailable.zip_range.min &&
+                  if (
+                    intZipCode >= unavailable.zip_range.min &&
                     intZipCode <= unavailable.zip_range.max &&
-                    matchService(unavailable, service.name)) {
+                    matchService(unavailable, service.name)
+                  ) {
                     isAvailable = false
                   }
                 }
@@ -145,27 +150,9 @@ module.exports = appSdk => {
                 number: parseInt(config.merchant_address.number)
               }
 
-              const package = {
-                dimensions: {
-                  width: {
-                    value: service.packages ? service.packages[0].dimensions.width : service.volumes[0].dimensions.width
-                  },
-                  height: {
-                    value: service.packages ? service.packages[0].dimensions.height : service.volumes[0].dimensions.height
-                  },
-                  length: {
-                    value: service.packages ? service.packages[0].dimensions.length : service.volumes[0].dimensions.length
-                  }
-                },
-                weight: {
-                  value: service.packages ? parseFloat(service.packages[0].weight) : parseFloat(service.volumes[0].weight)
-                }
-              }
-
-              const shippingLines = {
+              const shippingLine = {
                 to,
                 from,
-                package,
                 own_hand: service.additional_services.own_hand,
                 receipt: service.additional_services.receipt,
                 discount: 0,
@@ -186,8 +173,31 @@ module.exports = appSdk => {
                 ]
               }
 
+              const servicePkg = (service.packages && service.packages[0]) || (service.volumes && service.volumes[0])
+              if (servicePkg) {
+                shippingLine.package = {}
+                if (servicePkg.dimensions) {
+                  shippingLine.package.dimensions = {
+                    width: {
+                      value: servicePkg.dimensions.width
+                    },
+                    height: {
+                      value: servicePkg.dimensions.height
+                    },
+                    length: {
+                      value: servicePkg.dimensions.length
+                    }
+                  }
+                }
+                if (servicePkg.weight) {
+                  shippingLine.package.weight = {
+                    value: parseFloat(servicePkg.weight)
+                  }
+                }
+              }
+
               if (config.jadlog_agency) {
-                shippingLines.custom_fields.push({
+                shippingLine.custom_fields.push({
                   field: 'jadlog_agency',
                   value: String(config.jadlog_agency)
                 })
@@ -196,17 +206,17 @@ module.exports = appSdk => {
               // check for default configured additional/discount price
               if (config.additional_price) {
                 if (config.additional_price > 0) {
-                  shippingLines.other_additionals = [{
+                  shippingLine.other_additionals = [{
                     tag: 'additional_price',
                     label: 'Adicional padrão',
                     price: config.additional_price
                   }]
                 } else {
                   // negative additional price to apply discount
-                  shippingLines.discount -= config.additional_price
+                  shippingLine.discount -= config.additional_price
                 }
                 // update total price
-                shippingLines.total_price += config.additional_price
+                shippingLine.total_price += config.additional_price
               }
 
               // search for discount by shipping rule
@@ -214,25 +224,25 @@ module.exports = appSdk => {
                 for (let i = 0; i < shippingRules.length; i++) {
                   const rule = shippingRules[i]
                   if (
-                    rule && matchService(rule, service.name) &&
-                    (!rule.zip_range ||
-                      checkZipCode(rule)) &&
+                    rule &&
+                    matchService(rule, service.name) &&
+                    checkZipCode(rule) &&
                     !(rule.min_amount > params.subtotal)
                   ) {
                     // valid shipping rule
                     if (rule.free_shipping) {
-                      shippingLines.discount += shippingLines.total_price
-                      shippingLines.total_price = 0
+                      shippingLine.discount += shippingLine.total_price
+                      shippingLine.total_price = 0
                       break
                     } else if (rule.discount && rule.service_name) {
                       let discountValue = rule.discount.value
                       if (rule.discount.percentage) {
-                        discountValue *= (shippingLines.total_price / 100)
+                        discountValue *= (shippingLine.total_price / 100)
                       }
-                      shippingLines.discount += discountValue
-                      shippingLines.total_price -= discountValue
-                      if (shippingLines.total_price < 0) {
-                        shippingLines.total_price = 0
+                      shippingLine.discount += discountValue
+                      shippingLine.total_price -= discountValue
+                      if (shippingLine.total_price < 0) {
+                        shippingLine.total_price = 0
                       }
                       break
                     }
@@ -256,7 +266,7 @@ module.exports = appSdk => {
                 service_name: service.name,
                 service_code: `ME ${service.id}`,
                 icon: service.company.picture,
-                shipping_line: shippingLines
+                shipping_line: shippingLine
               })
             } else {
               errorMsg += `${service.name}, ${service.error} \n`
@@ -307,4 +317,3 @@ module.exports = appSdk => {
     }
   }
 }
-
