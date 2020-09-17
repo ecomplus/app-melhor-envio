@@ -23,6 +23,9 @@ module.exports = appSdk => {
     const trigger = req.body
     */
     const { storeId } = req
+    if (req.body.resource !== 'orders') {
+      return res.send(ECHO_SKIP)
+    }
     const resourceId = req.body.resource_id || req.body.inserted_id
 
     // get app configured options
