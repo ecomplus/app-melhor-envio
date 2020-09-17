@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.20](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.19...v1.1.20) (2020-09-17)
+
+
+### Bug Fixes
+
+* **tracking-codes:** properly handle api errors ([566fb58](https://github.com/ecomclub/app-melhor-envio/commit/566fb5811814ed4c98d3dda340057441f0b11e22))
+
 ### [1.1.19](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.18...v1.1.19) (2020-09-17)
 
 
