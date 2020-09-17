@@ -84,14 +84,14 @@ module.exports = appSdk => {
         config.merchant_address = merchantAddress
 
         // save merchant_address in hidden_data
-        let resource = `/applications/${application._id}/hidden_data.json`
+        let endpoint = `/applications/${application._id}/hidden_data.json`
         let method = 'PATCH'
         let bodyUpdate = {
           merchant_address: merchantAddress
         }
 
         appSdk
-          .apiRequest(storeId, resource, method, bodyUpdate)
+          .apiRequest(storeId, endpoint, method, bodyUpdate)
           .catch(e => {
             logger.error('!<> Update merchant_address failed', e.message)
           })

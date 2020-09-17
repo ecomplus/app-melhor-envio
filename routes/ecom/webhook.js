@@ -1,4 +1,5 @@
 'use strict'
+
 const logger = require('console-files')
 // read configured E-Com Plus app data
 const getConfig = require(process.cwd() + '/lib/store-api/get-config')
@@ -35,11 +36,8 @@ module.exports = appSdk => {
           return res.send(ECHO_SKIP)
         }
 
-        let resource = `orders/${resourceId}`
-        let method = 'GET'
-
         return appSdk
-          .apiRequest(storeId, resource, method)
+          .apiRequest(storeId, `/orders/${resourceId}.json`, 'GET')
           .then(async ({ response }) => {
             const order = response.data
 
@@ -84,14 +82,11 @@ module.exports = appSdk => {
               .then(data => {
                 logger.log(`>> Etiquetas salvas no db para futuros rastreio / # ${order._id} | # ${storeId}`)
                 // updates hidden_metafields with the generated tag id
-                const resource = `orders/${resourceId}/hidden_metafields.json`
-                const method = 'POST'
-                const params = {
+                return appSdk.apiRequest(storeId, `/orders/${resourceId}/hidden_metafields.json`, 'POST', {
                   namespace: 'app-melhor-envio',
                   field: 'melhor_envio_label_id',
                   value: data.id
-                }
-                return appSdk.apiRequest(storeId, resource, method, params)
+                })
               })
 
               .then(() => {
@@ -121,14 +116,11 @@ module.exports = appSdk => {
             logger.error('BuyLabelErr: ', JSON.stringify(payload, undefined, 4))
 
             // update order hidden_metafields
-            const url = `orders/${resourceId}/hidden_metafields.json`
-            const metafields = {
+            appSdk.apiRequest(storeId, `/orders/${resourceId}/hidden_metafields.json`, 'POST', {
               namespace: 'app-melhor-envio',
               field: 'melhor_envio_label_error',
               value: dataStringfy.substring(0, 255)
-            }
-
-            appSdk.apiRequest(storeId, url, 'post', metafields)
+            })
           } else {
             errorHandling(err)
           }
