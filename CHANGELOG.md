@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.21](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.20...v1.1.21) (2020-09-17)
+
+
+### Bug Fixes
+
+* **database:** remove limit from delete query ([b3730fb](https://github.com/ecomclub/app-melhor-envio/commit/b3730fbbc1743f99331854013a47a56185e09d2b))
+
 ### [1.1.20](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.19...v1.1.20) (2020-09-17)
 
 
