@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.19](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.18...v1.1.19) (2020-09-17)
+
+
+### Bug Fixes
+
+* **api-requests:** fix store api requests endpoints ([c546919](https://github.com/ecomclub/app-melhor-envio/commit/c546919ce5bb1e443ef4eaeb58e5b1e68054745f))
+* **calculate-shipping:** fix checking zip range for free shipping ([e99cead](https://github.com/ecomclub/app-melhor-envio/commit/e99cead52ef1324087b98ae756c47dfe58a362d9))
+* **deps:** using @ecomplus/application-sdk sqlite version ([39c7a54](https://github.com/ecomclub/app-melhor-envio/commit/39c7a548a9a78673bf1b8886ef502bd925e7f12d))
+* **new-label:** handling legal person doc number ([#42](https://github.com/ecomclub/app-melhor-envio/issues/42)) ([454cbc7](https://github.com/ecomclub/app-melhor-envio/commit/454cbc71e385e365977fd269d7d2184547d89f82))
+* **new-label:** preventing fatal erros with undefined properties ([d680927](https://github.com/ecomclub/app-melhor-envio/commit/d680927a6df707d0d3527407e7052bd12ca2687c))
+
 ### [1.1.18](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.17...v1.1.18) (2020-09-10)
 
 ### [1.1.17](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.16...v1.1.17) (2020-09-10)
