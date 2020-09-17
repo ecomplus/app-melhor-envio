@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.22](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.21...v1.1.22) (2020-09-17)
+
+
+### Bug Fixes
+
+* **new-label:** fix setting me label from (in place of `merchantData`) ([93aa0b3](https://github.com/ecomclub/app-melhor-envio/commit/93aa0b3aa213cc66a495e789733783ddf977c458))
+
 ### [1.1.21](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.20...v1.1.21) (2020-09-17)
 
 
