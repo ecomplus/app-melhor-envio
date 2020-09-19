@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.23](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.22...v1.1.23) (2020-09-19)
+
+
+### Bug Fixes
+
+* **calculate:** properly handling ME error responses ([dc759d0](https://github.com/ecomclub/app-melhor-envio/commit/dc759d07d0f2b7770e4fcb465c94a9d2d5557a01))
+* **procedures:** watch `fulfillment_status` field, not `fulfillments` ([#44](https://github.com/ecomclub/app-melhor-envio/issues/44)) ([dfc9364](https://github.com/ecomclub/app-melhor-envio/commit/dfc936495778d236007143a633c60325386127f5))
+* **webhooks:** properlly handle known ME/merchant errors ([6a9da30](https://github.com/ecomclub/app-melhor-envio/commit/6a9da301447bc607500123b1bd47ce9e6f9e6ba5))
+
 ### [1.1.22](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.21...v1.1.22) (2020-09-17)
 
 
