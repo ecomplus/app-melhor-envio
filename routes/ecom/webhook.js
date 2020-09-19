@@ -107,24 +107,31 @@ module.exports = appSdk => {
           res.send(ECHO_SKIP)
         } else {
           // treat error
-          const { response } = err
-          if (response && err.isAxiosError) {
-            const payload = {
-              storeId,
-              status: response.status,
-              data: response.data,
-              config: response.config
+          if (err.response && err.isAxiosError) {
+            const { data } = err.response
+
+            if (data) {
+              // update order hidden_metafields
+              appSdk.apiRequest(storeId, `/orders/${resourceId}/hidden_metafields.json`, 'POST', {
+                namespace: 'app-melhor-envio',
+                field: 'melhor_envio_label_error',
+                value: JSON.stringify(data).substring(0, 255)
+              })
+              if (
+                data.error === 'Os documentos (CPFs) dos participantes do frete não podem ser iguais' ||
+                data.error.startsWith('Seu saldo de R$ ')
+              ) {
+                // ignoring known ME/merchant errors
+                return res.send(`ME: ${data.error}`)
+              }
             }
 
-            const dataStringfy = JSON.stringify(response.data)
-            logger.error('BuyLabelErr: ', JSON.stringify(payload, undefined, 4))
-
-            // update order hidden_metafields
-            appSdk.apiRequest(storeId, `/orders/${resourceId}/hidden_metafields.json`, 'POST', {
-              namespace: 'app-melhor-envio',
-              field: 'melhor_envio_label_error',
-              value: dataStringfy.substring(0, 255)
-            })
+            logger.error('BuyLabelErr:', JSON.stringify({
+              storeId,
+              data,
+              status: err.response.status,
+              config: err.response.config
+            }, null, 4))
           } else {
             errorHandling(err)
           }
