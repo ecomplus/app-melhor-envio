@@ -289,24 +289,54 @@ module.exports = appSdk => {
         })
 
         .catch(err => {
-          const { response } = err
-          if (response && err.isAxiosError) {
-            const payload = {
-              storeId,
-              status: response.status,
-              data: response.data,
-              config: response.config
+          let message = 'Unexpected Error Try Later'
+          if (err.response && err.isAxiosError) {
+            const { data, status, config } = err.response
+            let isAppError = true
+            if (status >= 500) {
+              message = 'Melhor Envio offline no momento'
+              isAppError = false
+            } else if (data) {
+              if (data.errors && typeof data.errors === 'object' && Object.keys(data.errors).length) {
+                const errorKeys = Object.keys(data.errors)
+                for (let i = 0; i < errorKeys.length; i++) {
+                  const meError = data.errors[errorKeys[i]]
+                  if (meError && meError.length) {
+                    message = Array.isArray(meError) ? meError[0] : meError
+                    if (errorKeys[i].startsWith('to.')) {
+                      // invalid merchant config on ME
+                      // eg.: 'O campo to.postal code deve ter pelo menos 5 caracteres.'
+                      isAppError = false
+                      break
+                    } else {
+                      message += errorKeys[i]
+                    }
+                  }
+                }
+              } else if (data.error) {
+                message = `ME: ${data.error}`
+              } else if (data.message) {
+                message = `ME: ${data.message}`
+              }
             }
 
-            logger.error('CalculateShippingErr', JSON.stringify(payload, undefined, 4))
+            if (isAppError) {
+              // debug unexpected error
+              logger.error('CalculateShippingErr:', JSON.stringify({
+                storeId,
+                status,
+                data,
+                config
+              }, null, 4))
+            }
           } else {
             errorHandling(err)
           }
 
-          res.status(400)
+          res.status(409)
           return res.send({
             error: 'CALCULATE_ERR',
-            message: 'Unexpected Error Try Later'
+            message
           })
         })
     } else {
