@@ -1,19 +1,19 @@
 'use strict'
 
 const logger = require('console-files')
+
 // read configured E-Com Plus app data
 const getConfig = require(process.cwd() + '/lib/store-api/get-config')
 const errorHandling = require(process.cwd() + '/lib/store-api/error-handling')
-const SKIP_TRIGGER_NAME = 'SkipTrigger'
-const ECHO_SUCCESS = 'SUCCESS'
-const ECHO_SKIP = 'SKIP'
-const ECHO_API_ERROR = 'STORE_API_ERR'
-
-//
 const orderIsValid = require('../../lib/melhor-envio/order-is-valid')
 const newLabel = require('../../lib/melhor-envio/new-label')
 const { saveLabel } = require('../../lib/database')
 const meClient = require('../../lib/melhor-envio/client')
+
+const SKIP_TRIGGER_NAME = 'SkipTrigger'
+const ECHO_SUCCESS = 'SUCCESS'
+const ECHO_SKIP = 'SKIP'
+const ECHO_API_ERROR = 'STORE_API_ERR'
 
 module.exports = appSdk => {
   return (req, res) => {
@@ -27,6 +27,7 @@ module.exports = appSdk => {
       return res.send(ECHO_SKIP)
     }
     const resourceId = req.body.resource_id || req.body.inserted_id
+    logger.log(`Webhook #${storeId} ${resourceId}`)
 
     // get app configured options
     return getConfig({ appSdk, storeId }, true)
@@ -56,7 +57,7 @@ module.exports = appSdk => {
             }).then(({ data }) => data)
 
             const label = newLabel(order, configObj, merchantData)
-            logger.log(`>> Comprando etiquetas #${storeId} | `, JSON.stringify(label))
+            logger.log(`>> Comprando etiquetas #${storeId} ${order._id}`)
             return meClient({
               url: '/cart',
               method: 'post',
@@ -83,7 +84,7 @@ module.exports = appSdk => {
               })
 
               .then(data => {
-                logger.log(`>> Etiquetas salvas no db para futuros rastreio / # ${order._id} | # ${storeId}`)
+                logger.log(`>> Etiquetas salvas no db para futuros rastreio #${storeId} ${resourceId}`)
                 // updates hidden_metafields with the generated tag id
                 return appSdk.apiRequest(storeId, `/orders/${resourceId}/hidden_metafields.json`, 'POST', {
                   namespace: 'app-melhor-envio',
@@ -93,7 +94,7 @@ module.exports = appSdk => {
               })
 
               .then(() => {
-                logger.log(`>> hidden_metafields do pedido ${order._id} atualizado com sucesso!`)
+                logger.log(`>> 'hidden_metafields' do pedido ${order._id} atualizado com sucesso!`)
                 // done
                 res.send(ECHO_SUCCESS)
               })
