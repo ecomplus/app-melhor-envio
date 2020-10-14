@@ -118,8 +118,6 @@ module.exports = appSdk => {
                       { tracking_codes: trackingCodes }
                     )
                   }
-                } else {
-                  logger.log(data)
                 }
                 return null
               })
