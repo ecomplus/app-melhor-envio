@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.1...v1.2.2) (2020-10-14)
+
+
+### Bug Fixes
+
+* **tracking-codes:** running job each 2h, update tracking codes first than status ([448f9ac](https://github.com/ecomclub/app-melhor-envio/commit/448f9aca5c010828425263b7aef9790b5b858db7))
+
 ### [1.2.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.0...v1.2.1) (2020-10-14)
 
 
