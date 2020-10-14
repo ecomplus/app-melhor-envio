@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.0...v1.2.1) (2020-10-14)
+
+
+### Bug Fixes
+
+* **tracking-codes:** fix saving tracking codes to order from schedules tracking job ([#45](https://github.com/ecomclub/app-melhor-envio/issues/45)) ([d0abaed](https://github.com/ecomclub/app-melhor-envio/commit/d0abaedbabf8a7990309c682761c2de01742f8aa))
+
 ## [1.2.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.25...v1.2.0) (2020-10-14)
 
 
