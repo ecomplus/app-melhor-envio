@@ -86,11 +86,42 @@ module.exports = appSdk => {
               .then(data => {
                 logger.log(`>> Etiquetas salvas no db para futuros rastreio #${storeId} ${resourceId}`)
                 // updates hidden_metafields with the generated tag id
-                return appSdk.apiRequest(storeId, `/orders/${resourceId}/hidden_metafields.json`, 'POST', {
-                  namespace: 'app-melhor-envio',
-                  field: 'melhor_envio_label_id',
-                  value: data.id
-                })
+                return appSdk.apiRequest(
+                  storeId,
+                  `/orders/${resourceId}/hidden_metafields.json`,
+                  'POST',
+                  {
+                    namespace: 'app-melhor-envio',
+                    field: 'melhor_envio_label_id',
+                    value: data.id
+                  }
+                ).then(() => data)
+              })
+
+              .then(data => {
+                if (typeof data.tracking === 'string' && data.tracking.length) {
+                  let shippingLine = order.shipping_lines
+                    .find(({ app }) => app && app.service_code && app.service_code.startsWith('ME'))
+                  if (!shippingLine) {
+                    shippingLine = order.shipping_lines[0]
+                  }
+                  if (shippingLine) {
+                    const trackingCodes = shippingLine.tracking_codes || []
+                    trackingCodes.push({
+                      code: data.tracking,
+                      link: `https://www.melhorrastreio.com.br/rastreio/${data.tracking}`
+                    })
+                    return appSdk.apiRequest(
+                      storeId,
+                      `/orders/${resourceId}/shipping_lines/${shippingLine._id}.json`,
+                      'PATCH',
+                      { tracking_codes: trackingCodes }
+                    )
+                  }
+                } else {
+                  logger.log(data)
+                }
+                return null
               })
 
               .then(() => {
