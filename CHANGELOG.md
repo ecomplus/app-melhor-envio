@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.2...v1.2.3) (2020-10-14)
+
+
+### Bug Fixes
+
+* **database:** no conditions or order to get all sync labels for tracking ([97ec9f1](https://github.com/ecomclub/app-melhor-envio/commit/97ec9f1b4c798f9c7cb07c1632723efee93a6450))
+
 ### [1.2.2](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.1...v1.2.2) (2020-10-14)
 
 
