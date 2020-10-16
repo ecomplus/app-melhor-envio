@@ -44,12 +44,16 @@ module.exports = appSdk => {
           // continue getting app configured options
           return getConfig({ appSdk, storeId }, true)
         } else {
-          return res.send(ECHO_SKIP)
+          res.send(ECHO_SKIP)
+          return null
         }
       })
 
       .then(async configObj => {
         /* Do the stuff */
+        if (!configObj) {
+          return null
+        }
         const token = configObj.access_token
         const sandbox = configObj.sandbox
         if (!token) {
