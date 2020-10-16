@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.4](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.3...v1.2.4) (2020-10-16)
+
+
+### Bug Fixes
+
+* **tracking-codes:** fix handling respective shipping line and prevent wrong status update ([ceac46c](https://github.com/ecomclub/app-melhor-envio/commit/ceac46c3dd50909e88325d59c69a990b75e38b2a))
+* **webhooks:** ensure label is not duplicated for same order id ([c9a5dbc](https://github.com/ecomclub/app-melhor-envio/commit/c9a5dbcd082759d4f1913c34ce3fc008406f0c36))
+
 ### [1.2.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.2...v1.2.3) (2020-10-14)
 
 
