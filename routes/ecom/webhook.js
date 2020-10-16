@@ -7,13 +7,16 @@ const getConfig = require(process.cwd() + '/lib/store-api/get-config')
 const errorHandling = require(process.cwd() + '/lib/store-api/error-handling')
 const orderIsValid = require('../../lib/melhor-envio/order-is-valid')
 const newLabel = require('../../lib/melhor-envio/new-label')
-const { saveLabel } = require('../../lib/database')
+const { searchLabel, saveLabel } = require('../../lib/database')
 const meClient = require('../../lib/melhor-envio/client')
 
 const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
 const ECHO_API_ERROR = 'STORE_API_ERR'
+
+const processingIds = []
+const metafieldName = 'melhor_envio_label_id'
 
 module.exports = appSdk => {
   return (req, res) => {
@@ -27,10 +30,23 @@ module.exports = appSdk => {
       return res.send(ECHO_SKIP)
     }
     const resourceId = req.body.resource_id || req.body.inserted_id
+    if (processingIds.includes(resourceId)) {
+      return res.status(503).send('Current ID is already being processed')
+    }
+    const idIndex = processingIds.push(resourceId) - 1
     logger.log(`Webhook #${storeId} ${resourceId}`)
 
-    // get app configured options
-    return getConfig({ appSdk, storeId }, true)
+    // check already created labels
+    return searchLabel(resourceId)
+
+      .then(row => {
+        if (!row) {
+          // continue getting app configured options
+          return getConfig({ appSdk, storeId }, true)
+        } else {
+          return res.send(ECHO_SKIP)
+        }
+      })
 
       .then(async configObj => {
         /* Do the stuff */
@@ -45,7 +61,12 @@ module.exports = appSdk => {
           .then(async ({ response }) => {
             const order = response.data
 
-            if (!configObj.enabled_label_purchase || !orderIsValid(order, configObj)) {
+            if (
+              !configObj.enabled_label_purchase ||
+              !orderIsValid(order, configObj) ||
+              (order.hidden_metafields &&
+                order.hidden_metafields.find(({ field }) => field === metafieldName))
+            ) {
               return res.send(ECHO_SKIP)
             }
 
@@ -92,7 +113,7 @@ module.exports = appSdk => {
                   'POST',
                   {
                     namespace: 'app-melhor-envio',
-                    field: 'melhor_envio_label_id',
+                    field: metafieldName,
                     value: data.id
                   }
                 ).then(() => data)
@@ -174,6 +195,10 @@ module.exports = appSdk => {
             message
           })
         }
+      })
+
+      .finally(() => {
+        processingIds.splice(idIndex, 1)
       })
   }
 }
