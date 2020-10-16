@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.4.0...v1.4.1) (2020-10-16)
+
+
+### Bug Fixes
+
+* **tracking:** set delivered if tracking code available only ([5f39057](https://github.com/ecomclub/app-melhor-envio/commit/5f39057c76ebc01561b2eb3247e9dcb54b0a48c9))
+* **webhooks:** prevent resending response ([1bad5f9](https://github.com/ecomclub/app-melhor-envio/commit/1bad5f97b752c60cdabc156613ba18c410cf1c5c))
+
 ## [1.4.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.3.0...v1.4.0) (2020-10-16)
 
 
