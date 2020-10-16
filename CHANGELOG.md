@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.4...v1.3.0) (2020-10-16)
+
+
+### Features
+
+* **admin-settings:** add/handle new 'enabled_label_checkout' boolean option ([19eef3e](https://github.com/ecomclub/app-melhor-envio/commit/19eef3e40fcbda62dec69a08d5cc4b08fb6fb448))
+
 ### [1.2.4](https://github.com/ecomclub/app-melhor-envio/compare/v1.2.3...v1.2.4) (2020-10-16)
 
 
