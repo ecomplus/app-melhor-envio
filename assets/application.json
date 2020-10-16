@@ -18,10 +18,19 @@
     },
     "enabled_label_purchase": {
       "schema": {
-        "title": "Compra de Etiqueta",
+        "title": "Adicionar etiquetas",
         "type": "boolean",
         "default": false,
-        "description": "Se habilitado, o aplicativo irá efetuar compra de etiquetas para pedidos marcados como 'Pronto para Envio' e com NF emitida"
+        "description": "Se habilitado, irá adicionar etiquetas ao carrinho do ME para pedidos marcados como \"Pronto para envio\" e com NF emitida"
+      },
+      "hide": false
+    },
+    "enabled_label_checkout": {
+      "schema": {
+        "title": "Comprar etiquetas",
+        "type": "boolean",
+        "default": false,
+        "description": "Se habilitado em conjunto com a adição de etiquetas, irá finalizar a compra das etiquetas no ME automaticamente"
       },
       "hide": false
     },

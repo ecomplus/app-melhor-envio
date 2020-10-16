@@ -88,15 +88,18 @@ module.exports = appSdk => {
             })
               .then(({ data }) => {
                 logger.log(`>> Etiqueta inserida no carrinho com sucesso #${data.id}`)
-                return meClient({
-                  url: '/shipment/checkout',
-                  method: 'post',
-                  token,
-                  sandbox,
-                  data: {
-                    orders: [data.id]
-                  }
-                }).then(() => data)
+                if (configObj.enabled_label_checkout) {
+                  return meClient({
+                    url: '/shipment/checkout',
+                    method: 'post',
+                    token,
+                    sandbox,
+                    data: {
+                      orders: [data.id]
+                    }
+                  }).then(() => data)
+                }
+                return data
               })
 
               .then(data => {
