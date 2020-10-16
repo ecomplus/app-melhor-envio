@@ -39,7 +39,16 @@
         "title": "Envio não comercial",
         "type": "boolean",
         "default": false,
-        "description": "Com a opção habilitada, se torna desnecessário a obrigação de número de nota fiscal na emissão da etiqueta no melhor envio."
+        "description": "Com a opção habilitada, se torna desnecessário a obrigação de número de nota fiscal na emissão da etiqueta no Melhor Envio"
+      },
+      "hide": false
+    },
+    "disable_tracking": {
+      "schema": {
+        "title": "Desabilitar rastreamento",
+        "type": "boolean",
+        "default": false,
+        "description": "Desativa a atualização automática de status de pedidos por rastreamento da etiqueta do ME"
       },
       "hide": false
     },
