@@ -64,13 +64,7 @@ module.exports = appSdk => {
           .apiRequest(storeId, `/orders/${resourceId}.json`, 'GET')
           .then(async ({ response }) => {
             const order = response.data
-
-            if (
-              !configObj.enabled_label_purchase ||
-              !orderIsValid(order, configObj) ||
-              (order.hidden_metafields &&
-                order.hidden_metafields.find(({ field }) => field === metafieldName))
-            ) {
+            if (!configObj.enabled_label_purchase || !orderIsValid(order, configObj)) {
               return res.send(ECHO_SKIP)
             }
 
