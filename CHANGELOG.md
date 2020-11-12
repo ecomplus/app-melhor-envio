@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.25...v1.5.0) (2020-11-12)
+
+
+### Features
+
+* **admin-settings:** add 'disable_tracking' boolean option ([7e146b6](https://github.com/ecomclub/app-melhor-envio/commit/7e146b6610834550fbe2f67e7df6db7225ce2ed4))
+* **admin-settings:** add/handle new 'enabled_label_checkout' boolean option ([19eef3e](https://github.com/ecomclub/app-melhor-envio/commit/19eef3e40fcbda62dec69a08d5cc4b08fb6fb448))
+* **tracking-codes:** try to get code from checkout reponse and save to order data ([#45](https://github.com/ecomclub/app-melhor-envio/issues/45)) ([8b0eedc](https://github.com/ecomclub/app-melhor-envio/commit/8b0eedccbdf154aa9a53d457883408c7bd85cc11))
+
+
+### Bug Fixes
+
+* **#46:** buy labels when there have been changes in fulfillments instead of fulfillment_status ([924485a](https://github.com/ecomclub/app-melhor-envio/commit/924485a2d57ef4024a83613411c960ef2c400931)), closes [#46](https://github.com/ecomclub/app-melhor-envio/issues/46)
+* **database:** no conditions or order to get all sync labels for tracking ([97ec9f1](https://github.com/ecomclub/app-melhor-envio/commit/97ec9f1b4c798f9c7cb07c1632723efee93a6450))
+* **tracking:** set delivered if tracking code available only ([5f39057](https://github.com/ecomclub/app-melhor-envio/commit/5f39057c76ebc01561b2eb3247e9dcb54b0a48c9))
+* **tracking-codes:** fix handling respective shipping line and prevent wrong status update ([ceac46c](https://github.com/ecomclub/app-melhor-envio/commit/ceac46c3dd50909e88325d59c69a990b75e38b2a))
+* **tracking-codes:** fix saving tracking codes to order from schedules tracking job ([#45](https://github.com/ecomclub/app-melhor-envio/issues/45)) ([d0abaed](https://github.com/ecomclub/app-melhor-envio/commit/d0abaedbabf8a7990309c682761c2de01742f8aa))
+* **tracking-codes:** fix scheduled tracking post job handlers ([798c2e4](https://github.com/ecomclub/app-melhor-envio/commit/798c2e40d075153d2b856440efe21a2ad9dd04c5))
+* **tracking-codes:** running job each 2h, update tracking codes first than status ([448f9ac](https://github.com/ecomclub/app-melhor-envio/commit/448f9aca5c010828425263b7aef9790b5b858db7))
+* **webhooks:** ensure label is not duplicated for same order id ([c9a5dbc](https://github.com/ecomclub/app-melhor-envio/commit/c9a5dbcd082759d4f1913c34ce3fc008406f0c36))
+* **webhooks:** prevent resending response ([1bad5f9](https://github.com/ecomclub/app-melhor-envio/commit/1bad5f97b752c60cdabc156613ba18c410cf1c5c))
+
 ### [1.4.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.4.0...v1.4.1) (2020-10-16)
 
 
