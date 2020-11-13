@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.0...v1.5.1) (2020-11-13)
+
+
+### Bug Fixes
+
+* avoiding errors with .some() when custom_fields is undefined ([339b2e9](https://github.com/ecomclub/app-melhor-envio/commit/339b2e933d6d4502c459afe54fca5baedcc8a099))
+
 ## [1.5.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.1.25...v1.5.0) (2020-11-12)
 
 
