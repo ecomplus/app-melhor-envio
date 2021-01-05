@@ -22,7 +22,7 @@
   "homepage": "https://github.com/ecomclub/app-melhor-envio#readme",
   "dependencies": {
     "@ecomplus/application-sdk": "^11.0.0-sqlite.1.13.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "console-files": "^2.3.1",
     "express": "^4.17.1",
     "melhor-envio": "^1.6.2",
