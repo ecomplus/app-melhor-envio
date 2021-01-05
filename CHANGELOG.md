@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.2...v1.5.3) (2021-01-05)
+
+
+### Bug Fixes
+
+* **check-valid-order:** must check invoice number only (not issuer) ([cb58ac0](https://github.com/ecomclub/app-melhor-envio/commit/cb58ac094b1acb91cd54034875712e903522f3da))
+
 ### [1.5.2](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.1...v1.5.2) (2020-11-26)
 
 ### [1.5.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.0...v1.5.1) (2020-11-13)
