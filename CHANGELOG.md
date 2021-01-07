@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.5](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.4...v1.5.5) (2021-01-07)
+
+
+### Bug Fixes
+
+* **new-lable:** invalid property `invoices` ([#50](https://github.com/ecomclub/app-melhor-envio/issues/50)) ([b20616c](https://github.com/ecomclub/app-melhor-envio/commit/b20616c373f0ea3823f43b45fa8a398e9c2c0c23))
+
 ### [1.5.4](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.3...v1.5.4) (2021-01-05)
 
 ### [1.5.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.2...v1.5.3) (2021-01-05)
