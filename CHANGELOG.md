@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.6](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.5...v1.5.6) (2021-04-27)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major ([a27985c](https://github.com/ecomclub/app-melhor-envio/commit/a27985c57bbc9718844139bebb315214fea7c2c7))
+* **tracking:** schedule clear old labels ([1cc8502](https://github.com/ecomclub/app-melhor-envio/commit/1cc85027ba9a47b738ff5f59d083e5e200b47486))
+
 ### [1.5.5](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.4...v1.5.5) (2021-01-07)
 
 
