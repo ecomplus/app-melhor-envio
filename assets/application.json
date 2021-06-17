@@ -7,15 +7,6 @@
   "type": "external",
   "github_repository": "https://github.com/ecomclub/app-melhor-envio",
   "admin_settings": {
-    "sandbox": {
-      "schema": {
-        "title": "Sandbox",
-        "type": "boolean",
-        "default": false,
-        "description": "Ative caso esteja em ambiente de teste"
-      },
-      "hide": false
-    },
     "enabled_label_purchase": {
       "schema": {
         "title": "Adicionar etiquetas",
