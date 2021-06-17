@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.7](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.6...v1.5.7) (2021-06-17)
+
+
+### Bug Fixes
+
+* **admin-settngs:** remove (buggy) `sandbox` field ([#58](https://github.com/ecomclub/app-melhor-envio/issues/58)) ([8b19fba](https://github.com/ecomclub/app-melhor-envio/commit/8b19fbab2a77fe98f830cf294e99d58e250e0fe6))
+
 ### [1.5.6](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.5...v1.5.6) (2021-04-27)
 
 
