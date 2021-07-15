@@ -191,7 +191,8 @@ module.exports = appSdk => {
                 }
                 if (servicePkg.weight) {
                   shippingLine.package.weight = {
-                    value: parseFloat(servicePkg.weight)
+                    value: parseFloat(servicePkg.weight),
+                    unit: 'kg'
                   }
                 }
               }
