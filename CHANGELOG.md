@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.8](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.7...v1.5.8) (2021-07-16)
+
+
+### Bug Fixes
+
+* **calculate:** save package with correct unit ([#59](https://github.com/ecomclub/app-melhor-envio/issues/59)) ([926e35a](https://github.com/ecomclub/app-melhor-envio/commit/926e35a605efc104ac89f6fd9d8225e9006a2f5a))
+
 ### [1.5.7](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.6...v1.5.7) (2021-06-17)
 
 
