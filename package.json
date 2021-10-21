@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/ecomclub/app-melhor-envio#readme",
   "dependencies": {
-    "@ecomplus/application-sdk": "^11.0.0-sqlite.1.15.4",
+    "@ecomplus/application-sdk": "^11.0.0-sqlite.1.15.5",
     "axios": "^0.21.1",
     "console-files": "^2.3.1",
     "express": "^4.17.1",
