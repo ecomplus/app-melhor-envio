@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.9](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.8...v1.5.9) (2021-10-21)
+
+
+### Bug Fixes
+
+* **deps:** update @ecomplus/application-sdk to v1.15.5 sqlite ([42e110f](https://github.com/ecomclub/app-melhor-envio/commit/42e110f70628cdfd4520621f443cced14fc3885f))
+
 ### [1.5.8](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.7...v1.5.8) (2021-07-16)
 
 
