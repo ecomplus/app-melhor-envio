@@ -20,6 +20,15 @@ module.exports = appSdk => {
         message: 'Melhor Envio Token is unset on app hidden data'
       })
     }
+    if (
+      config.skip_no_weight_item &&
+      params.items && params.items.find(({ weight }) => weight && !weight.value)
+    ) {
+      return res.status(409).send({
+        error: 'CALCULATE_SHIPPING_SKIPPED',
+        message: 'Melhor Envio configured to skip no weight items'
+      })
+    }
     // start mounting response body
     // https://apx-mods.e-com.plus/api/v1/calculate_shipping/response_schema.json?store_id=100
     const response = {
