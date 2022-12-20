@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.9...v1.6.0) (2022-12-20)
+
+
+### Features
+
+* New "hidden" `skip_no_weight_item` config option ([bc08c47](https://github.com/ecomclub/app-melhor-envio/commit/bc08c47057bd72ff2778ae460298128932081de0))
+
 ### [1.5.9](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.8...v1.5.9) (2021-10-21)
 
 
