@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.6.0...v1.6.1) (2023-04-04)
+
+
+### Bug Fixes
+
+* **calculate:** set zero to discount higher than total price ([e52970e](https://github.com/ecomclub/app-melhor-envio/commit/e52970ed9ee207467382f29ca815c389c9eb6c14))
+
 ## [1.6.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.5.9...v1.6.0) (2022-12-20)
 
 
