@@ -227,6 +227,9 @@ module.exports = appSdk => {
                 }
                 // update total price
                 shippingLine.total_price += config.additional_price
+                if (shippingLine.total_price < 0) {
+                  shippingLine.total_price = 0
+                }
               }
 
               // search for discount by shipping rule
