@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.6.2...v1.6.3) (2023-06-20)
+
+
+### Bug Fixes
+
+* **new-label:** check doc number from correct object ([115c873](https://github.com/ecomclub/app-melhor-envio/commit/115c873b9351932b5e6f136d618549eda78e4f7d))
+
 ### [1.6.2](https://github.com/ecomclub/app-melhor-envio/compare/v1.6.1...v1.6.2) (2023-06-20)
 
 ### [1.6.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.6.0...v1.6.1) (2023-04-04)
