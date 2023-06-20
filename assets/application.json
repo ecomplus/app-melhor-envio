@@ -69,6 +69,38 @@
       },
       "hide": false
     },
+    "loggi_agency": {
+      "schema": {
+        "title": "Agência Loggi",
+        "type": "integer",
+        "description": "Código da agência da transportadora da loggi que receberá encomendas"
+      },
+      "hide": false
+    },
+    "buslog_agency": {
+      "schema": {
+        "title": "Agência Buslog",
+        "type": "integer",
+        "description": "Código da agência da transportadora da buslog que receberá encomendas"
+      },
+      "hide": false
+    },
+    "azul_agency": {
+      "schema": {
+        "title": "Agência Azul",
+        "type": "integer",
+        "description": "Código da agência da transportadora da azul (apenas possível envios não comerciais)"
+      },
+      "hide": false
+    },
+    "melhor_agency": {
+      "schema": {
+        "title": "Agência Melhor envio",
+        "type": "integer",
+        "description": "Código da agência do Melhor envio"
+      },
+      "hide": false
+    },
     "sort_services": {
       "schema": {
         "title": "Ordem dos serviços",
@@ -271,6 +303,26 @@
         }
       },
       "hide": true
+    },
+    "sender_info": {
+      "schema": {
+        "title": "Informações do remetente",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "doc_number": {
+            "type": "string",
+            "title": "CPF / CNPJ de envio",
+            "description": "Apenas números. Caso emita nota fiscal, alguns envios podem ser bloqueados se não tiver cnpj."
+          },
+          "doc_number_type": {
+            "type": "string",
+            "title": "CNAE",
+            "description": "Caso utilize Latam Cargo é obrigatório"
+          }
+        }
+      },
+      "hide": false
     },
     "access_token": {
       "schema": {
