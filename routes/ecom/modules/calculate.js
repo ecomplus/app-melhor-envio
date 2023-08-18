@@ -232,7 +232,7 @@ module.exports = appSdk => {
                 }
               }
 
-              // search for discount by shipping rule
+              // search for discount or fixed value by shipping rule
               if (Array.isArray(shippingRules)) {
                 for (let i = 0; i < shippingRules.length; i++) {
                   const rule = shippingRules[i]
@@ -258,6 +258,8 @@ module.exports = appSdk => {
                         shippingLine.total_price = 0
                       }
                       break
+                    } else if (rule.fixed) {
+                      shippingLine.total_price = rule.fixed
                     }
                   }
                 }
