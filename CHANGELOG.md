@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.6.3...v1.7.0) (2023-08-23)
+
+
+### Features
+
+* **calculate-shipping:** add fixed value option on rules config ([#62](https://github.com/ecomclub/app-melhor-envio/issues/62)) ([867abdf](https://github.com/ecomclub/app-melhor-envio/commit/867abdfe4f8bfc9f6eb2a3dea979751119fa330f))
+
 ### [1.6.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.6.2...v1.6.3) (2023-06-20)
 
 
