@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.7.0...v1.7.1) (2023-12-04)
+
+
+### Bug Fixes
+
+* **calculate:** check discount value to avoid free shipping in empty rule ([d0e9e47](https://github.com/ecomclub/app-melhor-envio/commit/d0e9e470f8ae67445df72ffae4e7ea0b47f0f709))
+
 ## [1.7.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.6.3...v1.7.0) (2023-08-23)
 
 
