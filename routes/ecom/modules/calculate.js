@@ -247,15 +247,17 @@ module.exports = appSdk => {
                       shippingLine.discount += shippingLine.total_price
                       shippingLine.total_price = 0
                       break
-                    } else if (rule.discount && rule.discount.value && rule.service_name) {
+                    } else if (rule.discount && rule.service_name) {
                       let discountValue = rule.discount.value
                       if (rule.discount.percentage) {
                         discountValue *= (shippingLine.total_price / 100)
                       }
-                      shippingLine.discount += discountValue
-                      shippingLine.total_price -= discountValue
-                      if (shippingLine.total_price < 0) {
-                        shippingLine.total_price = 0
+                      if (discountValue) {
+                        shippingLine.discount += discountValue
+                        shippingLine.total_price -= discountValue
+                        if (shippingLine.total_price < 0) {
+                          shippingLine.total_price = 0
+                        }
                       }
                       break
                     } else if (rule.fixed) {
