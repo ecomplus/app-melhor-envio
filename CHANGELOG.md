@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.7.2...v1.7.3) (2024-02-15)
+
+
+### Bug Fixes
+
+* **new-label:** add final price if has in label ([28913fd](https://github.com/ecomclub/app-melhor-envio/commit/28913fd554d5c19b74e1b2c024e3bbde3b53c4d5))
+
 ### [1.7.2](https://github.com/ecomclub/app-melhor-envio/compare/v1.7.1...v1.7.2) (2023-12-04)
 
 ### [1.7.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.7.0...v1.7.1) (2023-12-04)
