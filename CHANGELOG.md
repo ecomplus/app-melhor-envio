@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.7.3...v1.8.0) (2024-02-19)
+
+
+### Features
+
+* **calculate:** add cubic weight calculation option ([1b62a1f](https://github.com/ecomclub/app-melhor-envio/commit/1b62a1f959563e966c8cc1fe2b63a5a1cb589444))
+
 ### [1.7.3](https://github.com/ecomclub/app-melhor-envio/compare/v1.7.2...v1.7.3) (2024-02-15)
 
 
