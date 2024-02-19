@@ -43,6 +43,15 @@
       },
       "hide": false
     },
+    "use_cubic_weight": {
+      "schema": {
+        "title": "Utilizar cotação cubagem",
+        "type": "boolean",
+        "description": "Indicado apenas para produtos grandes.",
+        "default": false
+      },
+      "hide": false
+    },
     "receipt": {
       "schema": {
         "title": "Aviso de Recebimento",
