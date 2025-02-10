@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.8.0...v1.9.0) (2025-02-10)
+
+
+### Features
+
+* handling warehouses on shipping calculation ([9da7ac3](https://github.com/ecomclub/app-melhor-envio/commit/9da7ac3628c798d322f99097724aba766276c045))
+
+
+### Bug Fixes
+
+* generating tags with order shipping line sender when set (for warehouses) ([276fa7b](https://github.com/ecomclub/app-melhor-envio/commit/276fa7b9227d621414952a7deaebbf37293765c6))
+
 ## [1.8.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.7.3...v1.8.0) (2024-02-19)
 
 
