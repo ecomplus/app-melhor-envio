@@ -3,7 +3,7 @@
   "title": "Melhor Envio",
   "slug": "melhor-envio",
   "paid": false,
-  "version": "1.9.0",
+  "version": "1.9.1",
   "type": "external",
   "github_repository": "https://github.com/ecomclub/app-melhor-envio",
   "admin_settings": {
