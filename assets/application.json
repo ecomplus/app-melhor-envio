@@ -3,7 +3,7 @@
   "title": "Melhor Envio",
   "slug": "melhor-envio",
   "paid": false,
-  "version": "1.5.7",
+  "version": "1.8.0",
   "type": "external",
   "github_repository": "https://github.com/ecomclub/app-melhor-envio",
   "admin_settings": {
@@ -371,7 +371,7 @@
               "type": "string",
               "maxLength": 255,
               "title": "Documento da filial",
-              "description": "CNPJ da filial associado à sua conta Kangu"
+              "description": "CNPJ da filial associado à sua conta"
             },
             "zip": {
               "type": "string",
