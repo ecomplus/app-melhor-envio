@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.9.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.9.0...v1.9.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* also check `shippingLine.from.city` on new label ([d43147f](https://github.com/ecomclub/app-melhor-envio/commit/d43147f3e47cb641eb3218636adca873465382dc))
+
 ## [1.9.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.8.0...v1.9.0) (2025-02-10)
 
 
