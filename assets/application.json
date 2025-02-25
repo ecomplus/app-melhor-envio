@@ -74,7 +74,7 @@
       "schema": {
         "title": "Agência Jadlog",
         "type": "integer",
-        "description": "Código da agência da transportadora jadlog que fará a coleta das encomendas"
+        "description": "Código da agência da transportadora Jadlog que fará a coleta das encomendas"
       },
       "hide": false
     },
@@ -82,7 +82,7 @@
       "schema": {
         "title": "Agência Loggi",
         "type": "integer",
-        "description": "Código da agência da transportadora da loggi que receberá encomendas"
+        "description": "Código da agência da transportadora da Loggi que receberá encomendas"
       },
       "hide": false
     },
@@ -90,7 +90,7 @@
       "schema": {
         "title": "Agência Buslog",
         "type": "integer",
-        "description": "Código da agência da transportadora da buslog que receberá encomendas"
+        "description": "Código da agência da transportadora da Buslog que receberá encomendas"
       },
       "hide": false
     },
@@ -98,15 +98,15 @@
       "schema": {
         "title": "Agência Azul",
         "type": "integer",
-        "description": "Código da agência da transportadora da azul (apenas possível envios não comerciais)"
+        "description": "Código da agência da transportadora da Azul (apenas possível envios não comerciais)"
       },
       "hide": false
     },
     "melhor_agency": {
       "schema": {
-        "title": "Agência Melhor envio",
+        "title": "Agência Melhor Envio",
         "type": "integer",
-        "description": "Código da agência do Melhor envio"
+        "description": "Código da agência do Melhor Envio"
       },
       "hide": false
     },
@@ -487,6 +487,31 @@
                   "title": "CEP final"
                 }
               }
+            },
+            "jadlog_agency": {
+              "title": "Agência Jadlog",
+              "type": "integer",
+              "description": "Código da agência da transportadora Jadlog que fará a coleta das encomendas"
+            },
+            "loggi_agency": {
+              "title": "Agência Loggi",
+              "type": "integer",
+              "description": "Código da agência da transportadora da Loggi que receberá encomendas"
+            },
+            "buslog_agency": {
+              "title": "Agência Buslog",
+              "type": "integer",
+              "description": "Código da agência da transportadora da Buslog que receberá encomendas"
+            },
+            "azul_agency": {
+              "title": "Agência Azul",
+              "type": "integer",
+              "description": "Código da agência da transportadora da Azul (apenas possível envios não comerciais)"
+            },
+            "melhor_agency": {
+              "title": "Agência Melhor Envio",
+              "type": "integer",
+              "description": "Código da agência do Melhor Envio"
             }
           }
         }

@@ -107,6 +107,7 @@ module.exports = appSdk => {
       }
 
       let originZip, warehouseCode, postingDeadline
+      let warehouseConfig = {}
       let from = {
         zip: config.merchant_address.postal_code,
         street: config.merchant_address.address,
@@ -147,6 +148,7 @@ module.exports = appSdk => {
             }
             */
             warehouseCode = code
+            warehouseConfig = warehouse
           }
         }
       }
@@ -255,10 +257,11 @@ module.exports = appSdk => {
                 }
               }
 
-              if (config.jadlog_agency) {
+              const jadlogAgency = warehouseConfig.jadlog_agency || config.jadlog_agency
+              if (jadlogAgency) {
                 shippingLine.custom_fields.push({
                   field: 'jadlog_agency',
-                  value: String(config.jadlog_agency)
+                  value: String(jadlogAgency)
                 })
               }
 
