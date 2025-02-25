@@ -34,6 +34,21 @@
       },
       "hide": false
     },
+    "new_label_status": {
+      "schema": {
+        "type": "string",
+        "title": "Status para adição de etiqueta",
+        "description": "Status do pedido que gera adição automática de etiquetas ao carrinho do ME, se a opção estiver habilitada",
+        "enum": [
+          "NF emitida",
+          "Em produção",
+          "Em separação",
+          "Pronto para envio"
+        ],
+        "default": "Pronto para envio"
+      },
+      "hide": false
+    },
     "disable_tracking": {
       "schema": {
         "title": "Desabilitar rastreamento",
