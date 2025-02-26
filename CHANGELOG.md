@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.9.1...v1.10.0) (2025-02-26)
+
+
+### Features
+
+* config option to customize order fulfillment status checked for new labels ([5858c55](https://github.com/ecomclub/app-melhor-envio/commit/5858c55bc42693922053b5b39b68918b49f98360))
+* option to config all sender info and replace ME user fields ([4a13e83](https://github.com/ecomclub/app-melhor-envio/commit/4a13e83313fa7796514a0ec786e55383f8de31f0))
+* supporting custom agency codes for each warehouse ([53632fe](https://github.com/ecomclub/app-melhor-envio/commit/53632fe8aed1533725379cab6fc7baa33ba29071))
+
 ### [1.9.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.9.0...v1.9.1) (2025-02-17)
 
 
