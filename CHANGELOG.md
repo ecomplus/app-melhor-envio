@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.10.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.10.0...v1.10.1) (2025-02-26)
+
+
+### Bug Fixes
+
+* properly parsing sender doc numbers on new label ([31287bf](https://github.com/ecomclub/app-melhor-envio/commit/31287bfb104f2c9a2d31b2ef26a601058800b56c))
+
 ## [1.10.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.9.1...v1.10.0) (2025-02-26)
 
 
