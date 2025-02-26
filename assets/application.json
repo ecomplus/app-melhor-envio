@@ -263,7 +263,7 @@
       "schema": {
         "type": "array",
         "title": "Desativar serviços",
-        "description": "É possível desabilitar determinados serviços de envio para determinadas faixas de cep ou para todo o Brasil.",
+        "description": "É possível desabilitar determinados serviços de envio para determinadas faixas de CEP ou para todo o Brasil.",
         "uniqueItems": true,
         "items": {
           "type": "object",
@@ -306,7 +306,7 @@
     "services": {
       "schema": {
         "title": "Rótulo dos Serviços",
-        "description": "Para alterar o nome de exibição de algum serviço basta infomar o código do serviço e um novo rótulo de exibição. ",
+        "description": "Para alterar o nome de exibição de algum serviço basta infomar o código do serviço e um novo rótulo de exibição.",
         "type": "array",
         "maxItems": 6,
         "items": {
@@ -337,18 +337,31 @@
     "sender_info": {
       "schema": {
         "title": "Informações do remetente",
+        "description": "Campos opcionais para substituir as informações cadastradas no Melhor Envio, utilizadas por padrão.",
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "doc_number": {
             "type": "string",
-            "title": "CPF / CNPJ de envio",
-            "description": "Apenas números. Caso emita nota fiscal, alguns envios podem ser bloqueados se não tiver cnpj."
+            "title": "CPF / CNPJ",
+            "description": "Alguns envios com nota fiscal podem ser bloqueados se não tiver CNPJ"
           },
           "doc_number_type": {
             "type": "string",
             "title": "CNAE",
-            "description": "Caso utilize Latam Cargo é obrigatório"
+            "description": "Obrigatório apenas para Latam Cargo"
+          },
+          "name": {
+            "type": "string",
+            "title": "Nome completo / Razão social"
+          },
+          "email": {
+            "type": "string",
+            "title": "E-mail de contato"
+          },
+          "phone": {
+            "type": "string",
+            "title": "Telefone"
           }
         }
       },
@@ -358,7 +371,7 @@
       "schema": {
         "title": "Melhor Envio Token",
         "type": "string",
-        "description": "Token vinculado a sua conta no melhor envio."
+        "description": "Token vinculado a sua conta no Melhor Envio"
       },
       "hide": true
     },
