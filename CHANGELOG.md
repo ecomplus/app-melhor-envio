@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.11.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.10.1...v1.11.0) (2025-03-19)
+
+
+### Features
+
+* new option to prefix shipping line labels with "ME " ([9c1f256](https://github.com/ecomclub/app-melhor-envio/commit/9c1f2567f860c4c5cd3481a74969a3e6faa32b6e))
+
+
+### Bug Fixes
+
+* add latam cargo agency inputs on admin settings ([9ccf498](https://github.com/ecomclub/app-melhor-envio/commit/9ccf498e6a7e81a2eb7aab3cc02486783e7cd008))
+
 ### [1.10.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.10.0...v1.10.1) (2025-02-26)
 
 
