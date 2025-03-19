@@ -147,6 +147,15 @@
       },
       "hide": false
     },
+    "prefix_labels": {
+      "schema": {
+        "title": "Rótulos de serviço \"ME\"",
+        "type": "boolean",
+        "default": false,
+        "description": "Exibir e salvar formas de envio com prefixo \"ME\""
+      },
+      "hide": false
+    },
     "posting_deadline": {
       "schema": {
         "title": "Prazo de postagem",
@@ -313,7 +322,7 @@
     },
     "services": {
       "schema": {
-        "title": "Rótulo dos Serviços",
+        "title": "Rótulo dos serviços",
         "description": "Para alterar o nome de exibição de algum serviço basta infomar o código do serviço e um novo rótulo de exibição.",
         "type": "array",
         "maxItems": 6,

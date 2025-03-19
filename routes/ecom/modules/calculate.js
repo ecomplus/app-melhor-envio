@@ -319,7 +319,9 @@ module.exports = appSdk => {
                 }
               }
 
-              let label = service.name
+              let label = config.prefix_labels === true
+                ? `ME ${service.name}`
+                : service.name
               if (config.services && Array.isArray(config.services) && config.services.length) {
                 const service = config.services.find(service => {
                   return service && matchService(service, label)
