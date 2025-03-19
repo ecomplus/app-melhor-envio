@@ -117,6 +117,14 @@
       },
       "hide": false
     },
+    "latam_agency": {
+      "schema": {
+        "title": "Agência LATAM Cargo",
+        "type": "integer",
+        "description": "Código da agência da transportadora da LATAM Cargo"
+      },
+      "hide": false
+    },
     "melhor_agency": {
       "schema": {
         "title": "Agência Melhor Envio",
@@ -535,6 +543,11 @@
               "title": "Agência Azul",
               "type": "integer",
               "description": "Código da agência da transportadora da Azul (apenas possível envios não comerciais)"
+            },
+            "latam_agency": {
+              "title": "Agência LATAM Cargo",
+              "type": "integer",
+              "description": "Código da agência da transportadora da LATAM Cargo"
             },
             "melhor_agency": {
               "title": "Agência Melhor Envio",
