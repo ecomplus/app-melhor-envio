@@ -137,13 +137,21 @@
       "schema": {
         "title": "Ordem dos serviços",
         "type": "string",
-        "description": "Ordem em que os serviços de envio serão listados.",
+        "description": "Ordem em que os serviços de envio serão listados",
         "enum": [
           "Maior preço",
           "Menor preço",
           "Maior prazo de entrega",
           "Melhor prazo de entrega"
         ]
+      },
+      "hide": false
+    },
+    "max_services": {
+      "schema": {
+        "title": "Máximo de serviços",
+        "type": "integer",
+        "description": "Número máxido de serviços de envio listados"
       },
       "hide": false
     },

@@ -348,6 +348,9 @@ module.exports = appSdk => {
           if (config.sort_services && Array.isArray(response.shipping_services) && response.shipping_services.length) {
             response.shipping_services.sort(sortServicesBy(config.sort_services))
           }
+          if (config.max_services > 0) {
+            response.shipping_services = response.shipping_services.slice(0, config.max_services)
+          }
 
           return (!Array.isArray(response.shipping_services) || !response.shipping_services.length) &&
             errorMsg
