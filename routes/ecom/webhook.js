@@ -33,7 +33,6 @@ module.exports = appSdk => {
     if (processingIds.includes(resourceId)) {
       return res.status(503).send('Current ID is already being processed')
     }
-    const idIndex = processingIds.push(resourceId) - 1
     logger.log(`Webhook #${storeId} ${resourceId}`)
 
     // check already created labels
@@ -190,7 +189,7 @@ module.exports = appSdk => {
           // request to Store API with error response
           // return error status code
           res.status(500)
-          let { message } = err
+          const { message } = err
           res.send({
             error: ECHO_API_ERROR,
             message
@@ -199,7 +198,14 @@ module.exports = appSdk => {
       })
 
       .finally(() => {
-        processingIds.splice(idIndex, 1)
+        let i = 0
+        while (i < processingIds.length) {
+          if (processingIds[i] === resourceId) {
+            processingIds.splice(i, 1)
+          } else {
+            i++
+          }
+        }
       })
   }
 }
