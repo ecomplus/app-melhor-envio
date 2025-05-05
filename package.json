@@ -1,7 +1,7 @@
 {
   "name": "app-melhor-envio",
   "private": true,
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "Integração e-com.plus e melhor envio",
   "main": "index.js",
   "scripts": {

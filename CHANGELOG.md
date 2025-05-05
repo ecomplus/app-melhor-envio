@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.12.1](https://github.com/ecomclub/app-melhor-envio/compare/v1.12.0...v1.12.1) (2025-05-05)
+
+
+### Bug Fixes
+
+* properly handling processing ids on ecom webhooks ([4cb9fd5](https://github.com/ecomclub/app-melhor-envio/commit/4cb9fd55a11a6e0a259456273b698cfb905c4f99))
+
 ## [1.12.0](https://github.com/ecomclub/app-melhor-envio/compare/v1.11.0...v1.12.0) (2025-04-16)
 
 
