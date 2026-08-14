@@ -168,8 +168,11 @@ module.exports = appSdk => {
                 value: JSON.stringify(data).substring(0, 255)
               })
               if (
-                data.error === 'Os documentos (CPFs) dos participantes do frete não podem ser iguais' ||
-                data.error.startsWith('Seu saldo de R$ ')
+                typeof data.error === 'string' &&
+                (
+                  data.error === 'Os documentos (CPFs) dos participantes do frete não podem ser iguais' ||
+                  data.error.startsWith('Seu saldo de R$ ')
+                )
               ) {
                 // ignoring known ME/merchant errors
                 return res.send(`ME: ${data.error}`)
