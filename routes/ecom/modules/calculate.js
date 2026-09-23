@@ -400,7 +400,12 @@ module.exports = appSdk => {
                 storeId,
                 status,
                 data,
-                config
+                // omit request headers to not log merchant access token
+                request: config && {
+                  url: config.url,
+                  method: config.method,
+                  data: config.data
+                }
               }, null, 4))
             }
           } else {

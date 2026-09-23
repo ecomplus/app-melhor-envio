@@ -183,7 +183,12 @@ module.exports = appSdk => {
               storeId,
               data,
               status: err.response.status,
-              config: err.response.config
+              // omit request headers to not log merchant access token
+              request: {
+                url: err.response.config.url,
+                method: err.response.config.method,
+                data: err.response.config.data
+              }
             }, null, 4))
           } else {
             errorHandling(err)
