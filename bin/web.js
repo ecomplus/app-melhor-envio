@@ -54,6 +54,12 @@ ecomAuth.then(appSdk => {
     router.post(filename, require(`${routes}${filename}`)(appSdk))
   })
 
+  // Melhor Envio OAuth flow (admin requests /melhor-envio/authorize, returns on /melhor-envio/callback)
+  const authorize = require(`${routes}/melhor-envio/authorize`)()
+  router.options('/melhor-envio/authorize', authorize)
+  router.post('/melhor-envio/authorize', authorize)
+  router.get('/melhor-envio/callback', require(`${routes}/melhor-envio/callback`)(appSdk))
+
   // add router and start web server
   app.use(router)
   app.listen(port)
