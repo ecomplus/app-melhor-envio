@@ -29,6 +29,9 @@ ecomAuth.then(appSdk => {
 
   // tracking code
   require('./../lib/melhor-envio/tracking-codes')(appSdk)
+
+  // renew Melhor Envio OAuth tokens before expiration
+  require('./../lib/melhor-envio/refresh-tokens')(appSdk)
 })
 
 ecomAuth.catch(err => {

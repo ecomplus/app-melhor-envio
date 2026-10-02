@@ -2,6 +2,7 @@
 const logger = require('console-files')
 const { newShipment, matchService, sortServicesBy } = require('../../../lib/melhor-envio/new-shipment')
 const meClient = require('../../../lib/melhor-envio/client')
+const { isAppToken, getAllServices } = require('../../../lib/melhor-envio/services')
 const errorHandling = require('../../../lib/store-api/error-handling')
 
 module.exports = appSdk => {
@@ -169,6 +170,18 @@ module.exports = appSdk => {
         })
       }
 
+      if (isAppToken(token)) {
+        // OAuth app token quotes only a default service unless all services are requested
+        try {
+          const services = await getAllServices(token, sandbox)
+          if (services) {
+            schema.services = services
+          }
+        } catch (err) {
+          logger.error('ME_LIST_SERVICES_ERR', err.response ? err.response.status : err.message)
+        }
+      }
+
       // calculate the shipment
       return meClient({
         url: '/shipment/calculate',
@@ -179,6 +192,10 @@ module.exports = appSdk => {
       })
 
         .then(({ data }) => {
+          if (!Array.isArray(data)) {
+            // single service quoted is returned as object
+            data = [data]
+          }
           let errorMsg
           data.forEach(service => {
             let isAvailable = true
@@ -400,7 +417,12 @@ module.exports = appSdk => {
                 storeId,
                 status,
                 data,
-                config
+                // omit request headers to not log merchant access token
+                request: config && {
+                  url: config.url,
+                  method: config.method,
+                  data: config.data
+                }
               }, null, 4))
             }
           } else {
