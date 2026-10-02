@@ -11,7 +11,10 @@ const { isStoreAdmin, authorizeUrl } = require('../../lib/melhor-envio/oauth')
 const ALLOWED_ORIGINS = [
   'https://admin.e-com.plus',
   'https://app.e-com.plus'
-]
+].concat(
+  // extra origins for testing, eg.: ME_ADMIN_ORIGINS=http://localhost:9016
+  (process.env.ME_ADMIN_ORIGINS || '').split(',').map(origin => origin.trim()).filter(Boolean)
+)
 
 const setCors = (req, res) => {
   const origin = req.get('origin')
